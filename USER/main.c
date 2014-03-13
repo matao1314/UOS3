@@ -6,14 +6,14 @@
 #include "bsp.h"
 
 #include "led.h"
-
+#include "lcd.h"
+#include <stdio.h>
 static OS_TCB taskStartTCB;
 static CPU_STK taskStartStk[STARTUP_TASK_STK_SIZE]; 		//启动任务的程序空间
 
 static OS_TCB task1TCB;
 static CPU_STK task1_stk[TASK1_STK_SIZE];
 static volatile OS_SEM taskSem;
-
 
 static void Task1(void *p_arg)
 {
@@ -23,13 +23,14 @@ static void Task1(void *p_arg)
     {
         LED0=1;
 				 LED1=1;
+				 printf("Task1 Runing\r\n");
+				 LCD_Clear(RED);
         OSTimeDly(  (OS_TICK    )200, 
                     (OS_OPT     )OS_OPT_TIME_DLY, 
-                    (OS_ERR     *)&err);
-        
-LED0=0;
-LED1=0;
-
+                    (OS_ERR     *)&err);        
+				LED0=0;
+				LED1=0;
+				 LCD_Clear(GREEN);
         OSTimeDly(  (OS_TICK    )200, 
                     (OS_OPT     )OS_OPT_TIME_DLY, 
                     (OS_ERR     *)&err);
@@ -44,12 +45,8 @@ LED1=0;
 static void TaskStart(void)
 {
     OS_ERR 		err;
-    
-    led_init();
     SysTickInit();
-    
- //LED_Init();
-    
+    led_init();    
     OSTaskCreate(   (OS_TCB     *)&task1TCB,
                     (CPU_CHAR   *)"Task1",
                     (OS_TASK_PTR)Task1,
@@ -64,7 +61,7 @@ static void TaskStart(void)
                     (OS_OPT     )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), 
                     (OS_ERR     *)&err);
     
-    
+		   
     OSSemCreate(    (OS_SEM     *)&taskSem, 
                     (CPU_CHAR   *)"taskSem", 
                     (OS_SEM_CTR )0, 
@@ -102,7 +99,7 @@ void KernelMain(void)
 
 
 int main()
-{
+{	 	
 	BspInit();
   KernelMain();
 	

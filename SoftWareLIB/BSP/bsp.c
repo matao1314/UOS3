@@ -1,33 +1,10 @@
-/*
-********************************************************************************
-*                                  uC/OS-III
-*							
-*                              ARM Cortex-M3 Port
-*
-* File      	: Config.C
-* Version   	: V1.0
-* By        	: 王宏强
-*
-* For       	: Stm32f10x
-* Mode      	: Thumb2
-* Toolchain 	: 
-*             		RealView Microcontroller Development Kit (MDK)
-*             		Keil uVision
-* Description   : STM32F10x 内部 系统的配置
-*
-*					1，系统中断优先级模式设置
-*					2，系统程序启动指定
-*					3，系统时钟计时器配置
-*					4，芯片引脚初始化
-*					
-* Date          : 2012.05.22
-*******************************************************************************/
-
 #include "misc.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
 #include "stm32f10x_iwdg.h"
 #include "bsp.h"
+#include "lcd.h"
+#include "usart.h"
 
 
 GPIO_InitTypeDef GPIO_InitStructure;
@@ -41,11 +18,6 @@ GPIO_InitTypeDef GPIO_InitStructure;
 *******************************************************************************/
 void GPIO_Configuration(void)
 {
-#ifdef USE_STM3210B_EVAL
-	/* Enable the USART2 Pins Software Remapping */
-	GPIO_PinRemapConfig(GPIO_Remap_USART2, ENABLE);
-#endif
-
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
                      RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
                      RCC_APB2Periph_GPIOE, ENABLE);
@@ -163,8 +135,9 @@ void BspInit(void)
 {
 	NVIC_Configuration();	//中断优先级设置
 	GPIO_Configuration();	//端口初始化，所有端口关
+  LCD_Init();    
+ uart_init(72,9600);
 }
-
 
 void JTAG_Set(u8 mode)
 {
@@ -180,7 +153,7 @@ void led_init(void)
 {
  GPIO_InitTypeDef  GPIO_InitStructure; 	
  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	 //使能端口时钟
-	JTAG_Set(1);  	 
+ JTAG_Set(1);  	 
 	
  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3|GPIO_Pin_4;	
  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 //推挽输出
@@ -189,12 +162,12 @@ void led_init(void)
  GPIO_SetBits(GPIOB, GPIO_Pin_3|GPIO_Pin_4 );//Off all led		 	 
 }
 
-
-
 void led_on(CPU_INT32U n)
 {
 		GPIO_SetBits(GPIOB, GPIO_Pin_3);
 }
+
+
 void led_off(CPU_INT32U n)
 {
 		GPIO_ResetBits(GPIOB, GPIO_Pin_3);
