@@ -2,8 +2,7 @@
 #include "stdlib.h"
 #include "font.h" 
 #include "usart.h"	 
-#include "delay.h"	 
-  
+#include "delay.h"	   
 //////////////////////////////////////////////////////////////////////////////////	 
 				 
 //LCD的画笔颜色和背景色	   
@@ -233,11 +232,11 @@ void LCD_Init(void)
 { 										  
   LCD_GPIO_Config();
 	LCD_FSMC_Config();										  			 
- 	//delay_ms(50); // delay_ms 50 ms 
+ 	delay_ms(50); // delay_ms 50 ms 
  	LCD_WriteReg(0x0000,0x0001);
-	//delay_ms(50); // delay_ms 50 ms 
+	delay_ms(50); // delay_ms 50 ms 
   lcddev.id = LCD_ReadReg(0x0000);   
-// 	printf("LCD ID:%x\r\n",lcddev.id); //打印LCD ID  0x8989  
+ 	printf("LCD ID:%x\r\n",lcddev.id); //打印LCD ID  0x8989  
 	//************* Start Initial Sequence **********//
 	LCD_WriteReg(0x00, 0x0001); // Start internal OSC.
 	LCD_WriteReg(0x01, 0x3B3F); // Driver output control, RL=0;REV=1;GD=1;BGR=0;SM=0;TB=1
@@ -273,7 +272,7 @@ void LCD_Init(void)
 	LCD_WriteReg(0x2E, 0x7E45); // VCOM charge sharing time  
 	//************* Turn On display ******************/
 	LCD_WriteReg(0x10, 0x0000); // Sleep mode off.
-	//delay_ms(15); // Wait 30mS
+	delay_ms(15); // Wait 30mS
 	LCD_WriteReg(0x11, 0x6878); // Entry mode setup. 262K type B, take care on the data bus with 16it only
 	LCD_WriteReg(0x07, 0x0033); // Display ON	*/
 

@@ -38,7 +38,7 @@ void sd_fs_init(void)
     /* SD卡中断初始化 */
 		SDIO_NVIC_Configuration();		
 		/* SD 卡硬件初始化，初始化盘符为0 */	 
-    disk_initialize( 0 );	         
+   // disk_initialize( 0 );	         
 }
 
 void Sd_fs_test(void)
@@ -46,7 +46,7 @@ void Sd_fs_test(void)
     int count=0;
 		    
     SDIO_NVIC_Configuration();
-    disk_initialize( 0 );	     /* SD 卡硬件初始化 */
+   // disk_initialize( 0 );	     /* SD 卡硬件初始化 */
 
     f_mount(0, &myfs[0]);
     myres = f_open( &myfsrc , "0:/my__Demo.TXT" ,/* FA_CREATE_NEW |*/ FA_WRITE);

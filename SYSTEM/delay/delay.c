@@ -1,13 +1,6 @@
 #include "delay.h"
 #include "sys.h"
 #include "os.h" 
-
-////////////////////////////////////////////////////////////////////////////////// 	 
-//如果使用ucos,则包括下面的头文件即可.
-//V1.2修改说明
-//修正了中断中调用出现死循环的错误
-//防止延时不准确,采用do while结构!
-
 //V1.3修改说明
 //增加了对UCOSII延时的支持.
 //如果使用ucosII,delay_init会自动设置SYSTICK的值,使之与ucos的TICKS_PER_SEC对应.
@@ -25,7 +18,6 @@
 static u8  fac_us=0;//us延时倍乘数			   
 static u16 fac_ms=0;//ms延时倍乘数,在ucos下,代表每个节拍的ms数
 
-#ifdef OS_CRITICAL_METHOD 	//如果OS_CRITICAL_METHOD定义了,说明使用ucosII了.
 //systick中断服务函数,使用ucos时用到
 void SysTick_Handler(void)
 {				   
@@ -33,7 +25,6 @@ void SysTick_Handler(void)
   OSTimeTick();       //调用ucos的时钟服务程序               
   OSIntExit();        //触发任务切换软中断
 }
-#endif
 			   
 //初始化延迟函数
 //当使用ucos的时候,此函数会初始化ucos的时钟节拍
@@ -41,7 +32,7 @@ void SysTick_Handler(void)
 //SYSCLK:系统时钟
 void delay_init(u8 SYSCLK)
 {
-#if 0
+#if 1
 //#ifdef OS_CRITICAL_METHOD 	//如果OS_CRITICAL_METHOD定义了,说明使用ucosII了.
 	u32 reload;
 //#endif
@@ -50,30 +41,26 @@ void delay_init(u8 SYSCLK)
 	    
 //#ifdef OS_CRITICAL_METHOD 	//如果OS_CRITICAL_METHOD定义了,说明使用ucosII了.
 	reload=SYSCLK/8;		//每秒钟的计数次数 单位为K	   
-	//reload*=1000000/OS_TICKS_PER_SEC;//根据OS_TICKS_PER_SEC设定溢出时间
+	reload*=1000000/200;//根据OS_TICKS_PER_SEC设定溢出时间
 							//reload为24位寄存器,最大值:16777216,在72M下,约合1.86s左右	
-	//fac_ms=1000/OS_TICKS_PER_SEC;//代表ucos可以延时的最少单位	   
+	fac_ms=1000/200;//代表ucos可以延时的最少单位	   
 	SysTick->CTRL|=1<<1;   	//开启SYSTICK中断
 	SysTick->LOAD=reload; 	//每1/OS_TICKS_PER_SEC秒中断一次	
 	SysTick->CTRL|=1<<0;   	//开启SYSTICK    
-//#else
-//	fac_ms=(u16)fac_us*1000;//非ucos下,代表每个ms需要的systick时钟数   
 #endif
 }								    
-
-//#ifdef OS_CRITICAL_METHOD 	//如果OS_CRITICAL_METHOD定义了,说明使用ucosII了.
 //延时nus
 //nus为要延时的us数.		    								   
 void delay_us(u32 nus)
-{    OS_ERR err;	
-
-#if 0		
+{
+#if 0	
+  OS_ERR 		d_err;//OS ERR
 	u32 ticks;
 	u32 told,tnow,tcnt=0;
 	u32 reload=SysTick->LOAD;	//LOAD的值	    	 
 	ticks=nus*fac_us; 			//需要的节拍数	  		 
 	tcnt=0;
-//	OSSchedLock();				//阻止ucos调度，防止打断us延时
+	OSSchedLock((OS_ERR*)&d_err);				//阻止ucos调度，防止打断us延时
 	told=SysTick->VAL;        	//刚进入时的计数器值
 	while(1)
 	{
@@ -85,17 +72,37 @@ void delay_us(u32 nus)
 			told=tnow;
 			if(tcnt>=ticks)break;//时间超过/等于要延迟的时间,则退出.
 		}  
+	};
+	OSSchedUnlock((OS_ERR*)&d_err);			//开启ucos调度
+	
+	 	
+#else	
+	u32 temp;	
+	OS_ERR 		err;//OS ERR
+    	 
+	SysTick->LOAD=nus*fac_us; //时间加载	  		 
+	SysTick->VAL=0x00;        //清空计数器
+	SysTick->CTRL=0x01 ;      //开始倒数 	 
+	OSSchedLock((OS_ERR*)&err);				//阻止ucos调度，防止打断us延时
+
+	do
+	{
+		temp=SysTick->CTRL;
 	}
-	#endif
-//	OSSchedUnlock();			//开启ucos调度 									    
+	while(temp&0x01&&!(temp&(1<<16)));//等待时间到达   
+	SysTick->CTRL=0x00;       //关闭计数器
+	SysTick->VAL =0X00;       //清空计数器
+		OSSchedUnlock((OS_ERR*)&err);			//开启ucos调度
+	 
+#endif								    
 }
 //延时nms
 //nms:要延时的ms数
 void delay_ms(u16 nms)
 {
-#if 0
+#if 1
     OS_ERR err;	
-//	if(OSRunning==TRUE)//如果os已经在跑了	    
+	if(OSRunning==1)//如果os已经在跑了	    
 	{		  
 		if(nms>=fac_ms)//延时的时间大于ucos的最少时间周期 
 		{

@@ -3,7 +3,6 @@
 #include "delay.h"
 #include "usart.h"	 
 #include "common.h"
-#include "touch.h"
 //////////////////////////////////////////////////////////////////////////////////	 
 u16 SPI_FLASH_TYPE=FLASH_ID;//默认就是25Q64
 ////////////////////////////////////////////////////////////////////////////////// 	  
@@ -37,14 +36,13 @@ void SPI_Flash_Init(void)
 u8 SPI_Flash_ReadSR(void)   
 {  
 	u8 byte=0;   
-	CS_Seclect(CS_SPI_FLASH);//使能器件   
+  SPI_FLASH_CS=0;//使能器件   
 	SPI1_ReadWriteByte(READ_STATE_REGISTER);//发送读取状态寄存器命令
   SPI1_ReadWriteByte(0X00); 
 	SPI1_ReadWriteByte(0X00); 
 	SPI1_ReadWriteByte(0X00);     
 	byte=SPI1_ReadWriteByte(0Xff);      //读取一个字节  
 	SPI_FLASH_CS=1;                     //取消片选
-	TCS=0;     
 	return byte;   
 } 
 //读取芯片ID AT45DB161 的ID:0X1F26
@@ -52,7 +50,7 @@ u16 SPI_Flash_ReadID(void)
 {
 	u16 Temp = 0;
   SPI_Flash_Wait_Busy();//判断是否为忙 
-	CS_Seclect(CS_SPI_FLASH);//使能器件   
+  SPI_FLASH_CS=0;//使能器件   
 	SPI1_ReadWriteByte(0x9F);//发送读取ID命令	    
 	Temp|=SPI1_ReadWriteByte(Dummy_Byte)<<8;  
 	Temp|=SPI1_ReadWriteByte(Dummy_Byte);
@@ -71,7 +69,7 @@ void SPI_Flash_Wait_Busy(void)
 void DF_mm_to_buf(u8 buffer,unsigned int page)
 {	  
   SPI_Flash_Wait_Busy();//判断是否为忙 
-	CS_Seclect(CS_SPI_FLASH);//使能器件   
+  SPI_FLASH_CS=0;//使能器件   
 	if(buffer==1)   SPI1_ReadWriteByte(MM_PAGE_TO_B1_XFER);	  
 	else            SPI1_ReadWriteByte(MM_PAGE_TO_B2_XFER);  
 	SPI1_ReadWriteByte((u8)(page >> 6));
@@ -85,7 +83,7 @@ void DF_buf_to_mm(u8 buffer,u16 page)
   SPI_Flash_Wait_Busy();//判断是否为忙 
 	if(page<SPI_FLASH_PageNum)
 	{
-   	CS_Seclect(CS_SPI_FLASH);//使能器件   
+   	SPI_FLASH_CS=0;//使能器件   
 		if(buffer==1)    SPI1_ReadWriteByte(B1_TO_MM_PAGE_PROG_WITH_ERASE); 
 		else             SPI1_ReadWriteByte(B2_TO_MM_PAGE_PROG_WITH_ERASE);	 
 		SPI1_ReadWriteByte((u8)(page>>6));
@@ -104,7 +102,7 @@ void SPI_Flash_Write(u8 *pBuffer,u32 WriteAddr,u16 NumByteToWrite)
 	offaddr=WriteAddr%SPI_FLASH_PageSize;//得到在首页地址里的偏移
 	DF_mm_to_buf(1,paddr);//将开始页数据读出到buf1			  
   SPI_Flash_Wait_Busy();//判断是否为忙 
-	CS_Seclect(CS_SPI_FLASH);//使能器件   
+  SPI_FLASH_CS=0;//使能器件   
 	SPI1_ReadWriteByte(BUFFER_1_WRITE);//写入1缓冲区命令	 		   
 	SPI1_ReadWriteByte(0x00);//14bit 无效数据+10bit地址数据 
 	SPI1_ReadWriteByte((u8)(offaddr>>8));//写入在该页的偏移地址   
@@ -122,7 +120,7 @@ void SPI_Flash_Write(u8 *pBuffer,u32 WriteAddr,u16 NumByteToWrite)
 			if(paddr>=SPI_FLASH_PageNum)return; //超出了AT45DB161的范围
 			DF_mm_to_buf(1,paddr); //将开始页数据读出到buf1			  
       SPI_Flash_Wait_Busy();//判断是否为忙 
-			CS_Seclect(CS_SPI_FLASH);//使能器件   
+      SPI_FLASH_CS=0;//使能器件   
 			SPI1_ReadWriteByte(BUFFER_1_WRITE);//写入1缓冲区命令	 	 		   
 			SPI1_ReadWriteByte(0x00);//14bit 无效数据+10bit地址数据 
 			SPI1_ReadWriteByte(0x00);//设置地址到0 
@@ -143,7 +141,7 @@ void SPI_Flash_Read(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead)
 	offaddr=ReadAddr%SPI_FLASH_PageSize;//得到在首页地址里的偏移
 	DF_mm_to_buf(1,paddr);//将开始页数据读出到buf1			  
   SPI_Flash_Wait_Busy();//判断是否为忙 
-	CS_Seclect(CS_SPI_FLASH);//使能器件   
+  SPI_FLASH_CS=0;//使能器件   
 	SPI1_ReadWriteByte(BUFFER_1_READ);//读1缓冲区命令	 		   
 	SPI1_ReadWriteByte(0x00);//14bit 无效数据+10bit地址数据 
 	SPI1_ReadWriteByte((u8)(offaddr>>8));//写入在该页的偏移地址   
@@ -161,7 +159,7 @@ void SPI_Flash_Read(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead)
 			if(paddr>=SPI_FLASH_PageNum)   return; //超出了AT45DB161的范围
 			DF_mm_to_buf(1,paddr); //将开始页数据读出到buf1			  
       SPI_Flash_Wait_Busy();//判断是否为忙 
-			CS_Seclect(CS_SPI_FLASH);//使能器件   
+      SPI_FLASH_CS=0;//使能器件   
 			SPI1_ReadWriteByte(BUFFER_1_READ);//读1缓冲区命令	 		   
 			SPI1_ReadWriteByte(0x00);//14bit 无效数据+10bit地址数据 
 			SPI1_ReadWriteByte(0x00);//设置地址到0 
@@ -169,13 +167,16 @@ void SPI_Flash_Read(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead)
 			SPI1_ReadWriteByte(0x00);//等待		    
 		}			   
 	}
-	SPI_FLASH_CS=1;	
+	SPI_FLASH_CS=1;
+		SPI1_SetSpeed(SPI_BaudRatePrescaler_256);//设置到高速模式
+	
+	
 } 
 //擦除指定的主存储器页（地址范围0-4095）
 void DF_page_earse(u16 page)
 {		  
   SPI_Flash_Wait_Busy();//判断是否为忙 
-	CS_Seclect(CS_SPI_FLASH);//使能器件   
+  SPI_FLASH_CS=0;//使能器件   
 	SPI1_ReadWriteByte(PAGE_ERASE);
 	SPI1_ReadWriteByte((u8)(page >> 6));
 	SPI1_ReadWriteByte((u8)(page << 2));

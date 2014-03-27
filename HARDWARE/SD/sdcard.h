@@ -4,7 +4,7 @@
 
 #include "stm32f10x.h"
 
-//typedef enum {FALSE = 0, TRUE = !FALSE} bool;
+typedef enum {FALSE = 0, TRUE = !FALSE} bool;
 
 /* Exported types ------------------------------------------------------------*/
 typedef enum
