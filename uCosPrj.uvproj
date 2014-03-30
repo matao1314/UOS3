@@ -114,7 +114,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>1</UseSimulator>
+            <UseSimulator>0</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -125,7 +125,7 @@
             <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
           </Simulator>
           <Target>
-            <UseTarget>0</UseTarget>
+            <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -135,7 +135,7 @@
             <RestoreToolbox>1</RestoreToolbox>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>5</TargetSelection>
+          <TargetSelection>7</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -345,7 +345,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD</IncludePath>
+              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD;.\HARDWARE\SD;.\FATFS\src;.\FATFS\exfuns;.\HARDWARE\SPI;.\HARDWARE\MALLOC;.\HARDWARE\TEXT;.\HARDWARE\FLASH</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -724,6 +724,85 @@
               <FileName>lcd.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\HARDWARE\LCD\lcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>sdcard.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\SD\sdcard.c</FilePath>
+            </File>
+            <File>
+              <FileName>sd_fs_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\SD\sd_fs_app.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\SPI\spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>vs10XX.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\VS10XX\vs10XX.c</FilePath>
+            </File>
+            <File>
+              <FileName>malloc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\MALLOC\malloc.c</FilePath>
+            </File>
+            <File>
+              <FileName>text.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\TEXT\text.c</FilePath>
+            </File>
+            <File>
+              <FileName>fontupd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\TEXT\fontupd.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\FLASH\flash.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>GUI</GroupName>
+        </Group>
+        <Group>
+          <GroupName>PICDECODE</GroupName>
+        </Group>
+        <Group>
+          <GroupName>APP</GroupName>
+        </Group>
+        <Group>
+          <GroupName>FATFS</GroupName>
+          <Files>
+            <File>
+              <FileName>exfuns.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FATFS\exfuns\exfuns.c</FilePath>
+            </File>
+            <File>
+              <FileName>fattester.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FATFS\exfuns\fattester.c</FilePath>
+            </File>
+            <File>
+              <FileName>mycc936.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FATFS\exfuns\mycc936.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FATFS\src\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FATFS\src\diskio.c</FilePath>
             </File>
           </Files>
         </Group>

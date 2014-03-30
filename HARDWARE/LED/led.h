@@ -3,7 +3,7 @@
 #include "sys.h"	 
 
 #define LED0 PBout(3)
-#define LED1 PBout(4)
+#define TSET PBout(4)
 
 void LED_Init(void);//≥ı ºªØ
 

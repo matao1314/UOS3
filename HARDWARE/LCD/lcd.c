@@ -236,7 +236,7 @@ void LCD_Init(void)
  	LCD_WriteReg(0x0000,0x0001);
 	delay_ms(50); // delay_ms 50 ms 
   lcddev.id = LCD_ReadReg(0x0000);   
- 	printf("LCD ID:%x\r\n",lcddev.id); //¥Ú”°LCD ID  0x8989  
+//	printf("LCD ID:%x\r\n",lcddev.id); //¥Ú”°LCD ID  0x8989  
 	//************* Start Initial Sequence **********//
 	LCD_WriteReg(0x00, 0x0001); // Start internal OSC.
 	LCD_WriteReg(0x01, 0x3B3F); // Driver output control, RL=0;REV=1;GD=1;BGR=0;SM=0;TB=1
