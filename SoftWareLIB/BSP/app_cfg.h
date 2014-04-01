@@ -116,20 +116,7 @@ void  BSP_Ser_Printf   (CPU_CHAR *format, ...);
 
 
 /* task priority */
-#define STARTUP_TASK_PRIO 4
-
-#define TASK1_PRIO 10
-#define TASK2_PRIO 13
-#define TASK3_PRIO 5
-
 
 /* task stack size */
-#define STARTUP_TASK_STK_SIZE 80
-#define TASK1_STK_SIZE 100
-#define TASK2_STK_SIZE 100
-#define TASK3_STK_SIZE 100
-
-
-
 
 #endif

@@ -1,11 +1,9 @@
-#include "misc.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_iwdg.h"
+#include "stm32f10x.h"
 #include "bsp.h"
 #include "lcd.h"
 #include "usart.h"
 #include "delay.h"	
+
 #include "common.h"//Common head file
 
 /*******************************************************************************
@@ -14,31 +12,47 @@
 ********************************************************************************/
 void IWDG_Init(void)
 {
-	IWDG_WriteAccessCmd( IWDG_WriteAccess_Enable );
-	IWDG_SetPrescaler( IWDG_Prescaler_64);//最小
-	IWDG_SetReload( 0x138);//40KHz内部时钟 (1/40000 * 64 * 0x138 = 0.5s)
-	IWDG_WriteAccessCmd( IWDG_WriteAccess_Disable );
-	IWDG_Enable();
-	IWDG_ReloadCounter();
+//	IWDG_WriteAccessCmd( IWDG_WriteAccess_Enable );
+//	IWDG_SetPrescaler( IWDG_Prescaler_64);//最小
+//	IWDG_SetReload( 0x138);//40KHz内部时钟 (1/40000 * 64 * 0x138 = 0.5s)
+//	IWDG_WriteAccessCmd( IWDG_WriteAccess_Disable );
+//	IWDG_Enable();
+//	IWDG_ReloadCounter();
 }
-
-/*******************************************************************************
-* Function Name :void SysTickInit(void)
-* Description   :系统定时器时间配置
-* Other         :时基为1ms
-*******************************************************************************/
-void SysTickInit(void)
+/*
+ * 函数名：SysTick_Init
+ * 描述  ：启动系统滴答定时器 SysTick
+ */
+void SysTick_Init(void)
 {
-	SysTick_Config(SystemCoreClock/1000);			//uCOS时基1ms
+	/* SystemFrequency / 1000    1ms中断一次
+	 * SystemFrequency / 100000	 10us中断一次
+	 * SystemFrequency / 1000000 1us中断一次
+	 */
+	if (SysTick_Config(SystemCoreClock/1000))	// ST3.5.0库版本
+	{ 
+		/* Capture error */ 
+		while (1);
+	}
+	//关闭滴答定时器  
+	SysTick->CTRL &= ~ SysTick_CTRL_ENABLE_Msk;
 }
 
 /*******************************************************************************
 * Function Name :void InterruptOrder(void)
 * Description   :中断向量，优先级
 *******************************************************************************/
-void NVIC_Configuration(void)
+void NVIC_Cfg(void)
 {
-	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);//优先级设置  全为抢占式优先级
+  #ifdef  VECT_TAB_RAM  
+  /* Set the Vector Table base location at 0x20000000 */ 
+    NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
+  #else  /* VECT_TAB_FLASH  */
+  /* Set the Vector Table base location at 0x08000000 */ 
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
+  #endif
+
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 }
 
 /*******************************************************************************
@@ -48,6 +62,7 @@ void NVIC_Configuration(void)
 #if (CPU_CFG_TS_TMR_EN == DEF_ENABLED)
 void  CPU_TS_TmrInit (void)
 {
+
 }
 #endif
 
@@ -66,24 +81,22 @@ CPU_TS_TMR  CPU_TS_TmrRd (void)
 /*******************************************************************************
 * Function Name :void SystemConfig(void)
 * Description   :系统初始化
-* Input         :
-* Output        :
-* Other         :
-* Date          :2011.10.27  13:14:59
 *******************************************************************************/
-void BspInit(void)
-{
-  //SysTickInit();
-	NVIC_Configuration();	//中断优先级设置
-  delay_init(72);
-  uart_init(72,9600);
+void BSP_Init(void)
+{	
+	SystemInit();//Clock72MHZ
+  SysTick_Init();
+	SysTick->CTRL |=  SysTick_CTRL_ENABLE_Msk;
+	NVIC_Cfg();	//中断优先级设置
+  //delay_init(72);
+  uart_init(72,115200);
 	LED_Init();
 }
 
 
 SD_CardInfo   SDCardInfo;        //SD卡信息
 SD_Error      SD_USER_Init(void);//SD卡初始化
-
+//SD Card Init
 SD_Error SD_USER_Init(void)
 {
 	SD_Error   Status = SD_OK;

@@ -1,18 +1,9 @@
 #include "delay.h"
-#include "sys.h"
-
 #include "os.h" 
-
 static u8  fac_us=0;//us延时倍乘数			   
 //static u16 fac_ms=0;//ms延时倍乘数,在ucos下,代表每个节拍的ms数
 
-//systick中断服务函数,使用ucos时用到
-void SysTick_Handler(void)
-{				   
-	OSIntEnter();		//进入中断
-  OSTimeTick();   //调用ucos的时钟服务程序               
-  OSIntExit();    //触发任务切换软中断
-}
+//void SysTick_Handler(void)中断在OS_CPU_SysTickHandler
 			   
 //初始化延迟函数
 //当使用ucos的时候,此函数会初始化ucos的时钟节拍
@@ -20,17 +11,13 @@ void SysTick_Handler(void)
 //SYSCLK:系统时钟
 void delay_init(u8 SYSCLK)
 {
-	u32 reload;
- 	SysTick->CTRL&=~(1<<2);	//SYSTICK使用外部时钟源	 
-	fac_us=SYSCLK/8;		//不论是否使用ucos,fac_us都需要使用
-  reload=SYSCLK/8;		//每秒钟的计数次数 单位为K	   
-	reload*=1000000/200;//根据OS_TICKS_PER_SEC设定溢出时间
-							        //reload为24位寄存器,最大值:16777216,在72M下,约合1.86s左右	
-//	fac_ms=1000/200;//代表ucos可以延时的最少单位
-	SysTick->CTRL|=1<<1;   	//开启SYSTICK中断
-	SysTick->LOAD=reload; 	//每1ms秒中断一次	
-	SysTick->CTRL|=1<<0;   	//开启SYSTICK   
-}								    
+//	fac_us=SYSCLK/8;		//不论是否使用ucos,fac_us都需要使用	
+	SysTick->CTRL &=~(1 << 2);  			//systick使用外部时钟;
+	SysTick->CTRL |= 1 << 1;   				//开启systick中断;
+	SysTick->LOAD = 9000;	   			  	//产生1ms中断;
+	SysTick->CTRL |= 1 << 0;   				//开启SYSTICK中断; 
+}	
+							    
 //延时nus
 //nus为要延时的us数.		    								   
 void delay_us(u32 nus)

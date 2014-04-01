@@ -9,8 +9,9 @@
 #include "diskio.h"
 #include "sd_fs_app.h"
 #include "usart.h"
+#include "malloc.h"
 
-
+#include "app_cfg.h"
 
 
 
