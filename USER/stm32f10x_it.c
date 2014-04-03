@@ -48,6 +48,11 @@ void NMI_Handler(void)
 {
 }
 
+
+__asm void wait()
+{
+    BX lr
+}
 /**
   * @brief  This function handles Hard Fault exception.
   * @param  None
@@ -62,8 +67,10 @@ void HardFault_Handler(void)
  	printf("HFSR:%8X\r\n",temp);	//显示错误值
  	temp=SCB->DFSR;	//调试fault状态寄存器
  	printf("DFSR:%8X\r\n",temp);//显示错误值
-  temp=SCB->AFSR;	//辅助fault状态寄存器
+    temp=SCB->AFSR;	//辅助fault状态寄存器
  	printf("AFSR:%8X\r\n",temp);//显示错误值
+	wait();
+	while(1);
 }
 
 /**
