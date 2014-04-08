@@ -5,7 +5,7 @@
 #include "delay.h"	
 
 #include "common.h"//Common head file
-
+SD_Error SD_USER_Init(void);
 /*******************************************************************************
 函 数 名：void IWDG_Init(void)
 功能描述：看门狗初始化						
@@ -91,6 +91,49 @@ void BSP_Init(void)
   //delay_init(72);
   uart_init(72,115200);
 	LED_Init();
+ 	mem_init(SRAMIN);	//初始化内部内存池
+	SPI1_Init();
+	VS_Init();	  		//初始化VS1053 		
+  I2C_EE_Init();
+	//检测SD卡是否成功
+	while(SD_USER_Init()!=SD_OK)
+	{
+		POINT_COLOR=RED;
+		LCD_ShowString(20, 10,8,16,16, "SD Card File!            ");
+		LED0=0;
+		delay_ms(500);
+		LCD_ShowString(20, 10,8,16,16,"Please Check SD Card!");
+		LED0=1;
+		delay_ms(500);
+	}
+
+	sd_fs_init();//文件系统初始化-汉字字库保存在sd卡中，并将盘符设置为0 
+	exfuns_init();					//为fatfs相关变量申请内存  
+	f_mount(0,fs[0]); 		 		//挂载SD卡
+	f_mount(1,fs[1]); 				//挂载FLASH.
+  while(font_init()) 				//检查字库
+	{	    
+		LCD_ShowString(60,50,200,16,16,"Font Error!");
+		delay_ms(200);				  
+		LCD_Fill(60,50,240,66,WHITE);//清除显示	 
+		update_font(20,110,16,0);//从SD卡更新  	 
+	}  	 
+//	tp_dev.init();
+ 
+	if(0==VS_HD_Reset()){
+		myprntf("HResetOk!\r\n"); 
+	}
+
+	VS_Soft_Reset();
+	printf("SResetOk!\r\n"); 
+	VS_Ram_Test();
+	printf("Ram Test:0X%04X\r\n",VS_Ram_Test());//打印RAM测试结果	    
+	VS_Sine_Test();	   
+	printf("Board Init Over!\r\n");
+
+
+  LCD_ShowString(60,150,240,320,16,"SYSTEM OK! ");
+
 }
 
 

@@ -5,9 +5,7 @@
 #include "math.h"
 #include "i2cee.h"
 #include "spi.h"
-#include "usart.h"		
-#include "common.h"
-
+#include "usart.h"
 _m_tp_dev tp_dev=
 {
 	TP_Init,
@@ -52,7 +50,6 @@ void TP_Write_Byte(u8 num)
 u16 TP_Read_AD(u8 CMD)	  
 { 	 
     u16 buf,temp;
-		CS_Seclect(CS_SPI_TOUCH); 
 		TP_Write_Byte(CMD);//发送命令字
    	delay_us(6);//ADS7846的转换时间最长为6us
     temp= SPI1_ReadWriteByte(0xFF); 

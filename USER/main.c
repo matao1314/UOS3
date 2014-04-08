@@ -19,10 +19,10 @@ static OS_TCB Start_Task_TCB;
 #define MUSIC_PLAY_TASK_PRIO    2 
 #define MAIN_TASK_PRIO          6 
 /* task stack size */
-#define START_STK_SIZE  	    64
-#define USART_STK_SIZE  		64
-#define MAIN_STK_SIZE  		    512
-#define WATCH_STK_SIZE  		128
+#define START_STK_SIZE  	      64
+#define USART_STK_SIZE      		64
+#define MAIN_STK_SIZE  	  	    512
+#define WATCH_STK_SIZE      		128
 #define MUSIC_PLAY_STK_SIZE     256
 __align(8) static CPU_STK MUSIC_PLAY_TASK_STK[MUSIC_PLAY_STK_SIZE];
 __align(8) static CPU_STK START_TASK_STK[START_STK_SIZE];
@@ -77,6 +77,8 @@ static void Main_Task(void *p_arg)
 //    OSTaskDel(      (OS_TCB     *)&taskStartTCB, 
 //                    (OS_ERR     *)&err);
 }
+void start_task(void *pdata)
+{}	
 
 static CPU_INT32U AppCPU_ClkFreq_Hz;
 
@@ -102,7 +104,7 @@ int main(void)
 
     OSTaskCreate(   (OS_TCB     *)&Start_Task_TCB,/* Create the start task*/
                     (CPU_CHAR   *)"Task Start",
-                    (OS_TASK_PTR)Strat_Task,
+                    (OS_TASK_PTR)start_task,
                     (void       *)0,
                     (OS_PRIO    ) START_TASK_PRIO,
                     (CPU_STK    *)&START_TASK_STK[0],
