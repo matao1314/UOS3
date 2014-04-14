@@ -343,9 +343,9 @@
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
+              <Define>USE_STDPERIPH_DRIVER, STM32F10X_HD</Define>
               <Undefine></Undefine>
-              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD;.\HARDWARE\SD;.\FATFS\src;.\FATFS\exfuns;.\HARDWARE\SPI;.\HARDWARE\MALLOC;.\HARDWARE\TEXT;.\HARDWARE\FLASH;.\HARDWARE\VS10XX;.\HARDWARE\24CXX;.\HARDWARE\TOUCH</IncludePath>
+              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD;.\HARDWARE\SD;.\FATFS\src;.\FATFS\exfuns;.\HARDWARE\SPI;.\HARDWARE\MALLOC;.\HARDWARE\TEXT;.\HARDWARE\FLASH;.\HARDWARE\VS10XX;.\HARDWARE\24CXX;.\HARDWARE\TOUCH;.\HARDWARE\KEY</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -713,7 +713,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>HDRIVER</GroupName>
+          <GroupName>DEVICE</GroupName>
           <Files>
             <File>
               <FileName>led.c</FileName>
@@ -774,6 +774,11 @@
               <FileName>touch.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\HARDWARE\TOUCH\touch.c</FilePath>
+            </File>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\KEY\key.c</FilePath>
             </File>
           </Files>
         </Group>

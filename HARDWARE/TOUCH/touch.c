@@ -226,34 +226,22 @@ u8 TP_Get_Adjdata(void)
 {					  
 	s32 tempfac;
 	tempfac=I2C_EE_ReadByte(SAVE_ADDR_BASE+13);//读取标记字,看是否校准过！
-	printf("TP_Get_tempfac=%x\r\n",tempfac);         
- 		 
 	if(tempfac==0XAA)//触摸屏已经校准过了			   
 	{    												 
 		tempfac=I2C_EE_ReadLenByte(SAVE_ADDR_BASE,4);	
-				printf("a=%x\r\n",tempfac); 
-	   
 		tp_dev.xfac=(float)tempfac/100000000;//得到x校准参数
 		tempfac=I2C_EE_ReadLenByte(SAVE_ADDR_BASE+4,4);			          
-				printf("a=%x\r\n",tempfac); 
 		tp_dev.yfac=(float)tempfac/100000000;//得到y校准参数
 	    //得到x偏移量
 		tp_dev.xoff=I2C_EE_ReadLenByte(SAVE_ADDR_BASE+8,2);	
-						printf("a=%x\r\n",tp_dev.xoff); 
-		   	  
  	    //得到y偏移量
 		tp_dev.yoff=I2C_EE_ReadLenByte(SAVE_ADDR_BASE+10,2);
-								printf("a=%x\r\n",tp_dev.yoff); 
-				 	  
  		tp_dev.touchtype=I2C_EE_ReadByte(SAVE_ADDR_BASE+12);//读取触屏类型标记
-								printf("a=%x\r\n",tp_dev.touchtype); 
-
 		if(tp_dev.touchtype)//X,Y方向与屏幕相反
 		{
 			CMD_RDX=0X90;
 			CMD_RDY=0XD0;	 
-		}else				   //X,Y方向与屏幕相同
-		{
+		}else{				   //X,Y方向与屏幕相同		
 			CMD_RDX=0XD0;
 			CMD_RDY=0X90;	 
 		}		 

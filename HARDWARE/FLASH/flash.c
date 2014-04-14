@@ -24,7 +24,7 @@ void SPI_Flash_Init(void)
 	SPI1_Init();		   	//初始化SPI
 	//SPI1_SetSpeed(SPI_BaudRatePrescaler_64);//设置为18M时钟,高速模式	 SPI_BaudRatePrescaler_2
 	SPI_FLASH_TYPE=SPI_Flash_ReadID();//读取FLASH ID.  
-	printf("FlashID=:%x\r\n",SPI_FLASH_TYPE); //打印LCD ID  
+	printf("FlashID=:0X%x\r\n",SPI_FLASH_TYPE); //打印LCD ID  
 }
 //读取SPI_FLASH的状态寄存器
 //Status Register Format

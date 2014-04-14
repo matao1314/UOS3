@@ -2,10 +2,8 @@
 #include "stm32f10x.h"
 #include "sys.h"
 #include "usart.h"		
-#include "delay.h"	
+#include "delay.h"
 #include "bsp.h"
-
-#include "common.h"//Common head file
 static OS_TCB Usart_Task_TCB;
 static OS_TCB Main_Task_TCB;
 static OS_TCB AppTaskLEDB_TCB;
@@ -19,7 +17,7 @@ static OS_TCB Start_Task_TCB;
 #define MUSIC_PLAY_TASK_PRIO    2 
 #define MAIN_TASK_PRIO          6 
 /* task stack size */
-#define START_STK_SIZE  	      64
+#define START_STK_SIZE  	      512
 #define USART_STK_SIZE      		64
 #define MAIN_STK_SIZE  	  	    512
 #define WATCH_STK_SIZE      		128
@@ -78,30 +76,34 @@ static void Main_Task(void *p_arg)
 //                    (OS_ERR     *)&err);
 }
 void start_task(void *pdata)
-{}	
-
-static CPU_INT32U AppCPU_ClkFreq_Hz;
-
-CPU_INT32U BSP_CPU_ClkFreq(void)
 {
-  RCC_ClocksTypeDef  RCC_Clocks;  
-  RCC_GetClocksFreq(&RCC_Clocks);  
-  return((CPU_INT32U)RCC_Clocks.HCLK_Frequency);
-}
+    OS_ERR err;
+    
+    while (1)
+    {
+LED0=0;
+TSET=0;
+	delay_ms(1000); // delay_ms 50 ms 
+
+LED0=1;
+TSET=1;
+	delay_ms(1000); // delay_ms 50 ms 
+
+
+    }
+
+
+
+}	
+
 
 //Main Process
 int main(void)
 {	
-  OS_ERR err;
-
-//  AppCPU_ClkFreq_Hz = BSP_CPU_ClkFreq();
-//  cnts = AppCPU_ClkFreq_Hz/(CPU_INT32U)OSCfg_TickRate_Hz;
-//  OS_CPU_SysTickInit(cnts);
-	 	
-    BSP_Init();//Init system
+    OS_ERR err;
+    BSP_Init();//Init system	 	
     CPU_Init();
     OSInit(&err);/* Init uC/OS-III.*/
-
     OSTaskCreate(   (OS_TCB     *)&Start_Task_TCB,/* Create the start task*/
                     (CPU_CHAR   *)"Task Start",
                     (OS_TASK_PTR)start_task,
@@ -122,7 +124,7 @@ int main(void)
 //执行最不需要时效性的代码
 void Usart_Task(void *pdata)
 {	   
-    CPU_SR cpu_sr=0;
+  CPU_SR cpu_sr=0;
 	pdata=pdata;//fix compile warning
 	while(1)
 	{			  

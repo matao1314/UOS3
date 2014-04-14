@@ -2,23 +2,23 @@
 #define _bsp_h_
 
 #include "os.h" 
+#include "usart.h"
+#include "delay.h"
 
 #include "led.h"
+#include "key.h"
 #include "lcd.h"
+#include "spi.h"
 #include "sdcard.h"
 #include "diskio.h"
-#include "sd_fs_app.h"
 #include "usart.h"
 #include "malloc.h"
 #include "sdcard.h"
-#include "spi.h"
 #include "text.h"
 #include "fontupd.h"
-
-#include "vs10xx.h"
+#include "common.h"
 #include "i2cee.h"
 #include "fontupd.h"
-#include "text.h"
 #include "touch.h" 
 #include "sd_fs_app.h"
 #include "exfuns.h"

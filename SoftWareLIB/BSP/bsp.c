@@ -1,8 +1,5 @@
 #include "stm32f10x.h"
 #include "bsp.h"
-#include "lcd.h"
-#include "usart.h"
-#include "delay.h"	
 
 #include "common.h"//Common head file
 SD_Error SD_USER_Init(void);
@@ -34,8 +31,6 @@ void SysTick_Init(void)
 		/* Capture error */ 
 		while (1);
 	}
-	//关闭滴答定时器  
-	SysTick->CTRL &= ~ SysTick_CTRL_ENABLE_Msk;
 }
 
 /*******************************************************************************
@@ -86,15 +81,17 @@ void BSP_Init(void)
 {	
 	SystemInit();//Clock72MHZ
   SysTick_Init();
-	SysTick->CTRL |=  SysTick_CTRL_ENABLE_Msk;
-	NVIC_Cfg();	//中断优先级设置
-  //delay_init(72);
+	SysTick->CTRL&=(~SysTick_CTRL_TICKINT_Msk);//Disable Systick Interrupt
+	//NVIC_Cfg();
   uart_init(72,115200);
 	LED_Init();
- 	mem_init(SRAMIN);	//初始化内部内存池
+	KEY_Init();
+	LCD_Init();
+ 	mem_init(SRAMIN);//初始化内部内存池
 	SPI1_Init();
-	VS_Init();	  		//初始化VS1053 		
-  I2C_EE_Init();
+	VS_Init();//初始化VS1003 		
+  I2C_EE_Init();//Eeprom
+	tp_dev.init();
 	//检测SD卡是否成功
 	while(SD_USER_Init()!=SD_OK)
 	{
@@ -106,7 +103,6 @@ void BSP_Init(void)
 		LED0=1;
 		delay_ms(500);
 	}
-
 	sd_fs_init();//文件系统初始化-汉字字库保存在sd卡中，并将盘符设置为0 
 	exfuns_init();					//为fatfs相关变量申请内存  
 	f_mount(0,fs[0]); 		 		//挂载SD卡
@@ -118,24 +114,16 @@ void BSP_Init(void)
 		LCD_Fill(60,50,240,66,WHITE);//清除显示	 
 		update_font(20,110,16,0);//从SD卡更新  	 
 	}  	 
-//	tp_dev.init();
- 
-	if(0==VS_HD_Reset()){
-		myprntf("HResetOk!\r\n"); 
+	if(!VS_HD_Reset()){
+		myprntf("VS1003 HARDWARE_ResetOk!\r\n"); 
 	}
-
 	VS_Soft_Reset();
-	printf("SResetOk!\r\n"); 
-	VS_Ram_Test();
-	printf("Ram Test:0X%04X\r\n",VS_Ram_Test());//打印RAM测试结果	    
+	printf("VS1003 SOFTWARE_ResetOk!\r\n"); 
+	printf("VS1003 Ram:0X%04X\r\n",VS_Ram_Test());//RAM测试结果	    
 	VS_Sine_Test();	   
-	printf("Board Init Over!\r\n");
-
-
-  LCD_ShowString(60,150,240,320,16,"SYSTEM OK! ");
-
+	printf("System Init Over!\r\n");
+	SysTick->CTRL|=SysTick_CTRL_TICKINT_Msk;//Enable Systick Interrupt
 }
-
 
 SD_CardInfo   SDCardInfo;        //SD卡信息
 SD_Error      SD_USER_Init(void);//SD卡初始化
@@ -150,7 +138,7 @@ SD_Error SD_USER_Init(void)
 		/* Read CSD/CID MSD registers */
 		Status = SD_GetCardInfo( &SDCardInfo );//获得SD卡索引信息
 	  printf("SDCardCapacity = %dMB\r\n", SDCardInfo.CardCapacity>>20);
-	  printf( " \r\n CardBlockSize %d ", SDCardInfo.CardBlockSize );
+	  printf("CardBlockSize  = %d\r\n", SDCardInfo.CardBlockSize );
 	}
 	if (Status == SD_OK){
 	/* Select Card */
