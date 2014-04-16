@@ -24,6 +24,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include "usart.h"
+#include "led.h"
+#include "delay.h"
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
   */
@@ -70,7 +72,12 @@ void HardFault_Handler(void)
  	printf("DFSR:%8X\r\n",temp);//显示错误值
   temp=SCB->AFSR;	//辅助fault状态寄存器
  	printf("AFSR:%8X\r\n",temp);//显示错误值
-	while(1);
+	while(1){
+			LED0=0;
+			delay_ms(200);	 
+			LED0=1;
+			delay_ms(200);
+	}
 }
 
 /**

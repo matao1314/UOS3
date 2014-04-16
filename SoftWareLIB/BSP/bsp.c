@@ -26,13 +26,23 @@ void SysTick_Init(void)
 	 * SystemFrequency / 100000	 10us中断一次
 	 * SystemFrequency / 1000000 1us中断一次
 	 */
+	#if 1
 	if (SysTick_Config(SystemCoreClock/1000))	// ST3.5.0库版本
 	{ 
 		/* Capture error */ 
 		while (1);
 	}
+	#else
+	OS_CPU_SysTickInit(SystemCoreClock/(CPU_INT32U)OSCfg_TickRate_Hz);
+	#endif
 }
 
+CPU_INT32U BSP_CPU_ClkFreq(void) 
+{ 
+	RCC_ClocksTypeDef RCC_Clocks; 
+	RCC_GetClocksFreq(&RCC_Clocks); 
+	return((CPU_INT32U)RCC_Clocks.HCLK_Frequency); 
+}
 /*******************************************************************************
 * Function Name :void InterruptOrder(void)
 * Description   :中断向量，优先级
@@ -120,7 +130,8 @@ void BSP_Init(void)
 	VS_Soft_Reset();
 	printf("VS1003 SOFTWARE_ResetOk!\r\n"); 
 	printf("VS1003 Ram:0X%04X\r\n",VS_Ram_Test());//RAM测试结果	    
-	VS_Sine_Test();	   
+	VS_Sine_Test();
+//	printf("CPU_CLK:%d\r\n",BSP_CPU_ClkFreq()); 		   
 	printf("System Init Over!\r\n");
 	SysTick->CTRL|=SysTick_CTRL_TICKINT_Msk;//Enable Systick Interrupt
 }

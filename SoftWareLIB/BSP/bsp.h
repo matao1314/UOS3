@@ -1,7 +1,8 @@
 #ifndef _bsp_h_
 #define _bsp_h_
 
-#include "os.h" 
+#include "os.h"
+#include "os_cpu.h" 
 #include "usart.h"
 #include "delay.h"
 

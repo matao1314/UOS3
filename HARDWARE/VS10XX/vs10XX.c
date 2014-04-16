@@ -205,7 +205,7 @@ u16 VS_Ram_Test(void)
 	VS_SPI_ReadWriteByte(0x00);
 	VS_SPI_ReadWriteByte(0x00);
 	VS_SPI_ReadWriteByte(0x00);
-	delay_ms(150);  
+	delay_ms(100);  
 	VS_XDCS=1;
 	return VS_RD_Reg(SPI_HDAT0);// VS1003如果得到的值为0x807F，则表明完好;VS1053为0X83FF.;       
 }     					   
