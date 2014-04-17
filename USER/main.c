@@ -92,9 +92,11 @@ void start_task(void *pdata)
 int main(void)
 {	
     OS_ERR err;
-    BSP_Init();//Init system	 	
+    BSP_Init();//Init system
+	printf("System OS Init !\r\n");	
     CPU_Init();
     OSInit(&err);/* Init uC/OS-III.*/
+	printf("System Start Task Running!\r\n");	
     OSTaskCreate(   (OS_TCB     *)&Start_Task_TCB,/* Create the start task*/
                     (CPU_CHAR   *)"Task Start",
                     (OS_TASK_PTR)start_task,
