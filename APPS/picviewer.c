@@ -1,18 +1,6 @@
 #include "picviewer.h"
 #include "piclib.h"
-#include "settings.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//APP-数码相框实现 代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/10/3
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
-////////////////////////////////////////////////////////////////////////////////// 	   
+//#include "settings.h"
  
 //图片浏览
 u8 picviewer_play(void)
@@ -41,14 +29,14 @@ u8 picviewer_play(void)
    	_filelistbox_obj * flistbox;
 	_filelistbox_list * filelistx; 	//文件
 
-	app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
+//	app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
    	flistbox=filelistbox_creat(0,20,240,280,1,12);		//创建一个filelistbox
 	if(flistbox==NULL)rval=1;							//申请内存失败.
 	else  
 	{
 		flistbox->fliter=FLBOX_FLT_PICTURE;	//图片文件
- 		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[0][gui_phy.language],0);		//磁盘0
-		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[1][gui_phy.language],0);		//磁盘1
+// 		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[0][gui_phy.language],0);		//磁盘0
+//		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[1][gui_phy.language],0);		//磁盘1
 		filelistbox_draw_listbox(flistbox);
 	} 	 
 
@@ -62,19 +50,19 @@ u8 picviewer_play(void)
 	if(rbtn==NULL)rval=1;	//没有足够内存够分配
 	else
 	{
-	 	rbtn->caption=(u8*)GUI_BACK_CAPTION_TBL[gui_phy.language];	//名字
+//	 	rbtn->caption=(u8*)GUI_BACK_CAPTION_TBL[gui_phy.language];	//名字
 	 	rbtn->font=16;			//字体		 
 		rbtn->bcfdcolor=WHITE;	//按下时的颜色
 		rbtn->bcfucolor=WHITE;	//松开时的颜色
 		btn_draw(rbtn);//画按钮
 	}
-	LED1=1;//关闭LED1
+	LED0=1;//关闭LED0
 	while(rval==0)//主循环
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
 		delay_ms(5);
-		if(system_task_return)break;			//TPAD返回   	
+//		if(system_task_return)break;			//TPAD返回   	
 		if(picsta==0)
 		{
 			filelistbox_check(flistbox,&in_obj);	//扫描文件
@@ -145,8 +133,8 @@ u8 picviewer_play(void)
 						if(tpccnt)//双击了
 						{
 							picsta=3;//双击的时候,绝对是暂停状态
-							LED1=0;	 
-							app_gui_tcbar(0,300,240,20,0x01);	//上分界线
+							LED0=0;	 
+//							app_gui_tcbar(0,300,240,20,0x01);	//上分界线
 							btn_draw(rbtn);//画按钮	   
 						}else 
 						{
@@ -154,23 +142,23 @@ u8 picviewer_play(void)
 							if(picsta==1)
 							{
 								picsta=2;
-								LED1=0;	 	//表示暂停
+								LED0=0;	 	//表示暂停
 							}else 
 							{
 								picsta=1;
-								LED1=1;	   	//暂停结束
+								LED0=1;	   	//暂停结束
 							}
 						}   
 					}else if(key==3)
 					{
-						if(systemset.picmode==0)//顺序播放
-						{
-							if(curindex<(flistbox->filecnt-1))curindex++;
-							else curindex=0;
-						}else	//随机播放
-						{   
-							curindex=app_get_rand(flistbox->filecnt);//随机得到下一张图片的编号   	 
-						}
+////						if(systemset.picmode==0)//顺序播放
+//						{
+//							if(curindex<(flistbox->filecnt-1))curindex++;
+//							else curindex=0;
+//						}else	//随机播放
+//						{   
+//							curindex=app_get_rand(flistbox->filecnt);//随机得到下一张图片的编号   	 
+//						}
 						endecode=1;
 						LCD_Clear(0x0);//黑屏 	 
 						break;	 
@@ -193,20 +181,20 @@ u8 picviewer_play(void)
 		  		if(key&&((rbtn->sta&0X80)==0))picsta=0;	//回到文件浏览状态
 			}
 			delay_ms(10);  
-			if(system_task_return)picsta=0;//TPAD返回
+//			if(system_task_return)picsta=0;//TPAD返回
 			if(picsta==0)//回到文件浏览状态之前的处理
 			{
-				LED1=1;	   				//关闭LED1
+				LED0=1;	   				//关闭LED0
 				flistbox->dbclick=0;	//设置非文件浏览状态
-				app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
+//				app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
 				btn_draw(rbtn);			//画按钮
 				filelistbox_rebuild_filelist(flistbox);//重建flistbox
- 				system_task_return=0;	//还不能退出图片浏览
+// 				system_task_return=0;	//还不能退出图片浏览
 				break;
 			}
 		}
 	}	
-	LED1=1;//关闭LED1
+	LED0=1;//关闭LED0
 	filelistbox_delete(flistbox);	//删除filelist
 	btn_delete(rbtn);				//删除按钮	 	  
  	gui_memin_free(pname);			//释放内存		  

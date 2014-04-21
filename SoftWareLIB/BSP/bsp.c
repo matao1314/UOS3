@@ -16,6 +16,10 @@ void IWDG_Init(void)
 //	IWDG_Enable();
 //	IWDG_ReloadCounter();
 }
+INT32U  OS_CPU_SysTickClkFreq (void) 
+{  RCC_ClocksTypeDef  rcc_clocks;     
+ RCC_GetClocksFreq(&rcc_clocks);     
+  return ((INT32U)rcc_clocks.HCLK_Frequency); }
 /*
  * 函数名：SysTick_Init
  * 描述  ：启动系统滴答定时器 SysTick
@@ -27,7 +31,7 @@ void SysTick_Init(void)
 	 * SystemFrequency / 1000000 1us中断一次
 	 */
 	#if 1
-	if (SysTick_Config(SystemCoreClock/1000))	// ST3.5.0库版本
+	if (SysTick_Config(SystemCoreClock/100))	// ST3.5.0库版本
 	{ 
 		/* Capture error */ 
 		while (1);
@@ -49,15 +53,7 @@ CPU_INT32U BSP_CPU_ClkFreq(void)
 *******************************************************************************/
 void NVIC_Cfg(void)
 {
-  #ifdef  VECT_TAB_RAM  
-  /* Set the Vector Table base location at 0x20000000 */ 
-    NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
-  #else  /* VECT_TAB_FLASH  */
-  /* Set the Vector Table base location at 0x08000000 */ 
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
-  #endif
-
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);//优先级设置  全为抢占式优先级
 }
 
 /*******************************************************************************
@@ -90,9 +86,9 @@ CPU_TS_TMR  CPU_TS_TmrRd (void)
 void BSP_Init(void)
 {	
 	SystemInit();//Clock72MHZ
-  SysTick_Init();
-	SysTick->CTRL&=(~SysTick_CTRL_TICKINT_Msk);//Disable Systick Interrupt
-	//NVIC_Cfg();
+  //SysTick_Init();
+  delay_init(72);
+	NVIC_Cfg();
   uart_init(72,115200);
 	LED_Init();
 	KEY_Init();
@@ -101,7 +97,6 @@ void BSP_Init(void)
 	SPI1_Init();
 	VS_Init();//初始化VS1003 		
   I2C_EE_Init();//Eeprom
-	tp_dev.init();
 	//检测SD卡是否成功
 	while(SD_USER_Init()!=SD_OK)
 	{
@@ -123,7 +118,9 @@ void BSP_Init(void)
 		delay_ms(200);				  
 		LCD_Fill(60,50,240,66,WHITE);//清除显示	 
 		update_font(20,110,16,0);//从SD卡更新  	 
-	}  	 
+	} 
+	tp_dev.init();
+	if(KEY_Scan(0)==1) TP_Adjust(); 	 
 	if(!VS_HD_Reset()){
 		myprntf("VS1003 HARDWARE_ResetOk!\r\n"); 
 	}
@@ -131,9 +128,10 @@ void BSP_Init(void)
 	printf("VS1003 SOFTWARE_ResetOk!\r\n"); 
 	printf("VS1003 Ram:0X%04X\r\n",VS_Ram_Test());//RAM测试结果	    
 	VS_Sine_Test();
-//	printf("CPU_CLK:%d\r\n",BSP_CPU_ClkFreq()); 		   
+	gui_init();	
+  piclib_init();//初始化画图	
 	printf("System Init Over!\r\n");
-	SysTick->CTRL|=SysTick_CTRL_TICKINT_Msk;//Enable Systick Interrupt
+  SysTick_Init();
 }
 
 SD_CardInfo   SDCardInfo;        //SD卡信息

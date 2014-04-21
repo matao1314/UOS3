@@ -214,7 +214,7 @@ u8 stdbmp_decode(const u8 *filename)
 u8 minibmp_decode(u8 *filename,u16 x,u16 y,u16 width,u16 height,u16 acolor,u8 mode)//尺寸小于240*320的bmp图片解码.
 {
 	FIL* f_bmp;
-    u16 br;
+  u16 br;
 	u8  color_byte;
 	u16 tx,ty,color;	 
 	//tx,ty的实际坐标	

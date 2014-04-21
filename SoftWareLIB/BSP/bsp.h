@@ -24,6 +24,17 @@
 #include "sd_fs_app.h"
 #include "exfuns.h"
 #include "vs10xx.h"
+
+#include "guix.h"
+#include "piclib.h"
+#include "fattester.h"
+#include "exfuns.h"
+
+#include "appui.h"
+#include "appcom.h"
+
+
+
 /********************************/
 /*       œµÕ≥≈‰÷√∫Ø ˝           */
 /********************************/

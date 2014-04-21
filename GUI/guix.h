@@ -38,10 +38,9 @@ typedef unsigned int   INT32U;
 //////////////////////////////////////////////////////////////////////////////////////////////
 //GUI支持的语言种类数目
 //系统语言种类数
-#define GUI_LANGUAGE_NUM	   	3			//语言种类数
+#define GUI_LANGUAGE_NUM	3//语言种类数
 											//0,简体中文
-											//1,繁体中文
-											//2,英文
+											//1,英文
 
 extern const u8* GUI_OK_CAPTION_TBL[GUI_LANGUAGE_NUM]; 			//确认按钮
 extern const u8* GUI_OPTION_CAPTION_TBL[GUI_LANGUAGE_NUM];		//选项按钮

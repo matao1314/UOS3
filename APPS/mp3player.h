@@ -1,25 +1,12 @@
 #ifndef __MP3PLAYER_H
 #define __MP3PLAYER_H
 #include "sys.h"
-#include "includes.h" 	   	 
+//#include "includes.h" 	   	 
 #include "common.h"
 #include "ff.h"	
 #include "gui.h"
 #include "lyric.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//APP-音乐播放器实现 代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/10/3
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
-////////////////////////////////////////////////////////////////////////////////// 	   
-
-
+#include "bsp.h"
 ////////////////////////////////////////////////////////////////////////////////////////////
 //各图标/图片路径
 extern const u8 *FLAC_PATCH_PATH;			//FLAC播放的PATCH的存放位置

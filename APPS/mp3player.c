@@ -1,20 +1,6 @@
-#include "includes.h"		 
+//#include "include.h"		 
 #include "mp3player.h"
 #include "settings.h"
-#include "ucos_ii.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//APP-音乐播放器实现 代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/10/3
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
-////////////////////////////////////////////////////////////////////////////////// 	   
-
 //mp3播放控制器
 _m_mp3dev  *mp3dev=NULL;
 _lyric_obj *lrcdev=NULL;	//歌词控制器
@@ -73,7 +59,7 @@ const u8* MP3_PAUSEP_PIC="1:/SYSTEM/APP/MP3/PauseP.bmp";	//暂停 按下
 #endif 
 
 //播放音乐任务
-OS_EVENT * mp3mbox;//事件控制块	   	   
+//OS_EVENT * mp3mbox;//事件控制块	   	   
 void music_play_task(void *pdata)
 {	 
    	DIR mp3dir;			//mp3dir专用	  
@@ -85,12 +71,13 @@ void music_play_task(void *pdata)
 	u16 i=0;   
 	u8 *pname=0;		   
  		    
- 	mp3mbox=OSMboxCreate((void*) 0);//创建邮箱
+// 	mp3mbox=OSMboxCreate((void*) 0);//创建邮箱
+
 //	VS_HD_Reset();
 //	VS_Soft_Reset();  	//软复位VS1053
  	while(1)
 	{
-		mp3dev->curindex=(u32)OSMboxPend(mp3mbox,0,&rval)-1;//请求邮箱,要减去1,因为发送的时候增加了1
+//		mp3dev->curindex=(u32)OSMboxPend(mp3mbox,0,&rval)-1;//请求邮箱,要减去1,因为发送的时候增加了1
 		rval=0;
 		databuf=(u8*)mymalloc(SRAMIN,4096);		//开辟512字节的内存区域
 		if(databuf==NULL)rval=1 ;				//内存申请失败.
@@ -271,8 +258,8 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-		delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
-		if(system_task_return)break;			//TPAD返回
+		delay_ms(1000/OSCfg_TickRate_Hz);		//延时一个时钟节拍
+//		if(system_task_return)break;			//TPAD返回
 		filelistbox_check(flistbox,&in_obj);	//扫描文件
 		res=btn_check(rbtn,&in_obj);
 		if(res)
@@ -311,7 +298,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 		    for(i=0;i<flistbox->filecnt;i++)mp3devx->mfindextbl[i]=flistbox->findextbl[i];//复制
 
 			mp3devx->mfilenum=flistbox->filecnt;		//记录文件个数	  
-			OSMboxPost(mp3mbox,(void*)(flistbox->selindex-flistbox->foldercnt+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
+//			OSMboxPost(mp3mbox,(void*)(flistbox->selindex-flistbox->foldercnt+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
  			flistbox->dbclick=0;
 			break;	 							   			   
 		}
@@ -651,23 +638,22 @@ u8 mp3_play(void)
 		tcnt=0;
  		if(systemset.fmtxmode)//如果开启了发射,则打开FM发射.
 		{
-			RDA5820_TX_Mode();	//设置为发送模式 
-			RDA5820_Freq_Set(systemset.fmtxfreq*10);	//设置到systemset.fmtxfreq的频率值
-			RDA5820_TxPGA_Set(3); 						//设置增益为3
+			//RDA5820_TX_Mode();	//设置为发送模式 
+			//RDA5820_Freq_Set(systemset.fmtxfreq*10);	//设置到systemset.fmtxfreq的频率值
+			//RDA5820_TxPGA_Set(3); 						//设置增益为3
 		}
-		Audiosel_Set(0);		//设置为音频输出为MP3音频
 		while(rval==0)
 		{
 			tcnt++;//计时增加.
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
+			delay_ms(1000/OSCfg_TickRate_Hz);		//延时一个时钟节拍
 	 		for(i=0;i<5;i++)
 			{
 				res=btn_check(tbtn[i],&in_obj);	 
-				if((res&&((tbtn[i]->sta&(1<<7))==0)&&(tbtn[i]->sta&(1<<6)))||system_task_return)//有按键按下且松开,并且TP松开了或者TPAD返回
+				if((res&&((tbtn[i]->sta&(1<<7))==0)&&(tbtn[i]->sta&(1<<6))))//有按键按下且松开,并且TP松开了或者TPAD返回
 				{
-					if(system_task_return)i=4;//TPAD返回
+					//if(system_task_return)i=4;//TPAD返回
 					switch(i)
 					{
 						case 0://file list
@@ -686,11 +672,11 @@ u8 mp3_play(void)
 							}else tbtn[2]->picbtnpathu=(u8*)MP3_PLAYR_PIC;
 							progressbar_draw_progressbar(mp3prgb);	//画进度条	 
 							progressbar_draw_progressbar(volprgb);	//画进弱
-							if(system_task_return)//刚刚退出文件浏览
-							{
-								delay_ms(100);
-								system_task_return=0;
-							}		 
+//							if(system_task_return)//刚刚退出文件浏览
+//							{
+//								delay_ms(100);
+//								system_task_return=0;
+//							}		 
  							break;
 						case 1://上一曲或者下一曲
 						case 3:
@@ -710,7 +696,7 @@ u8 mp3_play(void)
 									else mp3dev->curindex=0;
 								}
 							}
-							OSMboxPost(mp3mbox,(void*)(mp3dev->curindex+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
+//							OSMboxPost(mp3mbox,(void*)(mp3dev->curindex+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
 							break;
 						case 2://播放/暂停
 							if(mp3dev->sta&(1<<5))//是暂停
@@ -771,7 +757,6 @@ u8 mp3_play(void)
 	if(rval==3)//退出MP3播放.且不后台播放
 	{
 		if(systemset.audiosel==0)systemset.audiosel=3;//无声通道
-		Audiosel_Set(systemset.audiosel);	//设置回原来的声道  
 		gui_memin_free(mp3dev->path);		//释放内存
 		gui_memex_free(mp3dev->mfindextbl);	//释放内存
 		myfree(SRAMIN,mp3dev->fmp3);		//释放内存

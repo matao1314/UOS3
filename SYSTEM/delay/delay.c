@@ -15,11 +15,13 @@ static u16 fac_ms=0;//ms延时倍乘数,在ucos下,代表每个节拍的ms数
 //SYSCLK:系统时钟
 void delay_init(u8 SYSCLK)
 {
-//	fac_us=SYSCLK/8;		//不论是否使用ucos,fac_us都需要使用	
-//	SysTick->CTRL &=~(1 << 2);  			//systick使用外部时钟;
+	fac_us=SYSCLK/8;		//不论是否使用ucos,fac_us都需要使用	
+	SysTick->CTRL &=~(1 << 2);  			//systick使用外部时钟;
 //	SysTick->CTRL |= 1 << 1;   				//开启systick中断;
-//	SysTick->LOAD = 9000;	   			  	//产生1ms中断;
-//	SysTick->CTRL |= 1 << 0;   				//开启SYSTICK中断; 
+	SysTick->LOAD = 9000;	   			  	//产生1ms中断;
+	SysTick->CTRL |= 1 << 0;   				//开启SYSTICK中断; 
+//	fac_ms=1000/OS_TICKS_PER_SEC;//代表ucos可以延时的最少单位	   
+
 }	
 							    
 //延时nus
@@ -57,7 +59,7 @@ void delay_ms(u16 nms)
   OS_ERR err;	
 	if(OSRunning == OS_STATE_OS_RUNNING)//如果os已经在跑了	    
 	{		  
-			 OSTimeDly(  (OS_TICK    )(nms), 
+			 OSTimeDly(  (OS_TICK    )(nms/5), 
                    (OS_OPT     )OS_OPT_TIME_DLY, 
                    (OS_ERR    *)&err);
 	}else{
