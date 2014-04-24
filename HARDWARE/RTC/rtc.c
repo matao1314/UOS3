@@ -2,21 +2,19 @@
 #include "delay.h"
 #include "usart.h"
 #include "rtc.h" 		    
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//RTC驱动代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/9/7
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
-//////////////////////////////////////////////////////////////////////////////////
-	   
+
 _calendar_obj calendar;//时钟结构体 	
-   
+
+
+static void RTC_NVIC_Config(void)
+{	
+  NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;		//RTC全局中断
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;	//先占优先级1位,从优先级3位
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;	//先占优先级0位,从优先级4位
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;		//使能该通道中断
+	NVIC_Init(&NVIC_InitStructure);		//根据NVIC_InitStruct中指定的参数初始化外设NVIC寄存器
+}
 //实时时钟配置
 //初始化RTC时钟,同时检测时钟是否工作正常
 //BKP->DR1用于保存是否第一次配置的设置
@@ -28,17 +26,17 @@ u8 RTC_Init(void)
 	u8 temp=0;
 	if(BKP->DR1!=0X5050)//第一次配置
 	{	 
-	  	RCC->APB1ENR|=1<<28;     //使能电源时钟	    
+	  RCC->APB1ENR|=1<<28;     //使能电源时钟	    
 		RCC->APB1ENR|=1<<27;     //使能备份时钟	    
 		PWR->CR|=1<<8;           //取消备份区写保护
 		RCC->BDCR|=1<<16;        //备份区域软复位	   
 		RCC->BDCR&=~(1<<16);     //备份区域软复位结束	  	 
-	    RCC->BDCR|=1<<0;         //开启外部低速振荡器 
-	    while((!(RCC->BDCR&0X02))&&temp<250)//等待外部时钟就绪	 
+	  RCC->BDCR|=1<<0;         //开启外部低速振荡器 
+	  while((!(RCC->BDCR&0X02))&&temp<250)//等待外部时钟就绪	 
 		{
 			temp++;
 			delay_ms(10);
-		};
+		}
 		if(temp>=250)return 1;//初始化时钟失败,晶振有问题	    
 
 		RCC->BDCR|=1<<8; //LSI作为RTC时钟 	    
@@ -62,9 +60,9 @@ u8 RTC_Init(void)
     	while(!(RTC->CRL&(1<<3)));//等待RTC寄存器同步  
     	RTC->CRH|=0X01;  		  //允许秒中断
     	while(!(RTC->CRL&(1<<5)));//等待RTC寄存器操作完成
-		printf("OK\n");
+			printf("RTC Init!\r\n");
 	}		    				  
-	MY_NVIC_Init(0,0,RTC_IRQChannel,2);//优先级设置    
+  RTC_NVIC_Config();//优先级设置    
 	RTC_Get();//更新时间 
 	return 0; //ok
 }		 				    
@@ -219,19 +217,3 @@ u8 RTC_Get_Week(u16 year,u8 month,u8 day)
 	if (yearL%4==0&&month<3)temp2--;
 	return(temp2%7);
 }			  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

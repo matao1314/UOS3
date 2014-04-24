@@ -93,6 +93,7 @@ void BSP_Init(void)
 	LED_Init();
 	KEY_Init();
 	LCD_Init();
+	RTC_Init();
  	mem_init(SRAMIN);//初始化内部内存池
 	SPI1_Init();
 	VS_Init();//初始化VS1003 		

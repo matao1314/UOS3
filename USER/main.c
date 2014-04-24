@@ -8,7 +8,6 @@ static OS_TCB Usart_Task_TCB;
 static OS_TCB Main_Task_TCB;
 static OS_TCB Start_Task_TCB;
 static OS_TCB Watch_Task_TCB;
-
 /////////////////////////UCOSIII任务设置///////////////////////////////////
 /* task priority */
 #define START_TASK_PRIO         9 //开始任务的优先级设置为最低
@@ -69,19 +68,19 @@ void start_task(void *pdata)
 	            (OS_OPT     )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), 
 	            (OS_ERR     *)&err);
 /***********************"Usart_Task"***********************************************/
-	OSTaskCreate((OS_TCB     *)&Usart_Task_TCB,
-	            (CPU_CHAR   *)"Usart_Task",
-	            (OS_TASK_PTR)Usart_Task,
-	            (void       *)0,
-	            (OS_PRIO    )USART_TASK_PRIO,
-	            (CPU_STK    *)&USART_TASK_STK[0],
-	            (CPU_STK_SIZE)USART_STK_SIZE / 10,
-	            (CPU_STK_SIZE)USART_STK_SIZE,
-	            (OS_MSG_QTY )0,
-	            (OS_TICK    )0,
-	            (void       *)0,
-	            (OS_OPT     )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), 
-	            (OS_ERR     *)&err);
+//	OSTaskCreate((OS_TCB     *)&Usart_Task_TCB,
+//	            (CPU_CHAR   *)"Usart_Task",
+//	            (OS_TASK_PTR)Usart_Task,
+//	            (void       *)0,
+//	            (OS_PRIO    )USART_TASK_PRIO,
+//	            (CPU_STK    *)&USART_TASK_STK[0],
+//	            (CPU_STK_SIZE)USART_STK_SIZE / 10,
+//	            (CPU_STK_SIZE)USART_STK_SIZE,
+//	            (OS_MSG_QTY )0,
+//	            (OS_TICK    )0,
+//	            (void       *)0,
+//	            (OS_OPT     )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), 
+//	            (OS_ERR     *)&err);
 	//OSTaskSuspend(&Start_Task_TCB,&err);//挂起Start任务
 	OS_CRITICAL_EXIT();//退出临界区
 	OSTaskDel((OS_TCB     *)&Start_Task_TCB, 
@@ -116,23 +115,16 @@ void Main_Task(void *p_arg)
    u8 selx;
 	 u8 keyval; 
 	 Draw_mainPage();
-   while(1)
-	 {
-	 keyval = KEY_Scan(0);	 
-	 if(keyval==1)  TP_Adjust();  //屏幕校准 
-	 selx=icon_press_chk();
+   while(1){
+		 keyval = KEY_Scan(0);	 
+		 selx=icon_press_chk();
 	 	 switch(selx){
 			case 0:picviewer_play();break;
-//			case 1:mp3_play();break;
-			default:;
-		 }
-	 
-	 		  
+			//case 1:mp3_play();break;
+			default:delay_ms(500);break;
+		 }	 	 		  
 //  	picviewer_play();
-		printf("Kval==%d sel==%d!\r\n",keyval,selx); 
-		printf("Main_Task Running!\r\n");
-		delay_ms(500);
-		printf("Main_Task Over!\r\n");
+//		printf("Kval==%d sel==%d!\r\n",keyval,selx); 
 	 }
 }
 
@@ -141,14 +133,12 @@ void watch_task(void *pdata)
 {
 	pdata=pdata;//fix compile warning
 	while(1){		
-		printf("watch_task Running!\r\n");
 		LED0=0;
 		TEST=0;
 		delay_ms(500);	 
 		LED0=1;
 		TEST=1;
 		delay_ms(500);	 
-		printf("watch_task Over!\r\n");
 	}
 }
 //执行最不需要时效性的代码
@@ -158,14 +148,12 @@ void Usart_Task(void *pdata)
 	pdata=pdata;//fix compile warning
 	while(1)
 	{
-	printf("Usart_Task Running!\r\n");
 		LED0=0;
 		delay_ms(500);	 
 		LED0=1;
-//		delay_ms(500);	 
+//	delay_ms(500);	 
 //	OS_CRITICAL_ENTER();//进入临界区(无法被中断打断) 
 //	printf("insram:%d,exsram:%d\r\n",mem_perused(0),mem_perused(1));//打印内存占用率
 //	OS_CRITICAL_EXIT();	//退出临界区(可以被中断打断)
-	printf("Usart_Task Over!\r\n");
 	}
 }

@@ -50,6 +50,7 @@ void TP_Write_Byte(u8 num)
 u16 TP_Read_AD(u8 CMD)	  
 { 	 
     u16 buf,temp;
+		TCS=0;
 		TP_Write_Byte(CMD);//发送命令字
    	delay_us(6);//ADS7846的转换时间最长为6us
     temp= SPI1_ReadWriteByte(0xFF); 

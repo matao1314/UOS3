@@ -59,7 +59,7 @@ void delay_ms(u16 nms)
   OS_ERR err;	
 	if(OSRunning == OS_STATE_OS_RUNNING)//如果os已经在跑了	    
 	{		  
-			 OSTimeDly(  (OS_TICK    )(nms/5), 
+			 OSTimeDly(  (OS_TICK    )(nms/10), 
                    (OS_OPT     )OS_OPT_TIME_DLY, 
                    (OS_ERR    *)&err);
 	}else{

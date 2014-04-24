@@ -89,8 +89,8 @@ void Draw_mainPage(void)
 	gui_phy.draw_point=LCD_Fast_DrawPoint;	 
 	pic_phy.read_point=LCD_ReadPoint;
 	pic_phy.draw_point=LCD_Fast_DrawPoint;	 
-	ai_load_picfile(bkpic_path_tbl[0],0,0,240,320);//画第一张图片
-	Load_icos();
+//	ai_load_picfile(bkpic_path_tbl[0],0,0,240,320);//画第一张图片
+	Load_icos();//加载图标
 }
 
 //屏幕滑动及按键检测
@@ -101,14 +101,15 @@ u8 icon_press_chk(void)
 	u8 i=0xff;
 	u8 movecnt=0;	//得到滑动点数
 	tp_dev.scan(0);//扫描	
-		if(tp_dev.sta&TP_PRES_DOWN)//有按键被按下
+	if(tp_dev.sta&TP_PRES_DOWN)//有按键被按下
 	{
 
 			printf("tp_dev.x==%d tp_dev.y==%d!\r\n",tp_dev.x,tp_dev.y); 
 		
 			 	spbdev.curxpos=tp_dev.x;				//记录当前坐标
 			 	spbdev.curypos=tp_dev.y;				//记录当前坐标	
-}	
+}
+	
 	for(i=0;i<9;i++)
 	{
 		if((spbdev.curxpos>spbdev.icos[i].x)&&(spbdev.curxpos<spbdev.icos[i].x+spbdev.icos[i].width)&&(spbdev.curxpos>spbdev.icos[i].x)&&
