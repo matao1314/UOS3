@@ -1,12 +1,10 @@
 #include "appcom.h"
 //#include "spb.h"
-//#include "radio.h"
-//#include "recoder.h"
 //#include "appplay.h"
 //#include "calculator.h"	
 //#include "tomcatplay.h"
 //#include "settings.h"
-//#include "calendar.h"	 
+#include "calendar.h"	 
 //#include "paint.h"
 
 //模式选择列表的窗体名字
@@ -558,8 +556,8 @@ u8 app_items_sel(u16 x,u16 y,u16 width,u16 height,u8 *items[],u8 itemsize,u8 *se
 		{
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
-			if(system_task_return){rval=1;break;};	//TPAD返回	
+//			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
+//			if(system_task_return){rval=1;break;};	//TPAD返回	
 			if(mode&(1<<7))
 			{
 				res=btn_check(okbtn,&in_obj);		//确认按钮检测
@@ -629,7 +627,7 @@ u8 app_items_sel(u16 x,u16 y,u16 width,u16 height,u8 *items[],u8 itemsize,u8 *se
 	window_delete(twin);
 	btn_delete(okbtn);
 	btn_delete(cancelbtn);
-	system_task_return=0;
+//	system_task_return=0;
 	if(rval==0XFF)return 0;
 	return rval;
 } 
@@ -696,8 +694,8 @@ u8 app_listbox_select(u8 *sel,u8 *top,u8 * caption,u8 *items[],u8 itemsize)
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-		delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
- 		if(system_task_return)break;			//TPAD返回
+//		delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
+// 		if(system_task_return)break;			//TPAD返回
 		res=btn_check(rbtn,&in_obj);		    //返回按钮检测
 		if(res)
 		{
@@ -742,6 +740,7 @@ u8 app_system_file_check(void)
 	FIL *f_check;
 	f_check=(FIL *)gui_memin_malloc(sizeof(FIL));	//开辟FIL字节的内存区域 
 	if(f_check==NULL)rval=0XFF;//申请失败
+	#if 0
 	while(rval==0)
 	{	
 		//SPB文件检测,20个. 
@@ -875,6 +874,7 @@ u8 app_system_file_check(void)
 		rval=0;
 		break;    
 	}
+	#endif
 	gui_memin_free(f_check);//释放内存
 	return rval;
 }
@@ -1009,13 +1009,10 @@ void app_get_version(u8*buf,u32 ver,u8 len)
 //包括系统设置,闹钟数据,收音机数据等
 u8 app_system_parameter_init(void)
 {
-	_m_radiodev*radio;
-//	radio=(_m_radiodev*)gui_memin_malloc(sizeof(_m_radiodev));//开辟_m_radiodev字节的内存区域
-	if(radio==NULL)return 1;
 //	sysset_read_para(&systemset);		//读取系统设置信息 
-	vs10xx_read_para(&vsset);			//读取VS10XX设置数据
+//	vs10xx_read_para(&vsset);			//读取VS10XX设置数据
 //	calendar_read_para(&alarm);			//读取闹钟信息 
-	radio_read_para(radio);	 			//读取收音机数据
+#if 0
 	if(systemset.saveflag!=0X0A)		//之前没有保存过
 	{
 		systemset.syslanguage=0;		//默认为简体中文
@@ -1029,6 +1026,7 @@ u8 app_system_parameter_init(void)
 		systemset.saveflag=0X0A;  		//设置保存标记
 		sysset_save_para(&systemset);	//保存系统设置信息 
  	}
+	#endif
 	if(vsset.saveflag!=0X0A)  			//之前没有保存过
 	{
 		vsset.mvol=220;					//音量:220
@@ -1038,7 +1036,7 @@ u8 app_system_parameter_init(void)
 		vsset.treble=15; 				//高音提升 10.5dB  
 		vsset.effect=0;					//空间效果	0  
  		vsset.saveflag=0X0A;  			//设置保存标记
-		vs10xx_save_para(&vsset);		//保存VS10XX设置信息 
+//		vs10xx_save_para(&vsset);		//保存VS10XX设置信息 
  	}
 	if(alarm.saveflag!=0X0A)  			//之前没有保存过
 	{
@@ -1049,18 +1047,10 @@ u8 app_system_parameter_init(void)
  		alarm.saveflag=0X0A;  			//设置保存标记
 		calendar_save_para(&alarm);		//保存闹钟设置信息 
  	}
-	if(radio->saveflag!=0X0A)  			//之前没有保存过
-	{
-		gui_memset(radio,0,sizeof(_m_radiodev));//整片数据清零
- 		radio->vol=8;					//默认音量为8,最大为15,最小为0
-   		radio->saveflag=0X0A;  			//设置保存标记
-		radio_save_para(radio);			//保存收音机数据 
- 	}
 	f_mkdir("0:TEXT");		//强制创建文件夹,给记事本用
   f_mkdir("0:PAINT");		//强制创建文件夹,给画图用
- 	gui_phy.language=systemset.syslanguage;			//设置语言
+// 	gui_phy.language=systemset.syslanguage;			//设置语言
 //	LCD_BLPWM_VAL=systemset.lcdbklight;				//设置背光
-	gui_memin_free(radio);
 	return 0;	
 } 
 

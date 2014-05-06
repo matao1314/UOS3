@@ -2,7 +2,6 @@
 #define __COMMON_H 	
 #include "sys.h"
 #include "touch.h"	 
-//#include "includes.h"
 #include "gui.h"
 #include "bsp.h"
 #include "picviewer.h"

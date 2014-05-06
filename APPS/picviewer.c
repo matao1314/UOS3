@@ -26,17 +26,17 @@ u8 picviewer_play(void)
 	u8 pictype=0;	//图片类型
  
  	_btn_obj* rbtn;		//返回按钮控件
-   	_filelistbox_obj * flistbox;
+ 	_filelistbox_obj * flistbox;
 	_filelistbox_list * filelistx; 	//文件
 
-//	app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
-   	flistbox=filelistbox_creat(0,20,240,280,1,12);		//创建一个filelistbox
+	app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
+  flistbox=filelistbox_creat(0,20,240,280,1,12);		//创建一个filelistbox
 	if(flistbox==NULL)rval=1;							//申请内存失败.
 	else  
 	{
 		flistbox->fliter=FLBOX_FLT_PICTURE;	//图片文件
-// 		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[0][gui_phy.language],0);		//磁盘0
-//		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[1][gui_phy.language],0);		//磁盘1
+ 		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[0][gui_phy.language],0);		//磁盘0
+		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[1][gui_phy.language],0);		//磁盘1
 		filelistbox_draw_listbox(flistbox);
 	} 	 
 
@@ -50,7 +50,7 @@ u8 picviewer_play(void)
 	if(rbtn==NULL)rval=1;	//没有足够内存够分配
 	else
 	{
-//	 	rbtn->caption=(u8*)GUI_BACK_CAPTION_TBL[gui_phy.language];	//名字
+	 	rbtn->caption=(u8*)GUI_BACK_CAPTION_TBL[gui_phy.language];	//名字
 	 	rbtn->font=16;			//字体		 
 		rbtn->bcfdcolor=WHITE;	//按下时的颜色
 		rbtn->bcfucolor=WHITE;	//松开时的颜色
@@ -134,7 +134,7 @@ u8 picviewer_play(void)
 						{
 							picsta=3;//双击的时候,绝对是暂停状态
 							LED0=0;	 
-//							app_gui_tcbar(0,300,240,20,0x01);	//上分界线
+							app_gui_tcbar(0,300,240,20,0x01);	//上分界线
 							btn_draw(rbtn);//画按钮	   
 						}else 
 						{
@@ -151,7 +151,7 @@ u8 picviewer_play(void)
 						}   
 					}else if(key==3)
 					{
-////						if(systemset.picmode==0)//顺序播放
+//						if(systemset.picmode==0)//顺序播放
 //						{
 //							if(curindex<(flistbox->filecnt-1))curindex++;
 //							else curindex=0;
@@ -186,7 +186,7 @@ u8 picviewer_play(void)
 			{
 				LED0=1;	   				//关闭LED0
 				flistbox->dbclick=0;	//设置非文件浏览状态
-//				app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
+				app_filebrower((u8*)APP_MFUNS_CAPTION_TBL[1][gui_phy.language],0X07);//选择目标文件,并得到目标数量
 				btn_draw(rbtn);			//画按钮
 				filelistbox_rebuild_filelist(flistbox);//重建flistbox
 // 				system_task_return=0;	//还不能退出图片浏览

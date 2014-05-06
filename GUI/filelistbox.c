@@ -304,13 +304,13 @@ u8 filelistbox_addlist(_filelistbox_obj * filelistbox,u8 *name,u8 type)
 	_filelistbox_list * filelistx;
 	_filelistbox_list * filelisttemp;
 
-	filelistx=(_filelistbox_list*)gui_memex_malloc(sizeof(_filelistbox_list));//分配内存(外部SRAM)
+	filelistx=(_filelistbox_list*)gui_memin_malloc(sizeof(_filelistbox_list));//分配内存(外部SRAM)
 	if(filelistx==NULL)return 1;//内存分配不够.
 	gui_memset(filelistx,0,sizeof(_filelistbox_list));//全部设置为0
-	filelistx->name=gui_memex_malloc(strlen((const char*)name)+1);	//分配内存来存放name,外加一个结束符.
+	filelistx->name=gui_memin_malloc(strlen((const char*)name)+1);	//分配内存来存放name,外加一个结束符.
  	if(filelistx->name==NULL)
 	{
-		gui_memex_free(filelistx);//释放已经申请到的内存
+		gui_memin_free(filelistx);//释放已经申请到的内存
 		return 2;//内存分配不够.
 	}
  	filelistx->name=(u8*)strcpy((char *)filelistx->name,(const char*)name);	//复制name的内容到

@@ -18,7 +18,7 @@ static OS_TCB Watch_Task_TCB;
 /* task stack size */
 #define START_STK_SIZE  	      512//×¢ÒâÕ»Òç³ö
 #define USART_STK_SIZE      		256
-#define MAIN_STK_SIZE  	  	    512
+#define MAIN_STK_SIZE  	  	    800
 #define WATCH_STK_SIZE      		256
 #define MUSIC_PLAY_STK_SIZE     256
 //__align(8) static CPU_STK MUSIC_PLAY_TASK_STK[MUSIC_PLAY_STK_SIZE];
@@ -115,6 +115,7 @@ void Main_Task(void *p_arg)
    u8 selx;
 	 u8 keyval; 
 	 Draw_mainPage();
+   calendar_play();
    while(1){
 		 keyval = KEY_Scan(0);	 
 		 selx=icon_press_chk();
@@ -123,8 +124,6 @@ void Main_Task(void *p_arg)
 			//case 1:mp3_play();break;
 			default:delay_ms(500);break;
 		 }	 	 		  
-//  	picviewer_play();
-//		printf("Kval==%d sel==%d!\r\n",keyval,selx); 
 	 }
 }
 

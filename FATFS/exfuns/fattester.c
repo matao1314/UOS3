@@ -1,22 +1,12 @@
 #include "fattester.h"	 
-//#include "mmc_sd.h"
-//#include "usmart.h"
 #include "usart.h"
 #include "exfuns.h"
 #include "malloc.h"		  
 #include "ff.h"
 #include "string.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//FATFS 测试代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/9/18
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
+//********************************************************************************
+//V1.1修改说明 20121003
+//1,新增mf_cpymsg、mf_fdsize、mf_fcopy和mf_fdcopy等函数				  									  
 //////////////////////////////////////////////////////////////////////////////////
     
 //为磁盘注册工作区	 
@@ -187,7 +177,7 @@ u32 mf_showfree(u8 *drv)
 {
 	FATFS *fs1;
 	u8 res;
-    u32 fre_clust=0, fre_sect=0, tot_sect=0;
+    DWORD fre_clust=0, fre_sect=0, tot_sect=0;
     //得到磁盘信息及空闲簇数量
     res = f_getfree((const TCHAR*)drv, &fre_clust, &fs1);
     if(res==0)
@@ -201,15 +191,15 @@ u32 mf_showfree(u8 *drv)
 		if(tot_sect<20480)//总容量小于10M
 		{
 		    /* Print free space in unit of KB (assuming 512 bytes/sector) */
-//		    printf("\r\n磁盘总容量:%d KB\r\n"
-//		           "可用空间:%d KB\r\n",
-//		           tot_sect>>1,fre_sect>>1);
+		    printf("\r\n磁盘总容量:%d KB\r\n"
+		           "可用空间:%d KB\r\n",
+		           tot_sect>>1,fre_sect>>1);
 		}else
 		{
 		    /* Print free space in unit of KB (assuming 512 bytes/sector) */
-//		    printf("\r\n磁盘总容量:%d MB\r\n"
-//		           "可用空间:%d MB\r\n",
-//		           tot_sect>>11,fre_sect>>11);
+		    printf("\r\n磁盘总容量:%d MB\r\n"
+		           "可用空间:%d MB\r\n",
+		           tot_sect>>11,fre_sect>>11);
 		}
 	}
 	return fre_sect;
@@ -293,7 +283,42 @@ u8 mf_puts(u8*c)
 {
 	return f_puts((TCHAR*)c,file);
 }
+//文件复制信息提示
+//mode:
+//[0]:更新文件名
+//[1]:更新百分比pct
+//[2]:更新文件夹
+//[3~7]:保留
+//返回值:0,正常;
+//       1,结束复制
+u8 mf_cpymsg(u8*pname,u8 pct,u8 mode)
+{
+	if(mode&0X01)printf("\r\nCopy File:%s\r\n",pname);
+	if(mode&0X02)printf("File Copyed:%d\r\n",pct);
+	if(mode&0X04)printf("Copy Folder:%s\r\n",pname);
+	return 0;	
+}
 
+//得到文件夹的大小尺寸
+u32 mf_fdsize(u8*pname)
+{
+	return exf_fdsize(pname);
+}	 
+//测试文件复制
+u8 mf_fcopy(u8 *psrc,u8 *pdst)
+{
+	printf("\r\n file name:%s\r\n",psrc);//打印文件名称
+	return exf_copy(mf_cpymsg,psrc,pdst,0,0,1);
+}
+//测试文件夹复制
+u8 mf_fdcopy(u8 *psrc,u8 *pdst)
+{
+	u32 totsize=0;
+	u32 cpdsize=0;
+	totsize=mf_fdsize(psrc);
+	printf("\r\n%s size:%d\r\n",psrc,totsize);//打印文件大小
+	return exf_fdcopy(mf_cpymsg,psrc,pdst,&totsize,&cpdsize,1);
+}
 
 
 

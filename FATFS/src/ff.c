@@ -129,8 +129,11 @@
 #define	ENTER_FF(fs)		{ if (!lock_fs(fs)) return FR_TIMEOUT; }
 #define	LEAVE_FF(fs, res)	{ unlock_fs(fs, res); return res; }
 #else
-#define	ENTER_FF(fs)
-#define LEAVE_FF(fs, res)	return res
+//#include "os_cpu.h"	//添加ucos的两个函数
+extern void ff_enter(void);
+extern void ff_leave(void);
+#define	ENTER_FF(fs) {ff_enter();}//{OS_ENTER_CRITICAL();}//进入FATFS,关闭中断,防止相互干扰
+#define LEAVE_FF(fs, res) {ff_leave();return res;}//{OS_EXIT_CRITICAL();return res;}//离开FATFS,开启中断,任务继续执行
 #endif
 
 #define	ABORT(fs, res)		{ fp->flag |= FA__ERROR; LEAVE_FF(fs, res); }
@@ -1063,7 +1066,7 @@ DWORD clmt_clust (	/* <2:Error, >=2:Cluster number */
 /* Directory handling - Set directory index                              */
 /*-----------------------------------------------------------------------*/
 
-//static   //这里我们让该函数，使其可以被其他.c文件调用
+//static //让外部函数调用
 FRESULT dir_sdi (
 	DIR *dj,		/* Pointer to directory object */
 	WORD idx		/* Index of directory table */

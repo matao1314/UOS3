@@ -55,7 +55,6 @@ static void Load_icos(void)
 void spb_set_sel(u8 sel)
 {
 	spbdev.selico=sel;
-//	SLCD.show(SLCD.pos);//刷新背景
 	delay_ms(30);     
 	gui_alphablend_area(spbdev.icos[sel].x,spbdev.icos[sel].y,spbdev.icos[sel].width,spbdev.icos[sel].height,SPB_ALPHA_COLOR,SPB_ALPHA_VAL);
 	minibmp_decode(spbdev.icos[sel].path,spbdev.icos[sel].x+5,spbdev.icos[sel].y,spbdev.icos[sel].width,spbdev.icos[sel].height,0,0);
@@ -89,7 +88,7 @@ void Draw_mainPage(void)
 	gui_phy.draw_point=LCD_Fast_DrawPoint;	 
 	pic_phy.read_point=LCD_ReadPoint;
 	pic_phy.draw_point=LCD_Fast_DrawPoint;	 
-//	ai_load_picfile(bkpic_path_tbl[0],0,0,240,320);//画第一张图片
+	ai_load_picfile(bkpic_path_tbl[0],0,0,240,320);//画第一张图片
 	Load_icos();//加载图标
 }
 
@@ -117,7 +116,20 @@ u8 icon_press_chk(void)
 		{
 			break;//得到选中的编号	
 		}
-	}																 
+	}	
+	
+					if(i<9)
+				{
+					if(i!=spbdev.selico)//选中了不同的图标,切换图标
+					{
+						spb_set_sel(i);
+						i=0xff;
+					}else
+					{
+						spbdev.selico=0XFF;//发生了双击,重新复位selico.
+					}
+				}else i=0xff;//无效的点按.
+															 
 #if 0
 	if(tp_dev.sta&TP_PRES_DOWN)//有按键被按下
 	{
@@ -153,7 +165,7 @@ u8 icon_press_chk(void)
 // 		}else if((gui_disabs(spbdev.curxpos,spbdev.oldxpos)>=SPB_MOVE_MIN)&&(movecnt>=SPB_MOVE_MIN/SPB_MOVE_WIN))//滑动距离超过SPB_MOVE_MIN,并且检测到的有效滑动数不少于SPB_MOVE_MIN/SPB_MOVE_WIN.
 //		{
 //			spbdev.spbsta|=1<<6;//标记滑动	
-//		}   
+//		}  8918 
 	}else //按键松开了
 	{
 		if(spbdev.spbsta&0x80)//之前有按下

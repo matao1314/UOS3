@@ -1,19 +1,10 @@
 #ifndef __FATTESTER_H
 #define __FATTESTER_H 			   
-//#include <stm32f10x_map.h>
-#include "stm32f10x.h"	   
+#include "sys.h"	   
 #include "ff.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK战舰STM32开发板
-//FATFS 测试代码	   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2012/9/18
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
+//********************************************************************************
+//V1.1修改说明 20121003
+//1,新增mf_cpymsg、mf_fdsize、mf_fcopy和mf_fdcopy等函数				  									  
 //////////////////////////////////////////////////////////////////////////////////
 
  
@@ -36,7 +27,10 @@ u8 mf_rename(u8 *oldname,u8* newname);
 void mf_gets(u16 size);
 u8 mf_putc(u8 c);
 u8 mf_puts(u8*c);
- 
+u8 mf_cpymsg(u8*pname,u8 pct,u8 mode);
+u32 mf_fdsize(u8*pname);
+u8 mf_fcopy(u8 *psrc,u8 *pdst);
+u8 mf_fdcopy(u8 *psrc,u8 *pdst);
 #endif
 
 

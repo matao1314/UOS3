@@ -1,9 +1,8 @@
 #ifndef __CALENDAR_H
 #define __CALENDAR_H
 #include "sys.h"
-#include "includes.h" 	   	 
-#include "common.h" 
-#include "3d.h"
+#include "common.h"
+#include "bsp.h"
 //闹钟结构体						   
 __packed typedef struct  
 {																				   			  
@@ -24,9 +23,6 @@ extern const u8 *calendar_week_table[GUI_LANGUAGE_NUM][7];//外部定义的星期表
 void calendar_alarm_init(_alarm_obj *alarmx);
 void calendar_alarm_ring(u8 type);
 void calendar_date_refresh(void);
-void calendar_3dtime_refresh(_t3d_obj* t3dx);
-void calendar_3dtime_show(_t3d_obj* t3dx,u8 dx,u8 dy,u8 dz);
-void calendar_3dtime_pos_chg(_t3d_obj* t3dx,u8*dir);
 void calendar_read_para(_alarm_obj * alarm);
 void calendar_save_para(_alarm_obj * alarm);
 u8 calendar_alarm_msg(u16 x,u16 y);
