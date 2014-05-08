@@ -1023,18 +1023,6 @@ void gui_memin_free(void* ptr)
 {
 	myfree(SRAMIN,ptr);
 }
-//外部内存分配 
-//size:要分配的内存大小(u8为单位)
-//返回值:NULL:分配失败;其他,内存地址
-void *gui_memex_malloc(u32 size)			
-{
-	return (void*)mymalloc(SRAMEX,size);
-}  
-//外部内存释放
-void gui_memex_free(void* ptr)		 
-{
-	myfree(SRAMEX,ptr);
-}
 //copy ptr的前size个字节到新地址,并返回新地址值
 //ptr:要copy的源地址
 //size:新地址内存的大小

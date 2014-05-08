@@ -36,11 +36,11 @@ _memo_obj * memo_creat(u16 left,u16 top,u16 width,u16 height,u8 id,u8 type,u8 fo
 	memo_crt->id=id;			
 	memo_crt->type=type;				//类型 
  	memo_crt->sta=0;					//状态为0
- 	memo_crt->text=gui_memex_malloc(textlen);	//申请字符存储空间
+ 	memo_crt->text=gui_memin_malloc(textlen);	//申请字符存储空间
 	if(memo_crt->text==NULL)sta=1;	    
 	else gui_memset(memo_crt->text,0,textlen);		//分配成功,则对内存清零
 
- 	memo_crt->offsettbl=gui_memex_malloc(4);	//申请4个字节
+ 	memo_crt->offsettbl=gui_memin_malloc(4);	//申请4个字节
 	if(memo_crt->offsettbl==NULL)sta=1;	    
 	else gui_memset(memo_crt->offsettbl,0,4);		//分配成功,则对内存清零
 	if(sta)//有分配不成功的情况
@@ -65,8 +65,8 @@ _memo_obj * memo_creat(u16 left,u16 top,u16 width,u16 height,u8 id,u8 type,u8 fo
 void memo_delete(_memo_obj * memo_del)
 {
 	if(memo_del==NULL)return;//非法的地址,直接退出
-	gui_memex_free(memo_del->text);	 //内存在外部申请的
-	gui_memex_free(memo_del->offsettbl);//内存在外部申请的
+	gui_memin_free(memo_del->text);	 //内存在外部申请的
+	gui_memin_free(memo_del->offsettbl);//内存在外部申请的
 	scrollbar_delete(memo_del->scbv);//删除滚动条
 	gui_memin_free(memo_del);
 } 
@@ -314,8 +314,8 @@ u8 memo_info_update(_memo_obj * memox,u32 curpos)
 	u16 linelenth=memox->width-MEMO_SCB_WIDTH;//每行长度
 	u32	lincnt=0;//总行数
 	lincnt=gui_get_stringline(memox->text,linelenth,memox->font);
- 	gui_memex_free(memox->offsettbl);//释放之前的
-	memox->offsettbl=gui_memex_malloc(lincnt*4);//重新申请
+ 	gui_memin_free(memox->offsettbl);//释放之前的
+	memox->offsettbl=gui_memin_malloc(lincnt*4);//重新申请
 	if(memox->offsettbl==NULL)return 1;
 	memox->scbv->totalitems=lincnt;
 	lincnt=0;

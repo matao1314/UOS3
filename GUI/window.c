@@ -99,7 +99,7 @@ _window_obj * window_creat(u16 left,u16 top,u16 width,u16 height,u8 id,u8 type,u
 
 	if(type&(1<<6))//需要读取背景色
 	{
-		window_crt->bkctbl=(u16*)gui_memex_malloc(width*height*2);//要分配完整的背景色表
+		window_crt->bkctbl=(u16*)gui_memin_malloc(width*height*2);//要分配完整的背景色表
 		if(window_crt->bkctbl==NULL)
 		{
 			window_delete(window_crt);		//释放之前申请的内存
@@ -115,7 +115,7 @@ void window_delete(_window_obj * window_del)
 {
 	if(window_del->type&(1<<6))window_recover_backcolor(window_del);//保存了背景色,此时恢复
  	btn_delete(window_del->closebtn);//删除关闭按钮
-  	gui_memex_free(window_del->bkctbl);
+  	gui_memin_free(window_del->bkctbl);
 	gui_memin_free(window_del);
 };
 //画出窗口

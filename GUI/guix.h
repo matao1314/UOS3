@@ -99,8 +99,6 @@ u8* gui_path_name(u8 *pname,u8* path,u8 *name);
 void gui_memset(void *p,u8 c,u32 len);
 void *gui_memin_malloc(u32 size);
 void gui_memin_free(void* ptr);
-void *gui_memex_malloc(u32 size);			
-void gui_memex_free(void* ptr);		 
 void *gui_memin_realloc(void *ptr,u32 size);
 
 void gui_init(void);

@@ -112,14 +112,14 @@ void music_play_task(void *pdata)
 				mp3dev->sta&=~(1<<4);//标记为普通文件
 			}	 
 			if(res)break;//打开flac patch错误
-			patchbuf=(u8*)mymalloc(SRAMEX,mp3dev->fmp3->fsize);	//开辟fsize字节的内存区域
+			patchbuf=(u8*)mymalloc(SRAMIN,mp3dev->fmp3->fsize);	//开辟fsize字节的内存区域
 			if(patchbuf==NULL)break;//申请内存失败
 			res=f_read(mp3dev->fmp3,patchbuf,mp3dev->fmp3->fsize,(UINT*)&br);	//一次读取整个文件
 		   	if(res==0)
 			{
 				VS_Load_Patch((u16*)patchbuf,mp3dev->fmp3->fsize/2);
 			}
-			myfree(SRAMEX,patchbuf);
+			myfree(SRAMIN,patchbuf);
 			patchbuf=NULL;
 			f_close(mp3dev->fmp3);	 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ void music_play_task(void *pdata)
 		}
 		gui_memin_free(pname);
 	    gui_memin_free(mp3info.lfname);
-		myfree(SRAMEX,patchbuf);	 
+		myfree(SRAMIN,patchbuf);	 
 		myfree(SRAMIN,databuf);	  	  
  		mp3dev->sta=0;//播放停止
 	}	 	    
@@ -293,7 +293,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 			if(mp3devx->path==NULL){rval=1;break;}
 			mp3devx->path[0]='\0';//在最开始加入结束符.
  			strcpy((char *)mp3devx->path,(char *)flistbox->path);
-			mp3devx->mfindextbl=(u16*)gui_memex_malloc(flistbox->filecnt*2);//为新的tbl申请内存
+			mp3devx->mfindextbl=(u16*)gui_memin_malloc(flistbox->filecnt*2);//为新的tbl申请内存
 			if(mp3devx->mfindextbl==NULL){rval=1;break;}
 		    for(i=0;i<flistbox->filecnt;i++)mp3devx->mfindextbl[i]=flistbox->findextbl[i];//复制
 

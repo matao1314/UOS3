@@ -112,8 +112,8 @@ void filelist_delete(_filelistbox_obj * filelistbox)
 		{
 			filelistdel=filelisttemp;
 			filelisttemp=filelisttemp->nextlist;
-		    gui_memex_free(filelistdel->name);	//删除条目的名字
-		    gui_memex_free(filelistdel);		//删除一个条目
+		    gui_memin_free(filelistdel->name);	//删除条目的名字
+		    gui_memin_free(filelistdel);		//删除一个条目
 		}while(filelisttemp!=NULL);		//一次删除所有的条目
 	}
 	filelistbox->list=NULL;//清空

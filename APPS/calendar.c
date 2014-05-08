@@ -167,7 +167,7 @@ u8 calendar_alarm_msg(u16 x,u16 y)
 //		res=f_open(falarm,(const TCHAR*)APP_ASCII_60,FA_READ);//打开文件 
 		if(res==0)
 		{
-			bfbase=(u8*)gui_memex_malloc(falarm->fsize);	//为大字体开辟缓存地址
+			bfbase=(u8*)gui_memin_malloc(falarm->fsize);	//为大字体开辟缓存地址
 			if(bfbase==0)rval=1;
 			else 
 			{
@@ -227,7 +227,7 @@ u8 calendar_alarm_msg(u16 x,u16 y)
 	btn_delete(rbtn);
 	btn_delete(okbtn); 	  
 	gui_memin_free(falarm);
-	gui_memex_free(bfbase);
+	gui_memin_free(bfbase);
 //	OSTaskResume(6); 		//恢复主任务
 	return rval;
 }
@@ -257,7 +257,7 @@ u8 calendar_play(void)
 //		res=f_open(f_calendar,(const TCHAR*)APP_ASCII_60,FA_READ);//打开文件 
 		if(res==FR_OK)
 		{
-			bfbase=(u8*)gui_memex_malloc(f_calendar->fsize);	//为大字体开辟缓存地址
+			bfbase=(u8*)gui_memin_malloc(f_calendar->fsize);	//为大字体开辟缓存地址
 			if(bfbase==0)rval=1;
 			else 
 			{
@@ -319,7 +319,7 @@ u8 calendar_play(void)
  		timex++;
  	};
  	while(tp_dev.sta&TP_PRES_DOWN)tp_dev.scan(0);//等待TP松开.
-	gui_memex_free(bfbase);		//删除申请的内存
+	gui_memin_free(bfbase);		//删除申请的内存
 	gui_memin_free(f_calendar);	//删除申请的内存
 	POINT_COLOR=BLUE;
 	BACK_COLOR=WHITE ;	
