@@ -51,10 +51,10 @@ void NMI_Handler(void)
 }
 
 
-__asm void wait()
-{
-    BX lr
-}
+//__asm void wait()
+//{
+//    BX lr
+//}
 /**
   * @brief  This function handles Hard Fault exception.
   * @param  None
@@ -62,8 +62,8 @@ __asm void wait()
   */
 void HardFault_Handler(void)
 {
-	u32 temp;
-	wait();
+	u32 temp;	
+	//wait();
 	temp=SCB->CFSR;//fault×´Ì¬¼Ä´æÆ÷(@0XE000ED28)°üÀ¨:MMSR,BFSR,UFSR
  	printf("CFSR:%8X\r\n",temp);//ÏÔÊ¾´íÎóÖµ
 	temp=SCB->HFSR;	//Ó²¼şfault×´Ì¬¼Ä´æÆ÷
@@ -72,11 +72,11 @@ void HardFault_Handler(void)
  	printf("DFSR:%8X\r\n",temp);//ÏÔÊ¾´íÎóÖµ
   temp=SCB->AFSR;	//¸¨Öúfault×´Ì¬¼Ä´æÆ÷
  	printf("AFSR:%8X\r\n",temp);//ÏÔÊ¾´íÎóÖµ
-	while(1){
-			LED0=0;
-			delay_ms(200);	 
-			LED0=1;
-			delay_ms(200);
+		while(1){				
+		LED0=1;
+		temp=1000000;while(temp--);
+		LED0=0;
+		temp=1000000;while(temp--);
 	}
 }
 

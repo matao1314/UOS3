@@ -3,8 +3,8 @@
 
 _alarm_obj alarm;	//闹钟结构体
 					 
-#define TIME_TOPY	120
-#define OTHER_TOPY	200 	
+#define TIME_TOPY	  50
+#define OTHER_TOPY	130 	
 
 
 const u8 *calendar_week_table[GUI_LANGUAGE_NUM][7]=
@@ -254,7 +254,7 @@ u8 calendar_play(void)
 	if(f_calendar==NULL)rval=1;		//申请失败
 	else
 	{
-//		res=f_open(f_calendar,(const TCHAR*)APP_ASCII_60,FA_READ);//打开文件 
+		res=f_open(f_calendar,(const TCHAR*)APP_ASCII_60,FA_READ);//打开文件 
 		if(res==FR_OK)
 		{
 			bfbase=(u8*)gui_memin_malloc(f_calendar->fsize);	//为大字体开辟缓存地址
@@ -269,19 +269,15 @@ u8 calendar_play(void)
 	} 	    
 	if(rval==0)//无错误
 	{	  
- 		LCD_Clear(BLACK);//清黑屏    	  
 		second=calendar.sec;//得到此刻的秒钟
 		POINT_COLOR=GBLUE;
-		Show_Str(48,60,240,320,(u8*)calendar_loading_str[gui_phy.language][0],16,0x01); //显示进入信息	    
 		delay_ms(1100);//等待1.1s 
 		BACK_COLOR= BLACK;
-		LCD_Clear(BLACK);//清黑屏 
 		calendar_date_refresh();  //加载日历
 		tempdate=calendar.w_date;//天数暂存器
 
-//		app_showbigchar(bfbase,70-4,TIME_TOPY,':',60,GBLUE,BLACK); 		//":"
-//		app_showbigchar(bfbase,150-4,TIME_TOPY,':',60,GBLUE,BLACK); 	//":"	 
-		//gui_draw_rectangle(4,4,232,112,GRED);//画3D显示的边框.
+		app_showbigchar(bfbase,70-4,TIME_TOPY,':',60,WHITE,BLACK); 		//":"
+		app_showbigchar(bfbase,150-4,TIME_TOPY,':',60,WHITE,BLACK); 	//":"	 
 	}
   	while(rval==0)
 	{	
@@ -305,10 +301,10 @@ u8 calendar_play(void)
 		}else slidercnt=0;				//松开了,则直接设置滑动无效
  		if(second!=calendar.sec) //秒钟改变了
 		{ 	
-  			second=calendar.sec;  
-//			app_showbig2num(bfbase,10,TIME_TOPY,calendar.hour,60,GBLUE,BLACK);	//显示时
-// 			app_showbig2num(bfbase,90,TIME_TOPY,calendar.min,60,GBLUE,BLACK);	//显示分	 
-// 			app_showbig2num(bfbase,170,TIME_TOPY,calendar.sec,60,GBLUE,BLACK);	//显示秒	 					   
+  		second=calendar.sec;  
+			app_showbig2num(bfbase,10,TIME_TOPY,calendar.hour,60,WHITE,BLACK);	//显示时
+ 			app_showbig2num(bfbase,90,TIME_TOPY,calendar.min,60,WHITE,BLACK);	//显示分	 
+ 			app_showbig2num(bfbase,170,TIME_TOPY,calendar.sec,60,WHITE,BLACK);	//显示秒	 					   
 			if(calendar.w_date!=tempdate)
 			{
 				calendar_date_refresh();//天数变化了,更新日历.  

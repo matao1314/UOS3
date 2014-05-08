@@ -58,7 +58,7 @@ const u8* MP3_PAUSEP_PIC="1:/SYSTEM/APP/MP3/PauseP.bmp";	//暂停 按下
 
 //播放音乐任务
 //OS_EVENT * mp3mbox;//事件控制块	   	   
-void music_play_task(void *pdata)
+void music_task(void *pdata)
 {	 
    	DIR mp3dir;			//mp3dir专用	  
  	FILINFO mp3info;	 	   
@@ -75,6 +75,8 @@ void music_play_task(void *pdata)
 //	VS_Soft_Reset();  	//软复位VS1053
  	while(1)
 	{
+		delay_ms(500);	 
+
 //		mp3dev->curindex=(u32)OSMboxPend(mp3mbox,0,&rval)-1;//请求邮箱,要减去1,因为发送的时候增加了1
 		rval=0;
 		databuf=(u8*)mymalloc(SRAMIN,4096);		//开辟512字节的内存区域
@@ -99,6 +101,7 @@ void music_play_task(void *pdata)
 			VS_Set_All();        	//设置音量等信息 			 
 			VS_Reset_DecodeTime();	//复位解码时间 
 			res=f_typetell(pname);
+	#if 1
 ///////////////////////////////////////////////////////////////////////////////////
 			if(res==0x4c)//flac
 			{	
@@ -160,18 +163,19 @@ void music_play_task(void *pdata)
 			}	  
 			if(mp3dev->sta&0x01)//允许播放的条件下,循环播放
 			{
-				/*if(systemset.mp3mode==0)//顺序播放
-				{
 					if(mp3dev->curindex<(mp3dev->mfilenum-1))mp3dev->curindex++;
 					else mp3dev->curindex=0;
+				/*if(systemset.mp3mode==0)//顺序播放
+				{
 				}else if(systemset.mp3mode==1)//随机播放
 				{						    
 					mp3dev->curindex=app_get_rand(mp3dev->mfilenum);//得到下一首歌曲的索引	  
 				}else mp3dev->curindex=mp3dev->curindex;//单曲循环	*/			
  			}else break;	  
+		#endif
 		}
 		gui_memin_free(pname);
-	    gui_memin_free(mp3info.lfname);
+	  gui_memin_free(mp3info.lfname);
 		myfree(SRAMIN,patchbuf);	 
 		myfree(SRAMIN,databuf);	  	  
  		mp3dev->sta=0;//播放停止
@@ -232,7 +236,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
  	mp3info.lfsize = _MAX_LFN * 2 + 1;
 	mp3info.lfname = gui_memin_malloc(mp3info.lfsize);
 	if(mp3info.lfname==NULL)rval=1;//申请内存失败 
-   	else gui_memset((u8 *)mp3info.lfname,0,mp3info.lfsize);
+  else gui_memset((u8 *)mp3info.lfname,0,mp3info.lfsize);
  
 	rbtn=btn_creat(199,300,40,19,0,0x03);	//创建返回文字按钮
  	qbtn=btn_creat(0,300,40,19,0,0x03);		//创建退出文字按钮
@@ -251,7 +255,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 		qbtn->bcfucolor=WHITE;	//松开时的颜色
 		btn_draw(qbtn);//画按钮
 	}	   
-   	while(rval==0)
+   while(rval==0)
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
@@ -324,7 +328,7 @@ void mp3_load_ui(void)
  	minibmp_decode((u8*)APP_VOL_PIC,103,150+10,16,16,0,0);				//解码音量图标
 	gui_show_string("kbps",178+18,133,24,12,12,MP3_INFO_COLOR);			//显示kbps
  
-  	gui_show_string("00%",120,178,66,12,12,MP3_INFO_COLOR);		//显示时间
+  gui_show_string("00%",120,178,66,12,12,MP3_INFO_COLOR);		//显示时间
 	gui_show_string("00:00/00:00",21,133,66,12,12,MP3_INFO_COLOR);		//显示时间
  
  	gui_fill_colorblock(20,105,200,6,(u16*)MP3_SPEC_BASE_CTBL,0);		//纵向填充
@@ -588,6 +592,8 @@ u8 mp3_play(void)
 						case 1://上一曲或者下一曲
 						case 3:
 				    		mp3_stop(mp3dev);
+								mp3dev->curindex=app_get_rand(mp3dev->mfilenum);//得到下一首歌曲的索引	  
+
 						#if 0
 							if(systemset.mp3mode==1)//随机播放
 							{						    

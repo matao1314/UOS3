@@ -33,6 +33,8 @@
 //APP
 #include "appui.h"
 #include "appcom.h"
+#include "calendar.h" 	      						  
+#include "mp3player.h"
 
 
 

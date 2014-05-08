@@ -69,7 +69,7 @@ extern _m_mp3dev *mp3dev;
 extern u8 mp3sta;//MP3״̬	  
 
 
-void music_play_task(void *pdata);
+void music_task(void *pdata);
 void mp3_stop(_m_mp3dev *mp3devx);
 u8 mp3_filelist(_m_mp3dev *mp3devx);
 void mp3_load_ui(void);

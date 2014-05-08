@@ -88,7 +88,7 @@ u8 picviewer_play(void)
 		} 
 		if(endecode)
 		{
-     		rval=f_opendir(&picdir,(const TCHAR*)flistbox->path); //打开选中的目录
+     	rval=f_opendir(&picdir,(const TCHAR*)flistbox->path); //打开选中的目录
 			if(rval)break;	 			   
 			dir_sdi(&picdir,flistbox->findextbl[curindex]);
 	 		rval=f_readdir(&picdir,&picinfo);//读取文件信息
