@@ -1,11 +1,9 @@
 #ifndef __MP3PLAYER_H
 #define __MP3PLAYER_H
 #include "sys.h"
-//#include "includes.h" 	   	 
 #include "common.h"
 #include "ff.h"	
 #include "gui.h"
-#include "lyric.h"
 #include "bsp.h"
 ////////////////////////////////////////////////////////////////////////////////////////////
 //¸÷Í¼±ê/Í¼Æ¬Â·¾¶
@@ -79,8 +77,7 @@ void mp3_show_vol(u8 pctx);
 void mp3_time_show(u16 sx,u16 sy,u16 sec);
 void fft_show_oneband(u16 x,u16 y,u16 width,u16 height,u16 curval,u16 topval);
 void mp3_specalz_show(_m_mp3dev *mp3devx,u16 *pdt);
-//void mp3_info_upd(_m_mp3dev *mp3devx,_progressbar_obj* mp3prgbx,_progressbar_obj* volprgbx,_lyric_obj* lrcx);
-//void mp3_lrc_show(_m_mp3dev *mp3devx,_lyric_obj* lrcx);
+void mp3_info_upd(_m_mp3dev *mp3devx,_progressbar_obj* mp3prgbx,_progressbar_obj* volprgbx);
 u8 mp3_play(void);	    
 
 #endif

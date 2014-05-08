@@ -1,9 +1,7 @@
-//#include "include.h"		 
 #include "mp3player.h"
-#include "settings.h"
+//#include "settings.h"
 //mp3播放控制器
 _m_mp3dev  *mp3dev=NULL;
-_lyric_obj *lrcdev=NULL;	//歌词控制器
 
 ////////////////////////////////////////////////////////
 #if ICOS_LOCATION==ICOS_SD_CARD//存放在SD卡  
@@ -162,14 +160,14 @@ void music_play_task(void *pdata)
 			}	  
 			if(mp3dev->sta&0x01)//允许播放的条件下,循环播放
 			{
-				if(systemset.mp3mode==0)//顺序播放
+				/*if(systemset.mp3mode==0)//顺序播放
 				{
 					if(mp3dev->curindex<(mp3dev->mfilenum-1))mp3dev->curindex++;
 					else mp3dev->curindex=0;
 				}else if(systemset.mp3mode==1)//随机播放
 				{						    
 					mp3dev->curindex=app_get_rand(mp3dev->mfilenum);//得到下一首歌曲的索引	  
-				}else mp3dev->curindex=mp3dev->curindex;//单曲循环				
+				}else mp3dev->curindex=mp3dev->curindex;//单曲循环	*/			
  			}else break;	  
 		}
 		gui_memin_free(pname);
@@ -204,16 +202,15 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 	FILINFO mp3info;	 	   
 	u8 res;
 	u8 rval=0;			//返回值	  
-  	u16 i;	    						   
- 
+  u16 i;	    						   
  	_btn_obj* rbtn;		//返回按钮控件
  	_btn_obj* qbtn;		//退出按钮控件
 
-   	_filelistbox_obj * flistbox;
+  _filelistbox_obj * flistbox;
 	_filelistbox_list * filelistx; 	//文件
   			    
 	app_filebrower((u8*)MUSIC_LIST[gui_phy.language],0X07);	//选择目标文件,并得到目标数量
-   	flistbox=filelistbox_creat(0,20,240,280,1,12);		//创建一个filelistbox
+  flistbox=filelistbox_creat(0,20,240,280,1,12);		//创建一个filelistbox
 	if(flistbox==NULL)rval=1;							//申请内存失败.
 	else if(mp3devx->path==NULL)  
 	{
@@ -259,7 +256,6 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
 		delay_ms(1000/OSCfg_TickRate_Hz);		//延时一个时钟节拍
-//		if(system_task_return)break;			//TPAD返回
 		filelistbox_check(flistbox,&in_obj);	//扫描文件
 		res=btn_check(rbtn,&in_obj);
 		if(res)
@@ -288,7 +284,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 		{											 
 			mp3_stop(mp3devx);
 			gui_memin_free(mp3devx->path);		//释放内存
-			gui_memex_free(mp3devx->mfindextbl);	//释放内存
+			gui_memin_free(mp3devx->mfindextbl);	//释放内存
 			mp3devx->path=(u8*)gui_memin_malloc(strlen((const char*)flistbox->path)+1);//为新的路径申请内存
 			if(mp3devx->path==NULL){rval=1;break;}
 			mp3devx->path[0]='\0';//在最开始加入结束符.
@@ -306,11 +302,11 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 	filelistbox_delete(flistbox);	//删除filelist
 	btn_delete(qbtn);				//删除按钮	  	 
 	btn_delete(rbtn);				//删除按钮	   
-  	gui_memin_free(mp3info.lfname);	
+  gui_memin_free(mp3info.lfname);	
 	if(rval)
 	{
 		gui_memin_free(mp3devx->path);		 //释放内存
-		gui_memex_free(mp3devx->mfindextbl); //释放内存
+		gui_memin_free(mp3devx->mfindextbl); //释放内存
 		gui_memin_free(mp3devx);
  	}	    
 	return rval; 
@@ -418,7 +414,7 @@ const u16 VS_NEW_BANDS_FREQ_TBL[14]={80,300,800,1270,2016,3200,4500,6000,7500,90
 //mp3devx:MP3控制器
 //mp3prgbx:进度条
 //lrcx:歌词控制器
-void mp3_info_upd(_m_mp3dev *mp3devx,_progressbar_obj* mp3prgbx,_progressbar_obj* volprgbx,_lyric_obj* lrcx)
+void mp3_info_upd(_m_mp3dev *mp3devx,_progressbar_obj* mp3prgbx,_progressbar_obj* volprgbx)
 {
 	u16 temp;			  
 	u8 i;				 
@@ -452,12 +448,7 @@ void mp3_info_upd(_m_mp3dev *mp3devx,_progressbar_obj* mp3prgbx,_progressbar_obj
   			mp3devx->fft_time_tbl[i]=0;	    
 			fft_show_oneband(20+2+i*14,105-64,12,63,0,0);//每个柱子都清零	   
 		}				 
-		VS_Set_Bands((u16*)VS_NEW_BANDS_FREQ_TBL,14);//重设频率
-		if(lrcx)
-		{
-			gui_fill_rectangle(20,216,220,36+10,MP3_MAIN_BKCOLOR);//清除之前的显示
-			lrc_read(lrcx,mp3devx->path,mp3devx->name);
-		}
+		//VS_Set_Bands((u16*)VS_NEW_BANDS_FREQ_TBL,14);//重设频率
 	}
 	if(mp3devx->namelen>240-10)//大于屏幕长度
 	{
@@ -487,74 +478,6 @@ void mp3_info_upd(_m_mp3dev *mp3devx,_progressbar_obj* mp3prgbx,_progressbar_obj
 		}	    
 	}
 }
-//显示歌词
-//mp3devx:MP3控制器
-//lrcx:歌词控制器
-void mp3_lrc_show(_m_mp3dev *mp3devx,_lyric_obj* lrcx)
-{
-	u8 t;
-	u16 temp,temp1;	   	  
-	if(lrcx->oldostime!=GUI_TIMER_10MS)//每10ms更新一下
-	{
-		t=gui_disabs(GUI_TIMER_10MS,lrcx->oldostime);//防止很久没有进入主程序导致的漏加
-		lrcx->oldostime=GUI_TIMER_10MS;
-		if(t>10)t=1;
-		lrcx->curtime+=t;//增加10ms	 
-		if(lrcx->indexsize)//有歌词存在 
-		{
-			lrcx->detatime+=t;//标志时间增加了10ms
-			if(lrcx->curindex<lrcx->indexsize)//还没显示完
-			{
-	 			if((lrcx->curtime%100)>80)//1秒钟后过了800ms,需要查询VS10XX的解码时间寄存器以同步歌词
-				{							 	 
-					lrcx->curtime=(u32)VS_Get_DecodeTime()*100;//更新秒钟
-				}
-				if(lrcx->curtime>=lrcx->time_tbl[lrcx->curindex])//当前时间超过了,需要更新歌词
-				{
-					gui_fill_rectangle(20,216,200,36+10,MP3_MAIN_BKCOLOR);//清除之前的显示
-	 				if(lrcx->curindex)//需要显示上一句
-					{
-						lrcx->curindex--;
-						lrcx->color=MP3_LRC_SCOLOR;
-						lrc_show_linelrc(lrcx,20,216,200,12);//显示上一句歌词
-						lrcx->curindex++;//恢复.
-					}
-					if(lrcx->curindex<lrcx->indexsize-1)//还可以显示下一句
-					{
-						lrcx->curindex++;
-						lrcx->color=MP3_LRC_SCOLOR;
-						lrc_show_linelrc(lrcx,20,216+24+10,200,12);//显示下一句歌词
-						lrcx->curindex--;//恢复.
-	 				}
-					lrcx->color=MP3_LRC_MCOLOR;
-					lrc_show_linelrc(lrcx,20,216+12+5,200,12);		//显示本句歌词	    
-					lrcx->curindex++;   
-					if(lrcx->namelen>200)//需要滚动歌词
-					{
-						if(lrcx->curindex<lrcx->indexsize)//本句的下一句歌词还是存在的.
-						{
-							temp=lrcx->time_tbl[lrcx->curindex-1];//当前歌词的时间
-							temp1=lrcx->time_tbl[lrcx->curindex]; //下一句歌词的时间 	 	   
-							lrcx->updatetime=(temp1-temp)/(lrcx->namelen-150);//计算得到滚动间隔时间,这里多了50个单位,因为前面的程序执行时间影响.
-							if(lrcx->updatetime>20)lrcx->updatetime=20;//最大不超过200ms;
- 						}else lrcx->updatetime=5;//默认滚动时间.50ms	  
-					}													   
-				}
-			}
-			if(lrcx->detatime>=lrcx->updatetime)//每lrcx->updatetime*10ms滚动显示当前歌词(如果需要滚动的话)
-			{			 
-				if(lrcx->namelen>200)//超过了显示区域,需要滚动显示本句歌词
-				{
- 					gui_fill_rectangle(20,216+12+5,200,12,MP3_MAIN_BKCOLOR);//清空之前的显示
-					gui_show_ptstr(20,216+12+5,239-20,319,lrcx->curnamepos,MP3_LRC_MCOLOR,lrcx->font,lrcx->buf,1);//滚动显示本句歌词
-					lrcx->curnamepos++;
-					if(lrcx->curnamepos+200>lrcx->namelen+50)lrcx->curnamepos=0;//循环显示		
-				}
-				lrcx->detatime=0;		  
-			}
-		}   
-	}
-}	  
 //MP3播放
 u8 mp3_play(void)
 {
@@ -578,12 +501,6 @@ u8 mp3_play(void)
 			gui_memin_free(mp3dev);	 						//释放之前申请到的内存
 			return 1;	
 		}	 
-		lrcdev=lrc_creat();									//创建歌词管理结构体
-		if(lrcdev)
-		{
-			lrcdev->font=12;
- 			lrcdev->bkcolor=MP3_MAIN_BKCOLOR;		    
-		}
  		gui_memset((u8 *)mp3dev->fmp3,0,sizeof(FIL));			//清零	   
 	}   
 	if((mp3dev->sta&0x80)==0)	//当前没有播放MP3
@@ -618,17 +535,14 @@ u8 mp3_play(void)
 	}
 	if(rval==0)//没有错误
 	{
-	   	mp3prgb->inbkcolora=0x738E;			//默认色
+	  mp3prgb->inbkcolora=0x738E;			//默认色
 	 	mp3prgb->inbkcolorb=MP3_INFO_COLOR;	//默认色 
 	 	mp3prgb->infcolora=0X75D;			//默认色
-	 	mp3prgb->infcolorb=0X596;			//默认色 
-	
-	   	volprgb->inbkcolora=MP3_INFO_COLOR;	//默认色
+	 	mp3prgb->infcolorb=0X596;			//默认色 	
+	  volprgb->inbkcolora=MP3_INFO_COLOR;	//默认色
 	 	volprgb->inbkcolorb=MP3_INFO_COLOR;	//默认色 
 	 	volprgb->infcolora=0X75D;			//默认色
-	 	volprgb->infcolorb=0X596;			//默认色 	   						    						  		
-							 	  					   
-	
+	 	volprgb->infcolorb=0X596;			//默认色 	   						    						  									 	  					  	
 		mp3_load_ui();//加载主界面
 		mp3_show_vol((volprgb->curpos*100)/volprgb->totallen);	//显示音量百分比 
 		for(i=0;i<5;i++)btn_draw(tbtn[i]);		//画按钮
@@ -636,12 +550,6 @@ u8 mp3_play(void)
 		progressbar_draw_progressbar(mp3prgb);	//画进度条	 
 		progressbar_draw_progressbar(volprgb);	//画进度条
 		tcnt=0;
- 		if(systemset.fmtxmode)//如果开启了发射,则打开FM发射.
-		{
-			//RDA5820_TX_Mode();	//设置为发送模式 
-			//RDA5820_Freq_Set(systemset.fmtxfreq*10);	//设置到systemset.fmtxfreq的频率值
-			//RDA5820_TxPGA_Set(3); 						//设置增益为3
-		}
 		while(rval==0)
 		{
 			tcnt++;//计时增加.
@@ -653,7 +561,6 @@ u8 mp3_play(void)
 				res=btn_check(tbtn[i],&in_obj);	 
 				if((res&&((tbtn[i]->sta&(1<<7))==0)&&(tbtn[i]->sta&(1<<6))))//有按键按下且松开,并且TP松开了或者TPAD返回
 				{
-					//if(system_task_return)i=4;//TPAD返回
 					switch(i)
 					{
 						case 0://file list
@@ -681,6 +588,7 @@ u8 mp3_play(void)
 						case 1://上一曲或者下一曲
 						case 3:
 				    		mp3_stop(mp3dev);
+						#if 0
 							if(systemset.mp3mode==1)//随机播放
 							{						    
 								mp3dev->curindex=app_get_rand(mp3dev->mfilenum);//得到下一首歌曲的索引	  
@@ -696,6 +604,7 @@ u8 mp3_play(void)
 									else mp3dev->curindex=0;
 								}
 							}
+							#endif
 //							OSMboxPost(mp3mbox,(void*)(mp3dev->curindex+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
 							break;
 						case 2://播放/暂停
@@ -739,15 +648,10 @@ u8 mp3_play(void)
 			{
 				f_lseek(mp3dev->fmp3,mp3prgb->curpos);//快速定位
 			}	  
-			if((tcnt%20)==0)mp3_info_upd(mp3dev,mp3prgb,volprgb,lrcdev);//更新显示信息,每100ms执行一次
  			if(((mp3dev->sta&(1<<4))==0)&&(tcnt%5)==0)		//不是flac,执行频谱显示
 			{
-				res=VS_Get_Spec(specbuf);
+				res = VS_Get_Spec(specbuf);
 				if(res)mp3_specalz_show(mp3dev,specbuf);	//显示频谱
-			}
-			if(lrcdev!=NULL&&((mp3dev->sta&(1<<5))==0)&&(mp3dev->sta&(1<<7)))//正在播放,不是暂停,且歌词结构体正常
-			{
-				mp3_lrc_show(mp3dev,lrcdev);	//可以显示歌词	  
 			}
 		}
 	}
@@ -756,15 +660,13 @@ u8 mp3_play(void)
 	progressbar_delete(volprgb);
 	if(rval==3)//退出MP3播放.且不后台播放
 	{
-		if(systemset.audiosel==0)systemset.audiosel=3;//无声通道
+		//if(systemset.audiosel==0)systemset.audiosel=3;//无声通道
 		gui_memin_free(mp3dev->path);		//释放内存
-		gui_memex_free(mp3dev->mfindextbl);	//释放内存
+		gui_memin_free(mp3dev->mfindextbl);	//释放内存
 		myfree(SRAMIN,mp3dev->fmp3);		//释放内存
 		gui_memin_free(mp3dev);				//释放内存	 
-		lrc_delete(lrcdev);					//释放歌词显示申请的内存
-		lrcdev=NULL;//指向空地址
 		mp3dev=NULL;//指向空地址
-	}else systemset.audiosel=0;				//默认通道变为MP3通道  			  
+	}//else systemset.audiosel=0;				//默认通道变为MP3通道  			  
 	return rval;
 }
 
