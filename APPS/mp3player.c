@@ -448,7 +448,7 @@ void mp3_info_upd(_m_mp3dev *mp3devx,_progressbar_obj* mp3prgbx,_progressbar_obj
   			mp3devx->fft_time_tbl[i]=0;	    
 			fft_show_oneband(20+2+i*14,105-64,12,63,0,0);//每个柱子都清零	   
 		}				 
-		//VS_Set_Bands((u16*)VS_NEW_BANDS_FREQ_TBL,14);//重设频率
+		VS_Set_Bands((u16*)VS_NEW_BANDS_FREQ_TBL,14);//重设频率
 	}
 	if(mp3devx->namelen>240-10)//大于屏幕长度
 	{

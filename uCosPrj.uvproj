@@ -909,6 +909,11 @@
               <FileType>1</FileType>
               <FilePath>.\APPS\appcom.c</FilePath>
             </File>
+            <File>
+              <FileName>mp3player.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APPS\mp3player.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
