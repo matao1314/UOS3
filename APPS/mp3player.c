@@ -57,20 +57,22 @@ const u8* MP3_PAUSEP_PIC="1:/SYSTEM/APP/MP3/PauseP.bmp";	//暂停 按下
 #endif 
 
 //播放音乐任务
-//OS_EVENT * mp3mbox;//事件控制块	   	   
+//OS_EVENT * mp3mbox;//事件控制块	   	
+OS_Q MusicQ;
 void music_task(void *pdata)
 {	 
-   	DIR mp3dir;			//mp3dir专用	  
+  DIR mp3dir;			//mp3dir专用	  
  	FILINFO mp3info;	 	   
-    u16 br;
+  u16 br;
 	u8 res,rval;	  
 	u8 *databuf;
 	u8 *patchbuf=0;	  		   
 	u16 i=0;   
 	u8 *pname=0;		   
- 		    
-// 	mp3mbox=OSMboxCreate((void*) 0);//创建邮箱
 
+  OS_ERR   err;
+ 	//mp3mbox=OSMboxCreate((void*) 0);//创建邮箱
+  OSQCreate(&MusicQ,"MusicQuene",1,&err);
 //	VS_HD_Reset();
 //	VS_Soft_Reset();  	//软复位VS1053
  	while(1)

@@ -42,7 +42,8 @@ const u8* calendar_loading_str[GUI_LANGUAGE_NUM][3]=
 	"Start Inside Sensor...",
 },
 };	
-
+const char  my_date[] = __DATE__;//month dd yyyy
+const char  my_time[] = __TIME__;//Format: hh:mm:ss
 //重新初始化闹钟		    
 //alarmx:闹钟结构体
 void calendar_alarm_init(_alarm_obj *alarmx) 
@@ -70,7 +71,14 @@ void calendar_alarm_init(_alarm_obj *alarmx)
 	RTC->ALRL=destime&0xffff;
 	RTC->ALRH=destime>>16;
 	RTC->CRL&=~(1<<4);//配置更新
-	while(!(RTC->CRL&(1<<5)));//等待RTC寄存器操作完成  
+	while(!(RTC->CRL&(1<<5)));//等待RTC寄存器操作完成 
+  calendar.hour = my_time[0];
+  calendar.min  = my_time[0];  
+  calendar.sec  = my_time[0];  
+  calendar.w_year = my_date[0];	
+	calendar.w_month = my_date[0];
+  calendar.w_date = my_date[0];
+	//http://www.keil.com/support/man/docs/c51/c51_pp_predefmacroconst.htm
 }
 //闹钟响闹铃
 //type:闹铃类型	   
@@ -105,7 +113,7 @@ void calendar_date_refresh(void)
 	LCD_ShowxNum(69,OTHER_TOPY+9,calendar.w_date,2,16,0);         //显示日	  
 	//显示周几?
 	POINT_COLOR=RED;
-    weekn=RTC_Get_Week(calendar.w_year,calendar.w_month,calendar.w_date);//得到星期	   
+  weekn=RTC_Get_Week(calendar.w_year,calendar.w_month,calendar.w_date);//得到星期	   
 	Show_Str(10,OTHER_TOPY+35,240,320,(u8 *)calendar_week_table[gui_phy.language][weekn],16,0); //显示周几?	
 													 
 }
@@ -114,7 +122,7 @@ void calendar_date_refresh(void)
 //alarm:闹钟信息 
 void calendar_read_para(_alarm_obj * alarm)
 {
-//	AT24CXX_Read(SYSTEM_PARA_SAVE_BASE+sizeof(_system_setings)+sizeof(_vs10xx_obj),(u8*)alarm,sizeof(_alarm_obj));
+	alarm=(_alarm_obj *)I2C_EE_ReadLenByte(SYSTEM_PARA_SAVE_BASE+sizeof(int)+sizeof(_vs10xx_obj),sizeof(_alarm_obj));
 }
 //写入日历闹钟信息
 //alarm:闹钟信息 
@@ -122,8 +130,8 @@ void calendar_save_para(_alarm_obj * alarm)
 {
 //  	OS_CPU_SR cpu_sr=0;
 	alarm->ringsta&=0X7F;	//清空最高位
-//	OS_ENTER_CRITICAL();	//进入临界区(无法被中断打断) 
-//	AT24CXX_Write(SYSTEM_PARA_SAVE_BASE+sizeof(_system_setings)+sizeof(_vs10xx_obj),(u8*)alarm,sizeof(_alarm_obj));
+//	OS_ENTER_CRITICAL();	//进入临界区(无法被中断打断) _system_setings
+	I2C_EE_WriteNLenByte(SYSTEM_PARA_SAVE_BASE+sizeof(int)+sizeof(_vs10xx_obj),(u32)alarm,sizeof(_alarm_obj));
 //	OS_EXIT_CRITICAL();		//退出临界区(可以被中断打断)
 }
 

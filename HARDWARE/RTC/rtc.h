@@ -1,5 +1,6 @@
 #ifndef __RTC_H
 #define __RTC_H	    
+#include "sys.h"
 
 //时间结构体
 typedef struct 
