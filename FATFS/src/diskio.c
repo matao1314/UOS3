@@ -10,7 +10,7 @@
 
 #include "flash.h"
 #include "malloc.h"		 		   
-//#include "os_cpu.h" 
+#include "os.h"
 
 /*-----------------------------------------------------------------------*/
 /* Correspondence between physical drive number and physical drive.      */
@@ -284,14 +284,14 @@ DWORD get_fattime (void)
 	return 0;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-//CPU_SR cpu_sr=0;
+CPU_SR cpu_sr=0;
 void ff_enter(void)
 {
- 	//OS_ENTER_CRITICAL();//进入临界区(无法被中断打断)    
+ 	OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)    
 }
 void ff_leave(void)
 {
- 	//OS_EXIT_CRITICAL();	//退出临界区(可以被中断打断)
+ 	OS_CRITICAL_EXIT();	//退出临界区(可以被中断打断)
 }
 /////////////////////////////////////////////////////////////////////////////////////
 

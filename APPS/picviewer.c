@@ -36,7 +36,7 @@ u8 picviewer_play(void)
 	{
 		flistbox->fliter=FLBOX_FLT_PICTURE;	//图片文件
  		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[0][gui_phy.language],0);		//磁盘0
-		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[1][gui_phy.language],0);		//磁盘1
+		//filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[1][gui_phy.language],0);		//磁盘1
 		filelistbox_draw_listbox(flistbox);
 	} 	 
 
@@ -62,7 +62,6 @@ u8 picviewer_play(void)
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
 		delay_ms(5);
-//		if(system_task_return)break;			//TPAD返回   	
 		if(picsta==0)
 		{
 			filelistbox_check(flistbox,&in_obj);	//扫描文件
@@ -151,6 +150,8 @@ u8 picviewer_play(void)
 						}   
 					}else if(key==3)
 					{
+						if(curindex<(flistbox->filecnt-1))curindex++;
+							else curindex=0;
 //						if(systemset.picmode==0)//顺序播放
 //						{
 //							if(curindex<(flistbox->filecnt-1))curindex++;
@@ -181,7 +182,6 @@ u8 picviewer_play(void)
 		  		if(key&&((rbtn->sta&0X80)==0))picsta=0;	//回到文件浏览状态
 			}
 			delay_ms(10);  
-//			if(system_task_return)picsta=0;//TPAD返回
 			if(picsta==0)//回到文件浏览状态之前的处理
 			{
 				LED0=1;	   				//关闭LED0

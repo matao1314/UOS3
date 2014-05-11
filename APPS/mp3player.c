@@ -69,28 +69,34 @@ void music_task(void *pdata)
 	u8 *patchbuf=0;	  		   
 	u16 i=0;   
 	u8 *pname=0;		   
-
   OS_ERR   err;
+	void *p_msg;
+	OS_MSG_SIZE msg_size;
+	CPU_TS ts;
  	//mp3mbox=OSMboxCreate((void*) 0);//创建邮箱
   OSQCreate(&MusicQ,"MusicQuene",1,&err);
 //	VS_HD_Reset();
 //	VS_Soft_Reset();  	//软复位VS1053
+	printf("Music Play Task!\r\n"); 	
  	while(1)
 	{
-		delay_ms(500);	 
-
-//		mp3dev->curindex=(u32)OSMboxPend(mp3mbox,0,&rval)-1;//请求邮箱,要减去1,因为发送的时候增加了1
+		mp3dev->curindex = (CPU_INT32U)OSQPend((OS_Q *)&MusicQ,
+																	(OS_TICK ) 1000,
+																	(OS_OPT )OS_OPT_PEND_BLOCKING,
+																	(OS_MSG_SIZE *)&msg_size,
+																	(CPU_TS *)&ts,
+																	(OS_ERR *)&err)-1;	
+		//mp3dev->curindex=(u32)OSMboxPend(mp3mbox,0,&rval)-1;//请求邮箱,要减去1,因为发送的时候增加了1
 		rval=0;
 		databuf=(u8*)mymalloc(SRAMIN,4096);		//开辟512字节的内存区域
 		if(databuf==NULL)rval=1 ;				//内存申请失败.
- 	
 		//为长文件名申请缓存区
 	 	mp3info.lfsize = _MAX_LFN * 2 + 1;
 		mp3info.lfname = gui_memin_malloc(mp3info.lfsize);
 		if(mp3info.lfname==NULL)rval=1;//申请内存失败 
 	   	else gui_memset((u8 *)mp3info.lfname,0,mp3info.lfsize);
 		if(rval==0)rval=f_opendir(&mp3dir,(const TCHAR*)mp3dev->path); //打开选中的目录
-  		while(rval==0)
+		while(rval==0)
 		{	  	 			   
 			dir_sdi(&mp3dir,mp3dev->mfindextbl[mp3dev->curindex]);
 	 		rval=f_readdir(&mp3dir,&mp3info);//读取文件信息
@@ -103,7 +109,7 @@ void music_task(void *pdata)
 			VS_Set_All();        	//设置音量等信息 			 
 			VS_Reset_DecodeTime();	//复位解码时间 
 			res=f_typetell(pname);
-	#if 1
+	#if 0
 ///////////////////////////////////////////////////////////////////////////////////
 			if(res==0x4c)//flac
 			{	
@@ -214,6 +220,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 
   _filelistbox_obj * flistbox;
 	_filelistbox_list * filelistx; 	//文件
+  OS_ERR err;
   			    
 	app_filebrower((u8*)MUSIC_LIST[gui_phy.language],0X07);	//选择目标文件,并得到目标数量
   flistbox=filelistbox_creat(0,20,240,280,1,12);		//创建一个filelistbox
@@ -299,7 +306,14 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 			if(mp3devx->mfindextbl==NULL){rval=1;break;}
 		    for(i=0;i<flistbox->filecnt;i++)mp3devx->mfindextbl[i]=flistbox->findextbl[i];//复制
 
-			mp3devx->mfilenum=flistbox->filecnt;		//记录文件个数	  
+			mp3devx->mfilenum=flistbox->filecnt;		//记录文件个数	
+
+			OSQPost ((OS_Q *)&MusicQ,
+			(void *)1,
+			(OS_MSG_SIZE)(flistbox->selindex-flistbox->foldercnt+1),
+			(OS_OPT )OS_OPT_PEND_BLOCKING,
+			(OS_ERR *)&err);
+			
 //			OSMboxPost(mp3mbox,(void*)(flistbox->selindex-flistbox->foldercnt+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
  			flistbox->dbclick=0;
 			break;	 							   			   
@@ -493,6 +507,7 @@ u8 mp3_play(void)
 	u8 rval=0;//1,内存错误;2,返回,MP3继续播放;3,返回,停止MP3播放.
 	u16 specbuf[15];
 	u8 lastvolpos;
+  OS_ERR err;
  
 	_progressbar_obj* mp3prgb,*volprgb;
 	_btn_obj* tbtn[5];		    
@@ -513,7 +528,7 @@ u8 mp3_play(void)
 	{
 		VS_HD_Reset();
 		VS_Soft_Reset();		//复位
-		mp3_filelist(mp3dev);
+		mp3_filelist(mp3dev);//----------------------------------------------------------
 		if((mp3dev->sta&0x80)==0)return 0;//还是没有MP3在播放,则退出程序
 	}else mp3dev->sta|=1<<6;//模拟一次切歌,让歌曲名字等信息显示出来 
 /////////////////////////////////////////////////////////////////////////////////
@@ -521,8 +536,7 @@ u8 mp3_play(void)
 	if(mp3prgb==NULL)rval=1;
 	volprgb=progressbar_creat(120,150+15,100,6,0X20);	//声音大小进度条
   	if(volprgb==NULL)rval=1;	   
- 	volprgb->totallen=150;	//更新总长度,音频从100~250.偏移为100.	
-	
+ 	volprgb->totallen=150;	//更新总长度,音频从100~250.偏移为100.		
 	if(vsset.mvol>=100&&vsset.mvol<=250)volprgb->curpos=vsset.mvol-100;
 	else//错误的数据 
 	{
@@ -613,6 +627,11 @@ u8 mp3_play(void)
 								}
 							}
 							#endif
+								OSQPost ((OS_Q *)&MusicQ,
+								(void *)1,
+								(OS_MSG_SIZE)(mp3dev->curindex+1),
+								(OS_OPT )OS_OPT_POST_FIFO,
+								(OS_ERR *)&err);
 //							OSMboxPost(mp3mbox,(void*)(mp3dev->curindex+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
 							break;
 						case 2://播放/暂停
@@ -668,13 +687,12 @@ u8 mp3_play(void)
 	progressbar_delete(volprgb);
 	if(rval==3)//退出MP3播放.且不后台播放
 	{
-		//if(systemset.audiosel==0)systemset.audiosel=3;//无声通道
 		gui_memin_free(mp3dev->path);		//释放内存
 		gui_memin_free(mp3dev->mfindextbl);	//释放内存
 		myfree(SRAMIN,mp3dev->fmp3);		//释放内存
 		gui_memin_free(mp3dev);				//释放内存	 
 		mp3dev=NULL;//指向空地址
-	}//else systemset.audiosel=0;				//默认通道变为MP3通道  			  
+	}	  
 	return rval;
 }
 

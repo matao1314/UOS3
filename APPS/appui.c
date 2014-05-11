@@ -103,7 +103,7 @@ u8 icon_press_chk(void)
 	if(tp_dev.sta&TP_PRES_DOWN)//有按键被按下
 	{
 
-			printf("tp_dev.x==%d tp_dev.y==%d!\r\n",tp_dev.x,tp_dev.y); 
+//			printf("tp_dev.x==%d tp_dev.y==%d!\r\n",tp_dev.x,tp_dev.y); 
 		
 			 	spbdev.curxpos=tp_dev.x;				//记录当前坐标
 			 	spbdev.curypos=tp_dev.y;				//记录当前坐标	
@@ -129,6 +129,7 @@ u8 icon_press_chk(void)
 						spbdev.selico=0XFF;//发生了双击,重新复位selico.
 					}
 				}else i=0xff;//无效的点按.
+		spbdev.spbsta=0;//清空标志
 															 
 #if 0
 	if(tp_dev.sta&TP_PRES_DOWN)//有按键被按下

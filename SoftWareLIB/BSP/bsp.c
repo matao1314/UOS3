@@ -132,6 +132,8 @@ void BSP_Init(void)
 	gui_init();	
   piclib_init();//≥ı ºªØª≠Õº	
 	printf("System Init Over!\r\n");
+  printf(__DATE__"\r\n");
+  printf(__TIME__"\r\n");
   SysTick_Init();
 }
 

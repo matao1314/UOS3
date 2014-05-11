@@ -72,12 +72,12 @@ void calendar_alarm_init(_alarm_obj *alarmx)
 	RTC->ALRH=destime>>16;
 	RTC->CRL&=~(1<<4);//配置更新
 	while(!(RTC->CRL&(1<<5)));//等待RTC寄存器操作完成 
-  calendar.hour = my_time[0];
-  calendar.min  = my_time[0];  
-  calendar.sec  = my_time[0];  
-  calendar.w_year = my_date[0];	
-	calendar.w_month = my_date[0];
-  calendar.w_date = my_date[0];
+//  calendar.hour = my_time[0];
+//  calendar.min  = my_time[0];  
+//  calendar.sec  = my_time[0];  
+//  calendar.w_year = my_date[0];	
+//	calendar.w_month = my_date[0];
+//  calendar.w_date = my_date[0];
 	//http://www.keil.com/support/man/docs/c51/c51_pp_predefmacroconst.htm
 }
 //闹钟响闹铃
@@ -190,21 +190,16 @@ u8 calendar_alarm_msg(u16 x,u16 y)
  		if(res)rval=res;
 		else 									//显示闹铃时间
 		{
-//			app_showbig2num(bfbase,x+15,y+32+14,alarm.hour,60,BLUE,APP_WIN_BACK_COLOR); 	//显示时
-// 			app_showbigchar(bfbase,x+15+60,y+32+14,':',60,BLUE,APP_WIN_BACK_COLOR); 		//":"
-//			app_showbig2num(bfbase,x+15+90,y+32+14,alarm.min,60,BLUE,APP_WIN_BACK_COLOR);	//显示分	 
+			app_showbig2num(bfbase,x+15,y+32+14,alarm.hour,60,BLUE,APP_WIN_BACK_COLOR); 	//显示时
+ 			app_showbigchar(bfbase,x+15+60,y+32+14,':',60,BLUE,APP_WIN_BACK_COLOR); 		//":"
+			app_showbig2num(bfbase,x+15+90,y+32+14,alarm.min,60,BLUE,APP_WIN_BACK_COLOR);	//显示分	 
 		}
 //		OSTaskSuspend(6); //挂起主任务
-  		while(rval==0)
+  	while(rval==0)
 		{
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值  
 			delay_ms(5); 
-// 	 		if(system_task_return)
-//			{
-//				rval=1;			//取消
-//				break;			//TPAD返回	
-//			}
 			res=btn_check(rbtn,&in_obj);			//取消按钮检测
 			if(res&&((rbtn->sta&0X80)==0))			//有有效操作
 			{
@@ -251,8 +246,6 @@ u8 calendar_play(void)
 	u8 rval=0;			//返回值	
 	u8 res;
 
-	u16 lastx=0;		//记录滑动最后一次检测的x值
-	u8  slidercnt=0;	//滑动计数器
 	FIL* f_calendar=0;	 
 	u8 *bfbase=0;		//大字库的基址
    	/////////////3D时间显示///////////////
@@ -279,7 +272,6 @@ u8 calendar_play(void)
 	{	  
 		second=calendar.sec;//得到此刻的秒钟
 		POINT_COLOR=GBLUE;
-		delay_ms(1100);//等待1.1s 
 		BACK_COLOR= BLACK;
 		calendar_date_refresh();  //加载日历
 		tempdate=calendar.w_date;//天数暂存器
@@ -287,26 +279,8 @@ u8 calendar_play(void)
 		app_showbigchar(bfbase,70-4,TIME_TOPY,':',60,WHITE,BLACK); 		//":"
 		app_showbigchar(bfbase,150-4,TIME_TOPY,':',60,WHITE,BLACK); 	//":"	 
 	}
-  	while(rval==0)
+  while(rval==0)
 	{	
-		tp_dev.scan(0);    
-		if(tp_dev.sta&TP_PRES_DOWN)//触摸按下了
-		{
-			if(slidercnt==0)//第一次滑动按下
-			{
-				lastx=tp_dev.x;//记录第一次按下的坐标
-				slidercnt++;				
-			}else
-			{
-				if(tp_dev.x>(lastx+10))slidercnt=0;//往右滑动了,直接丢弃  
-				if((tp_dev.x+10)<lastx)//向左滑动至少10个像素点
-				{
-					slidercnt++; 		//是一个有效的滑动
-					lastx=tp_dev.x;
-				}
-				if(slidercnt>5)break;	//滑动有效,直接退出
-			}
-		}else slidercnt=0;				//松开了,则直接设置滑动无效
  		if(second!=calendar.sec) //秒钟改变了
 		{ 	
   		second=calendar.sec;  
@@ -321,7 +295,8 @@ u8 calendar_play(void)
 			t++;  
  		}
  		timex++;
- 	};
+		delay_ms(1000/OSCfg_TickRate_Hz);//允许调度
+ 	}
  	while(tp_dev.sta&TP_PRES_DOWN)tp_dev.scan(0);//等待TP松开.
 	gui_memin_free(bfbase);		//删除申请的内存
 	gui_memin_free(f_calendar);	//删除申请的内存

@@ -17,27 +17,25 @@ static OS_TCB Music_Task_TCB;
 #define MAIN_TASK_PRIO          4 
 #define MUSIC_TASK_PRIO         3 
 /* task stack size */
-#define START_STK_SIZE  	      256//注意栈溢出
+#define START_STK_SIZE  	      128//注意栈溢出
 #define USART_STK_SIZE      		64
 #define MAIN_STK_SIZE  	  	    512
-#define WATCH_STK_SIZE      		256
-#define MUSIC_PLAY_STK_SIZE     512
-//__align(8) static CPU_STK MUSIC_PLAY_TASK_STK[MUSIC_PLAY_STK_SIZE];
+#define WATCH_STK_SIZE      		128
+#define MUSIC_STK_SIZE          512
 __align(8) static CPU_STK START_TASK_STK[START_STK_SIZE];
 __align(8) static CPU_STK USART_TASK_STK[USART_STK_SIZE];
 __align(8) static CPU_STK MAIN_TASK_STK[MAIN_STK_SIZE];
 __align(8) static CPU_STK WATCH_TASK_STK[WATCH_STK_SIZE];
-__align(8) static CPU_STK MUSIC_TASK_STK[MUSIC_PLAY_STK_SIZE];
+__align(8) static CPU_STK MUSIC_TASK_STK[MUSIC_STK_SIZE];
 
 /* task function prototype*/
-void start_task(void *pdata);	
+void Start_Task(void *pdata);	
 void Usart_Task(void *pdata);
 void Main_Task(void *pdata);
-void watch_task(void *pdata);
-void music_task(void *pdata);
+void Watch_Task(void *pdata);
 void music_task(void *pdata);
 //////////////////////////////////////////////////////////////////////////////	 
-void start_task(void *pdata)
+void Start_Task(void *pdata)
 {
   OS_ERR   err;
 	CPU_SR   cpu_sr=0;
@@ -63,8 +61,8 @@ void start_task(void *pdata)
 	            (void       *)0,
 	            (OS_PRIO    )MUSIC_TASK_PRIO,
 	            (CPU_STK    *)&MUSIC_TASK_STK[0],
-	            (CPU_STK_SIZE)MUSIC_PLAY_STK_SIZE / 10,
-	            (CPU_STK_SIZE)MUSIC_PLAY_STK_SIZE,
+	            (CPU_STK_SIZE)MUSIC_STK_SIZE / 10,
+	            (CPU_STK_SIZE)MUSIC_STK_SIZE,
 	            (OS_MSG_QTY )0,
 	            (OS_TICK    )0,
 	            (void       *)0,
@@ -73,7 +71,7 @@ void start_task(void *pdata)
 /***********************Watch_Task**********************************************/
 	OSTaskCreate((OS_TCB     *)&Watch_Task_TCB,
 	            (CPU_CHAR   *)"Watch_Task",
-	            (OS_TASK_PTR)watch_task,
+	            (OS_TASK_PTR)Watch_Task,
 	            (void       *)0,
 	            (OS_PRIO    )WATCH_TASK_PRIO,
 	            (CPU_STK    *)&WATCH_TASK_STK[0],
@@ -113,9 +111,9 @@ int main(void)
     OSInit(&err);/* Init uC/OS-III.*/
     OSTaskCreate(   (OS_TCB     *)&Start_Task_TCB,/* Create the start task*/
                     (CPU_CHAR   *)"Task Start",
-                    (OS_TASK_PTR)start_task,
+                    (OS_TASK_PTR)Start_Task,
                     (void       *)0,
-                    (OS_PRIO     ) START_TASK_PRIO,
+                    (OS_PRIO     )START_TASK_PRIO,
                     (CPU_STK    *)&START_TASK_STK[0],
                     (CPU_STK_SIZE)START_STK_SIZE/10,
                     (CPU_STK_SIZE)START_STK_SIZE,
@@ -131,31 +129,28 @@ void Main_Task(void *p_arg)
 {
    u8 selx;
 	 u8 keyval; 
-	 Draw_mainPage();
-	  
+	 Draw_mainPage();	  
 	while(1){
 		 keyval = KEY_Scan(0);	 
-		 selx=icon_press_chk();
+		 selx = icon_press_chk();
 	 	 switch(selx){
 			case 0:picviewer_play();break;
 			case 1:mp3_play();break;
-			case 2:calendar_play();break;
-			default:break;
+			//case 2:calendar_play();break;
+			default:delay_ms(1000/OSCfg_TickRate_Hz);break;
 		 }	 	 		  
 	 }
 }
 
 //监视任务
-void watch_task(void *pdata)
+void Watch_Task(void *pdata)
 {
+	CPU_SR cpu_sr=0;
 	pdata=pdata;//avoid compile warning
-	while(1){		
-		LED0=0;
-		TEST=0;
+	while(1){
+		//calendar_play();	
 		delay_ms(500);	 
-		LED0=1;
-		TEST=1;
-		delay_ms(500);	 
+		
 	}
 }
 //执行最不需要时效性的代码
@@ -164,9 +159,14 @@ void Usart_Task(void *pdata)
 	CPU_SR cpu_sr=0;
 	pdata=pdata;//avoid compile warning
 	while(1){
+		LED0=0;
+		TEST=0;
+		delay_ms(500);	 
+		LED0=1;
+		TEST=1;
 		delay_ms(500);	 
 		OS_CRITICAL_ENTER();//进入临界区(无法被中断打断) 
-		printf("System Sram Used:%d\r\n",mem_perused(0));//打印内存占用率
+		printf("System Sram Use rate:%d%%\r\n",mem_perused(0));//打印内存占用率
 		OS_CRITICAL_EXIT();	//退出临界区(可以被中断打断)
 	}
 }

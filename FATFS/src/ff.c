@@ -129,11 +129,11 @@
 #define	ENTER_FF(fs)		{ if (!lock_fs(fs)) return FR_TIMEOUT; }
 #define	LEAVE_FF(fs, res)	{ unlock_fs(fs, res); return res; }
 #else
-//#include "os_cpu.h"	//添加ucos的两个函数
+#include "os.h"
 extern void ff_enter(void);
 extern void ff_leave(void);
-#define	ENTER_FF(fs) {ff_enter();}//{OS_ENTER_CRITICAL();}//进入FATFS,关闭中断,防止相互干扰
-#define LEAVE_FF(fs, res) {ff_leave();return res;}//{OS_EXIT_CRITICAL();return res;}//离开FATFS,开启中断,任务继续执行
+#define	ENTER_FF(fs) {ff_enter();}//{OS_CRITICAL_ENTER();}//进入FATFS,关闭中断,防止相互干扰
+#define LEAVE_FF(fs, res) {ff_leave();return res;}//{OS_CRITICAL_EXIT();return res;}//离开FATFS,开启中断,任务继续执行
 #endif
 
 #define	ABORT(fs, res)		{ fp->flag |= FA__ERROR; LEAVE_FF(fs, res); }
