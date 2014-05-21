@@ -126,10 +126,10 @@ int main(void)
 }
 	
 void Main_Task(void *p_arg)
-{
-   u8 selx;
-	 u8 keyval; 
-	 Draw_mainPage();	  
+{ 
+	u8 selx;
+	u8 keyval; 
+	Draw_mainPage();	  
 	while(1){
 		 keyval = KEY_Scan(0);	 
 		 selx = icon_press_chk();
@@ -145,12 +145,10 @@ void Main_Task(void *p_arg)
 //监视任务
 void Watch_Task(void *pdata)
 {
-	CPU_SR cpu_sr=0;
 	pdata=pdata;//avoid compile warning
 	while(1){
 		//calendar_play();	
 		delay_ms(500);	 
-		
 	}
 }
 //执行最不需要时效性的代码

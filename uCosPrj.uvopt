@@ -147,7 +147,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(100=-1,-1,-1,-1,0)(110=-1,-1,-1,-1,0)(111=-1,-1,-1,-1,0)(1011=-1,-1,-1,-1,0)(180=-1,-1,-1,-1,0)(120=-1,-1,-1,-1,0)(121=-1,-1,-1,-1,0)(122=-1,-1,-1,-1,0)(123=-1,-1,-1,-1,0)(124=-1,-1,-1,-1,0)(125=-1,-1,-1,-1,0)(126=-1,-1,-1,-1,0)(140=-1,-1,-1,-1,0)(240=-1,-1,-1,-1,0)(190=-1,-1,-1,-1,0)(200=-1,-1,-1,-1,0)(170=-1,-1,-1,-1,0)(130=-1,-1,-1,-1,0)(131=-1,-1,-1,-1,0)(132=-1,-1,-1,-1,0)(133=-1,-1,-1,-1,0)(160=-1,-1,-1,-1,0)(161=-1,-1,-1,-1,0)(162=-1,-1,-1,-1,0)(210=-1,-1,-1,-1,0)(211=-1,-1,-1,-1,0)(220=-1,-1,-1,-1,0)(221=-1,-1,-1,-1,0)(230=-1,-1,-1,-1,0)(231=-1,-1,-1,-1,0)(232=-1,-1,-1,-1,0)(233=-1,-1,-1,-1,0)(150=-1,-1,-1,-1,0)(151=-1,-1,-1,-1,0)</Name>
+          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(100=-1,-1,-1,-1,0)(110=-1,-1,-1,-1,0)(111=-1,-1,-1,-1,0)(1011=-1,-1,-1,-1,0)(180=-1,-1,-1,-1,0)(120=-1,-1,-1,-1,0)(121=-1,-1,-1,-1,0)(122=604,178,1015,572,0)(123=-1,-1,-1,-1,0)(124=-1,-1,-1,-1,0)(125=-1,-1,-1,-1,0)(126=-1,-1,-1,-1,0)(140=-1,-1,-1,-1,0)(240=-1,-1,-1,-1,0)(190=-1,-1,-1,-1,0)(200=-1,-1,-1,-1,0)(170=-1,-1,-1,-1,0)(130=-1,-1,-1,-1,0)(131=-1,-1,-1,-1,0)(132=-1,-1,-1,-1,0)(133=-1,-1,-1,-1,0)(160=-1,-1,-1,-1,0)(161=-1,-1,-1,-1,0)(162=-1,-1,-1,-1,0)(210=-1,-1,-1,-1,0)(211=-1,-1,-1,-1,0)(220=-1,-1,-1,-1,0)(221=-1,-1,-1,-1,0)(230=-1,-1,-1,-1,0)(231=-1,-1,-1,-1,0)(232=-1,-1,-1,-1,0)(233=-1,-1,-1,-1,0)(150=-1,-1,-1,-1,0)(151=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -174,9 +174,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>550</LineNumber>
+          <LineNumber>165</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134286802</Address>
+          <Address>134288918</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -190,9 +190,9 @@
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>318</LineNumber>
+          <LineNumber>527</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134286190</Address>
+          <Address>134287064</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -201,7 +201,23 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>C:\Users\matao\Desktop\脦麓脥锚鲁脡碌脛\UOS3\APPS\mp3player.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Ucos3\APPS/mp3player.c\318</Expression>
+          <Expression>\\Ucos3\APPS/mp3player.c\527</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>526</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134287056</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>C:\Users\matao\Desktop\脦麓脥锚鲁脡碌脛\UOS3\APPS\mp3player.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\Ucos3\APPS/mp3player.c\526</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -213,17 +229,17 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>temp</ItemText>
+          <ItemText>MusicQ</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>rval</ItemText>
+          <ItemText>res</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>selx</ItemText>
+          <ItemText>VS_DQ</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -257,7 +273,7 @@
         <aPa1>0</aPa1>
         <AscS4>0</AscS4>
         <aSer4>0</aSer4>
-        <StkLoc>0</StkLoc>
+        <StkLoc>1</StkLoc>
         <TrcWin>0</TrcWin>
         <newCpu>0</newCpu>
         <uProt>0</uProt>
@@ -269,7 +285,7 @@
 
   <Group>
     <GroupName>USER</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -281,8 +297,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>135</TopLine>
-      <CurrentLine>138</CurrentLine>
+      <TopLine>100</TopLine>
+      <CurrentLine>107</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\USER\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -297,8 +313,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>64</TopLine>
-      <CurrentLine>76</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\USER\stm32f10x_it.c</PathWithFileName>
       <FilenameWithoutPath>stm32f10x_it.c</FilenameWithoutPath>
@@ -765,7 +781,7 @@
 
   <Group>
     <GroupName>SYSTEM</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -793,8 +809,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>37</TopLine>
-      <CurrentLine>43</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\SYSTEM\delay\delay.c</PathWithFileName>
       <FilenameWithoutPath>delay.c</FilenameWithoutPath>
@@ -975,7 +991,7 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>75</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
@@ -993,8 +1009,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>785</TopLine>
-      <CurrentLine>791</CurrentLine>
+      <TopLine>788</TopLine>
+      <CurrentLine>793</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\SOFTWARELIB\uCOS-III\uCOS-III\os_core.c</PathWithFileName>
       <FilenameWithoutPath>os_core.c</FilenameWithoutPath>
@@ -1151,10 +1167,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>36</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>376</TopLine>
-      <CurrentLine>385</CurrentLine>
+      <TopLine>375</TopLine>
+      <CurrentLine>384</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\SOFTWARELIB\uCOS-III\uCOS-III\os_q.c</PathWithFileName>
       <FilenameWithoutPath>os_q.c</FilenameWithoutPath>
@@ -1231,7 +1247,7 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>33</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
@@ -1369,8 +1385,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>95</TopLine>
-      <CurrentLine>101</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\HARDWARE\SPI\spi.c</PathWithFileName>
       <FilenameWithoutPath>spi.c</FilenameWithoutPath>
@@ -1385,8 +1401,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>238</TopLine>
-      <CurrentLine>244</CurrentLine>
+      <TopLine>327</TopLine>
+      <CurrentLine>336</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\HARDWARE\VS10XX\vs10XX.c</PathWithFileName>
       <FilenameWithoutPath>vs10XX.c</FilenameWithoutPath>
@@ -1721,8 +1737,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>857</TopLine>
-      <CurrentLine>858</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\PICDECODE\jpeg.c</PathWithFileName>
       <FilenameWithoutPath>jpeg.c</FilenameWithoutPath>
@@ -1759,7 +1775,7 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>1</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
@@ -1777,8 +1793,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>189</TopLine>
-      <CurrentLine>222</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\APPS\appui.c</PathWithFileName>
       <FilenameWithoutPath>appui.c</FilenameWithoutPath>
@@ -1823,10 +1839,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>5</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>668</TopLine>
-      <CurrentLine>697</CurrentLine>
+      <TopLine>547</TopLine>
+      <CurrentLine>534</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\APPS\mp3player.c</PathWithFileName>
       <FilenameWithoutPath>mp3player.c</FilenameWithoutPath>
@@ -1837,7 +1853,7 @@
 
   <Group>
     <GroupName>FATFS</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1849,8 +1865,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>57</TopLine>
+      <CurrentLine>57</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\FATFS\exfuns\exfuns.c</PathWithFileName>
       <FilenameWithoutPath>exfuns.c</FilenameWithoutPath>

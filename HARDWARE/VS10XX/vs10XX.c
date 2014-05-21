@@ -1,8 +1,8 @@
 #include "vs10XX.h"	
 #include "delay.h"
-//#include "mmc_sd.h"
 #include "spi.h"
-#include "usart.h"	  	    
+#include "usart.h"
+#include "os.h"
 //VS10XX默认设置参数
 _vs10xx_obj vsset=
 {
@@ -121,7 +121,7 @@ u8 VS_HD_Reset(void)
 	{
 		retry++;
 		delay_us(50);
-	};
+	}
 	delay_ms(20);	
 	if(retry>=200)return 1;
 	else return 0;	    		 
@@ -149,8 +149,8 @@ void VS_Sine_Test(void)
 	VS_SPI_ReadWriteByte(0x00);
 	delay_ms(100);
 	VS_XDCS=1; 
-    //退出正弦测试
-    VS_XDCS=0;//选中数据传输
+  //退出正弦测试
+  VS_XDCS=0;//选中数据传输
 	VS_SPI_ReadWriteByte(0x45);
 	VS_SPI_ReadWriteByte(0x78);
 	VS_SPI_ReadWriteByte(0x69);
@@ -162,8 +162,8 @@ void VS_Sine_Test(void)
 	delay_ms(100);
 	VS_XDCS=1;		 
 
-    //再次进入正弦测试并设置n值为0x44，即将正弦波的频率设置为另外的值
-    VS_XDCS=0;//选中数据传输      
+  //再次进入正弦测试并设置n值为0x44，即将正弦波的频率设置为另外的值
+  VS_XDCS=0;//选中数据传输      
 	VS_SPI_ReadWriteByte(0x53);
 	VS_SPI_ReadWriteByte(0xef);
 	VS_SPI_ReadWriteByte(0x6e);
@@ -241,7 +241,7 @@ void VS_WR_Data(u8 data)
 u16 VS_RD_Reg(u8 address)
 { 
 	u16 temp=0;    	 
-    while(VS_DQ==0);//非等待空闲状态 		  
+  while(VS_DQ==0);//非等待空闲状态 		  
 	VS_SPI_SpeedLow();//低速 
 	VS_XDCS=1;       
 	VS_XCS=0;        
@@ -293,13 +293,13 @@ u16 VS_Get_HeadInfo(void)
   	//printf("(H0,H1):%x,%x\n",HEAD0,HEAD1);
     switch(HEAD1)
     {        
-        case 0x7665://WAV格式
-        case 0X4D54://MIDI格式 
+    case 0x7665://WAV格式
+    case 0X4D54://MIDI格式 
 		case 0X4154://AAC_ADTS
 		case 0X4144://AAC_ADIF
 		case 0X4D34://AAC_MP4/M4A
 		case 0X4F67://OGG
-        case 0X574D://WMA格式
+    case 0X574D://WMA格式
 		case 0X664C://FLAC格式
         {
 			////printf("HEAD0:%d\n",HEAD0);
@@ -427,48 +427,48 @@ void VS_Load_Patch(u16 *patch,u16 len)
 	} 	
 } 
 /////////////////////////////////////////////////////////////////////////////////////////// 
-//??????
+//频谱显示部分
 #define SPEC_DATA_BASE 	0X1810 	//0X1380 for VS1011
-//??????
-//*specbuf:???????
-//???:???.
+//得到频谱数据
+//*specbuf:频谱数据缓存区
+//返回值:频段数.
 u8 VS_Get_Spec(u16 *p)
 {
 	u8 bands;
 	u8 i;
-    //OS_CPU_SR cpu_sr=0;
-	//OS_ENTER_CRITICAL();//?????(???????)             
+	CPU_SR   cpu_sr=0;
+	OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)             
 	VS_WR_Cmd(SPI_WRAMADDR,SPEC_DATA_BASE+2);  
-	bands=VS_RD_Reg(SPI_WRAM);					//?????                                                                                          
+	bands=VS_RD_Reg(SPI_WRAM);					//获取频段数                                                                                          
 	VS_WR_Cmd(SPI_WRAMADDR,SPEC_DATA_BASE+4);  
 	for (i=0;i<bands;i++) 
 	{  
-		//?????????2??,????12?.????0~31
-		//[5:0]:???
-		//[11:6]:??                                  
-		*p++=VS_RD_Reg(SPI_WRAM);				//???????? 
+		//读到的频谱数据分为2部分,有效位为12位.范围都是0~31
+		//[5:0]:当前值
+		//[11:6]:峰值                                  
+		*p++=VS_RD_Reg(SPI_WRAM);				//读取当前值和峰值 
  	} 
-	//OS_EXIT_CRITICAL();	//?????(???????)
+	OS_CRITICAL_EXIT();	//退出临界区(可以被中断打断)
 	return bands;
 }
 
-//????????	 
-//buf:?????
-//bands:buf???.?VS1053???15
+//设定新的中心频率	 
+//buf:中心频率值
+//bands:buf的大小.对VS1053最大为15
 void VS_Set_Bands(u16 *buf,u8 bands)
 {
 	u8 i;
-    //OS_CPU_SR cpu_sr=0;
-	//OS_ENTER_CRITICAL();//?????(???????)             
-	VS_WR_Cmd(SPI_WRAMADDR,SPEC_DATA_BASE+0X58);//????1868,?VS1053,SPEC_DATA_BASE?0X1810.????0X58  
+	CPU_SR   cpu_sr=0;
+	OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)             
+	VS_WR_Cmd(SPI_WRAMADDR,SPEC_DATA_BASE+0X58);//地址总是1868,对VS1053,SPEC_DATA_BASE是0X1810.所以加上0X58  
 	for (i=0;i<bands;i++) 
 	{
-		VS_WR_Cmd(SPI_WRAM,buf[i]);//??????  
+		VS_WR_Cmd(SPI_WRAM,buf[i]);//发送频率数据  
 	}
-	if(i<15)VS_WR_Cmd(SPI_WRAM,25000);//?VS1053??????15,??25000,???????
- 	VS_WR_Cmd(SPI_WRAMADDR,SPEC_DATA_BASE+1);//??SPEC_DATA_BASE+1,?Samples Rates?????
-	VS_WR_Cmd(SPI_WRAM,0);	//?????
-	//OS_EXIT_CRITICAL();		//?????(???????)
+	if(i<15)VS_WR_Cmd(SPI_WRAM,25000);//对VS1053这个最大值为15,填充25000,表示频谱表结束
+ 	VS_WR_Cmd(SPI_WRAMADDR,SPEC_DATA_BASE+1);//地址SPEC_DATA_BASE+1,为Samples Rates的起始地址
+	VS_WR_Cmd(SPI_WRAM,0);	//开始新频率
+	OS_CRITICAL_EXIT();		//退出临界区(可以被中断打断)
 }
 
 //设定VS10XX播放的音量和高低音
@@ -477,7 +477,7 @@ void VS_Set_Vol(u8 volx)
 {
     u16 volt=0; 			//暂存音量值
     volt=254-volx;			//取反一下,得到最大值,表示最大的表示 
-	volt<<=8;
+		volt<<=8;
     volt+=254-volx;			//得到音量设置后大小
     VS_WR_Cmd(SPI_VOL,volt);//设音量 
 }
@@ -488,8 +488,8 @@ void VS_Set_Vol(u8 volx)
 //treble:高频增益  	 	0~15(单位:1.5dB,小于9的时候为负数)
 void VS_Set_Bass(u8 bfreq,u8 bass,u8 tfreq,u8 treble)
 {
-    u16 bass_set=0; //暂存音调寄存器值
-    signed char temp=0;   	 
+  u16 bass_set=0; //暂存音调寄存器值
+  signed char temp=0;   	 
 	if(treble==0)temp=0;	   		//变换
 	else if(treble>8)temp=treble-8;
  	else temp=treble-9;  

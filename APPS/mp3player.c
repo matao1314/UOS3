@@ -70,22 +70,21 @@ void music_task(void *pdata)
 	u16 i=0;   
 	u8 *pname=0;		   
   OS_ERR   err;
-	void *p_msg;
 	OS_MSG_SIZE msg_size;
 	CPU_TS ts;
- 	//mp3mbox=OSMboxCreate((void*) 0);//创建邮箱
-  OSQCreate(&MusicQ,"MusicQuene",1,&err);
-//	VS_HD_Reset();
-//	VS_Soft_Reset();  	//软复位VS1053
-	printf("Music Play Task!\r\n"); 	
+	VS_HD_Reset();
+	VS_Soft_Reset();  	//软复位VS1053
+	printf("Music Play Task!\r\n"); 
+  OSQCreate(&MusicQ,"MusicQuene",2,&err);
  	while(1)
 	{
 		mp3dev->curindex = (CPU_INT32U)OSQPend((OS_Q *)&MusicQ,
-																	(OS_TICK ) 1000,
+																	(OS_TICK ) 0,
 																	(OS_OPT )OS_OPT_PEND_BLOCKING,
 																	(OS_MSG_SIZE *)&msg_size,
 																	(CPU_TS *)&ts,
-																	(OS_ERR *)&err)-1;	
+																	(OS_ERR *)&err)-1;/* Process message received */
+		printf("mp3dev->curindex = %d msf_size = %d,err= %d\r\n",mp3dev->curindex,msg_size,err);		
 		//mp3dev->curindex=(u32)OSMboxPend(mp3mbox,0,&rval)-1;//请求邮箱,要减去1,因为发送的时候增加了1
 		rval=0;
 		databuf=(u8*)mymalloc(SRAMIN,4096);		//开辟512字节的内存区域
@@ -109,7 +108,6 @@ void music_task(void *pdata)
 			VS_Set_All();        	//设置音量等信息 			 
 			VS_Reset_DecodeTime();	//复位解码时间 
 			res=f_typetell(pname);
-	#if 0
 ///////////////////////////////////////////////////////////////////////////////////
 			if(res==0x4c)//flac
 			{	
@@ -124,7 +122,7 @@ void music_task(void *pdata)
 			patchbuf=(u8*)mymalloc(SRAMIN,mp3dev->fmp3->fsize);	//开辟fsize字节的内存区域
 			if(patchbuf==NULL)break;//申请内存失败
 			res=f_read(mp3dev->fmp3,patchbuf,mp3dev->fmp3->fsize,(UINT*)&br);	//一次读取整个文件
-		   	if(res==0)
+		  if(res==0)
 			{
 				VS_Load_Patch((u16*)patchbuf,mp3dev->fmp3->fsize/2);
 			}
@@ -139,27 +137,28 @@ void music_task(void *pdata)
 			{ 
 				VS_SPI_SpeedHigh();	//高速
 				mp3dev->sta|=1<<7;	//标记开始解码MP3
- 				mp3dev->sta|=1<<6;	//标记执行了一次歌曲的切换	   
+ 				mp3dev->sta|=1<<6;	//标记执行了一次歌曲的切换
+				printf("mp3dev->sta =0x%x\r\n",mp3dev->sta);		
 				while(1)
 				{
 					res=f_read(mp3dev->fmp3,databuf,4096,(UINT*)&br);	//读出readlen个字节  
 					i=0;
 					do//主播放循环
-				    {  	
+				    { 
+						//printf("Music Play Task Runing HeardL %d\r\n",i); 							
 						if(VS_Send_MusicData(databuf+i)==0)//给VS10XX发送音频数据
 						{
 							i+=32;
 						}else   
 						{
-							delay_ms(5);//允许调度	   
+							delay_ms(10);//允许调度	   
 							while(mp3dev->sta&(1<<5))//如果请求暂停了
 							{
-								delay_ms(5);//允许调度,同时等待非暂停
+								delay_ms(10);//允许调度,同时等待非暂停
 								if((mp3dev->sta&0x01)==0)break;//请求终止		 
 							}
-							if((mp3dev->sta&0x01)==0)break;//请求终止
-								
-						}	    	    
+							if((mp3dev->sta&0x01)==0)break;//请求终止								
+						}
 					}while(i<4096);//循环发送4096个字节 
 					if(br!=4096||res!=0)
 					{
@@ -180,7 +179,6 @@ void music_task(void *pdata)
 					mp3dev->curindex=app_get_rand(mp3dev->mfilenum);//得到下一首歌曲的索引	  
 				}else mp3dev->curindex=mp3dev->curindex;//单曲循环	*/			
  			}else break;	  
-		#endif
 		}
 		gui_memin_free(pname);
 	  gui_memin_free(mp3info.lfname);
@@ -229,7 +227,6 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 	{
 		flistbox->fliter=FLBOX_FLT_MUSIC;	//查找音乐文件
  		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[0][gui_phy.language],0);		//磁盘0
-		filelistbox_addlist(flistbox,(u8*)APP_DISK_NAME_TBL[1][gui_phy.language],0);		//磁盘1
 		filelistbox_draw_listbox(flistbox);
 	}else
 	{
@@ -268,7 +265,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-		delay_ms(1000/OSCfg_TickRate_Hz);		//延时一个时钟节拍
+		delay_ms(10);		//延时一个时钟节拍
 		filelistbox_check(flistbox,&in_obj);	//扫描文件
 		res=btn_check(rbtn,&in_obj);
 		if(res)
@@ -308,12 +305,12 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
 
 			mp3devx->mfilenum=flistbox->filecnt;		//记录文件个数	
 
+			printf("flistbox->selindex =%d - flistbox->foldercnt = %d\r\n",flistbox->selindex , flistbox->foldercnt);
 			OSQPost ((OS_Q *)&MusicQ,
 			(void *)1,
-			(OS_MSG_SIZE)(flistbox->selindex-flistbox->foldercnt+1),
-			(OS_OPT )OS_OPT_PEND_BLOCKING,
+			(OS_MSG_SIZE)(flistbox->selindex - flistbox->foldercnt+1),
+			(OS_OPT )OS_OPT_POST_FIFO,
 			(OS_ERR *)&err);
-			
 //			OSMboxPost(mp3mbox,(void*)(flistbox->selindex-flistbox->foldercnt+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
  			flistbox->dbclick=0;
 			break;	 							   			   
@@ -523,13 +520,18 @@ u8 mp3_play(void)
 			return 1;	
 		}	 
  		gui_memset((u8 *)mp3dev->fmp3,0,sizeof(FIL));			//清零	   
-	}   
+	}  	
 	if((mp3dev->sta&0x80)==0)	//当前没有播放MP3
 	{
 		VS_HD_Reset();
 		VS_Soft_Reset();		//复位
 		mp3_filelist(mp3dev);//----------------------------------------------------------
-		if((mp3dev->sta&0x80)==0)return 0;//还是没有MP3在播放,则退出程序
+	 delay_ms(1000);//允许调度	   
+		printf("mp3_filelist mp3dev->sta =0x%x\r\n",mp3dev->sta);		
+		if((mp3dev->sta&0x80)==0){//0xC1 1100 0001
+			printf("Exit Music program!");
+			return 0;//还是没有MP3在播放,则退出程序
+		}
 	}else mp3dev->sta|=1<<6;//模拟一次切歌,让歌曲名字等信息显示出来 
 /////////////////////////////////////////////////////////////////////////////////
 	mp3prgb=progressbar_creat(20,120,200,10,0X20);		//mp3播放进度条
@@ -627,9 +629,10 @@ u8 mp3_play(void)
 								}
 							}
 							#endif
+							printf("mp3dev->curindex+1=%d",mp3dev->curindex+1);
 								OSQPost ((OS_Q *)&MusicQ,
 								(void *)1,
-								(OS_MSG_SIZE)(mp3dev->curindex+1),
+								(OS_MSG_SIZE)(mp3dev->curindex+2),//sizeof(void *),//
 								(OS_OPT )OS_OPT_POST_FIFO,
 								(OS_ERR *)&err);
 //							OSMboxPost(mp3mbox,(void*)(mp3dev->curindex+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
