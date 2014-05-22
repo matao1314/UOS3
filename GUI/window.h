@@ -1,18 +1,18 @@
 #ifndef __WINDOW_H
-#define __WINDOW_H 			 
-#include "guix.h"  
+#define __WINDOW_H
+#include "guix.h"
 #include "button.h"
-//////////////////////////////////////////////////////////////////////////////////	 
+//////////////////////////////////////////////////////////////////////////////////
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK战舰STM32开发板
-//GUI-窗体 代码	   
+//GUI-窗体 代码
 //正点原子@ALIENTEK
 //技术论坛:www.openedv.com
 //修改日期:2012/10/4
 //版本：V1.0
 //版权所有，盗版必究。
 //Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved									  
+//All rights reserved
 //////////////////////////////////////////////////////////////////////////////////
 
 //默认的窗体caption背景色caption的颜色.
@@ -46,48 +46,48 @@
 
 
 //window结构体定义
-__packed typedef struct 
+__packed typedef struct
 {
-	u16 top; 				  		//window顶端坐标
-	u16 left;                       //window左端坐标
-	u16 width; 				  		//window宽度(包含滚动条的宽度)
-	u16 height;						//window高度
+    u16 top; 				  		//window顶端坐标
+    u16 left;                       //window左端坐标
+    u16 width; 				  		//window宽度(包含滚动条的宽度)
+    u16 height;						//window高度
 
-	u8 id;							//window
-	u8 type;						//window类型
-									//[7]:0,没有关闭按钮.1,有关闭按钮			   
-									//[6]:0,不读取背景色.1,读取背景色.					 
-									//[5]:0,标题靠左.1,标题居中.					 
-									//[4:2]:保留					 
-									//[1:0]:0,标准的窗口(仿XP);1,圆边窗口(仿Andriod)			   
+    u8 id;							//window
+    u8 type;						//window类型
+    //[7]:0,没有关闭按钮.1,有关闭按钮
+    //[6]:0,不读取背景色.1,读取背景色.
+    //[5]:0,标题靠左.1,标题居中.
+    //[4:2]:保留
+    //[1:0]:0,标准的窗口(仿XP);1,圆边窗口(仿Andriod)
 
-	u8 sta;							//window状态
- 									//[7:0]:保留
+    u8 sta;							//window状态
+    //[7:0]:保留
 
-	u8 *caption;					//window名字
-	u8 captionheight;				//caption栏的高度
-	u8 font;						//window文字字体
-	u8 arcwinr;						//圆角窗口的圆角的半径	
-										
-	u16 captionbkcu; 				//caption的上半部分背景色
-	u16 captionbkcd; 				//caption的下半部分背景色
- 	u16 captioncolor; 				//caption的颜色
-	u16 windowbkc; 					//window的背景色
+    u8 *caption;					//window名字
+    u8 captionheight;				//caption栏的高度
+    u8 font;						//window文字字体
+    u8 arcwinr;						//圆角窗口的圆角的半径
 
-	u16 *bkctbl;					//背景色表(需要读取窗体背景色的时候用到)
-	_btn_obj* closebtn;				//串口关闭按钮
-}_window_obj;
+    u16 captionbkcu; 				//caption的上半部分背景色
+    u16 captionbkcd; 				//caption的下半部分背景色
+    u16 captioncolor; 				//caption的颜色
+    u16 windowbkc; 					//window的背景色
 
-_window_obj * window_creat(u16 left,u16 top,u16 width,u16 height,u8 id,u8 type,u8 font);
-void window_delete(_window_obj * window_del);
-void window_draw(_window_obj * windowx);
-u8 window_msg_box(u16 x,u16 y,u16 width,u16 height,u8 *str,u8 *caption,u8 font,u16 color,u8 mode);
+    u16 *bkctbl;					//背景色表(需要读取窗体背景色的时候用到)
+    _btn_obj *closebtn;				//串口关闭按钮
+} _window_obj;
 
-
+_window_obj *window_creat(u16 left, u16 top, u16 width, u16 height, u8 id, u8 type, u8 font);
+void window_delete(_window_obj *window_del);
+void window_draw(_window_obj *windowx);
+u8 window_msg_box(u16 x, u16 y, u16 width, u16 height, u8 *str, u8 *caption, u8 font, u16 color, u8 mode);
 
 
 
-void win_test(u16 x,u16 y,u16 width,u16 height,u8 type,u16 cup,u16 cdown,u8 *caption);
+
+
+void win_test(u16 x, u16 y, u16 width, u16 height, u8 type, u16 cup, u16 cdown, u8 *caption);
 #endif
 
 

@@ -1,12 +1,12 @@
 #ifndef __FLASH_H
-#define __FLASH_H			    
-#include "sys.h" 
-//////////////////////////////////////////////////////////////////////////////////	 
+#define __FLASH_H
+#include "sys.h"
+//////////////////////////////////////////////////////////////////////////////////
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //Mini STM32开发板
-//AT45DB 驱动函数	   
+//AT45DB 驱动函数
 //修改日期:2011年11月13日21:38:42
-///////////////////////////////////////////////////////////	  
+///////////////////////////////////////////////////////////
 #define	SPI_FLASH_CS     PCout(2)  //选中FLASH					 
 ///////////////////////////////////////////////////////////
 extern u16 SPI_FLASH_TYPE;//定义我们使用的flash芯片型号
@@ -34,8 +34,8 @@ extern u16 SPI_FLASH_TYPE;//定义我们使用的flash芯片型号
 void SPI_Flash_Write(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);//读取flash
 void SPI_Flash_Read (u8 *pBuffer, u32 ReadAddr,  u16 NumByteToRead); //读取flash
 /////////////////////////////////////////////////////////////////////////
-void DF_mm_to_buf(u8 buffer,unsigned int page);//将指定主存储器页的数据转入指定缓冲区
-void DF_buf_to_mm(u8 buffer,u16 page);//将指定缓冲区中的数据写入主存储区的指定页
+void DF_mm_to_buf(u8 buffer, unsigned int page); //将指定主存储器页的数据转入指定缓冲区
+void DF_buf_to_mm(u8 buffer, u16 page); //将指定缓冲区中的数据写入主存储区的指定页
 void DF_page_earse(u16 page);       //擦除指定的主存储器页（地址范围0-4095）
 /*----- Low layer function -----*/
 u8	 SPI_Flash_ReadSR(void);        //读取状态寄存器

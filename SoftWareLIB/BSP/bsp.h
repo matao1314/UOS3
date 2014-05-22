@@ -2,7 +2,7 @@
 #define _bsp_h_
 //System & OS
 #include "os.h"
-#include "os_cpu.h" 
+#include "os_cpu.h"
 #include "usart.h"
 #include "delay.h"
 //Device
@@ -20,7 +20,7 @@
 #include "common.h"
 #include "i2cee.h"
 #include "fontupd.h"
-#include "touch.h" 
+#include "touch.h"
 #include "sd_fs_app.h"
 #include "exfuns.h"
 #include "vs10xx.h"
@@ -33,7 +33,7 @@
 //APP
 #include "appui.h"
 #include "appcom.h"
-#include "calendar.h" 	      						  
+#include "calendar.h"
 #include "mp3player.h"
 
 

@@ -10,16 +10,16 @@
 //#define EEPROM_Block3_ADDRESS 0xA6 /* E2 = 0 */
 
 void I2C_EE_Init(void);
-void I2C_EE_BufferWrite(u8* pBuffer, u8 WriteAddr, u16 NumByteToWrite);
-void I2C_EE_ByteWrite(u8* pBuffer, u8 WriteAddr);
-void I2C_EE_PageWrite(u8* pBuffer, u8 WriteAddr, u8 NumByteToWrite);
-void I2C_EE_BufferRead(u8* pBuffer, u8 ReadAddr, u16 NumByteToRead);
+void I2C_EE_BufferWrite(u8 *pBuffer, u8 WriteAddr, u16 NumByteToWrite);
+void I2C_EE_ByteWrite(u8 *pBuffer, u8 WriteAddr);
+void I2C_EE_PageWrite(u8 *pBuffer, u8 WriteAddr, u8 NumByteToWrite);
+void I2C_EE_BufferRead(u8 *pBuffer, u8 ReadAddr, u16 NumByteToRead);
 void I2C_EE_WaitEepromStandbyState(void);
 //外部调用
-void I2C1_WriteByte(u8 write_address,u8 byte);
+void I2C1_WriteByte(u8 write_address, u8 byte);
 u8 I2C_EE_ReadByte(u8 read_address);
-void I2C_EE_WriteNLenByte(u8 WriteAddr,u32 DataToWrite,u8 Len);
-u32 I2C_EE_ReadLenByte(u8 ReadAddr,u8 Len);
+void I2C_EE_WriteNLenByte(u8 WriteAddr, u32 DataToWrite, u8 Len);
+u32 I2C_EE_ReadLenByte(u8 ReadAddr, u8 Len);
 
 
 
