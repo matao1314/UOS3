@@ -4,8 +4,7 @@
 _m_mp3dev  *mp3dev = NULL;
 
 ////////////////////////////////////////////////////////
-#if ICOS_LOCATION==ICOS_SD_CARD//存放在SD卡  
-const u8 *FLAC_PATCH_PATH = "0:/SYSTEM/APP/MP3/FLAC.BIN";			//FLAC播放的PATCH的存放位置
+const u8 *FLAC_PATCH_PATH = "0:/SYSTEM/APP/MP3/FLAC.BIN";		//FLAC播放的PATCH的存放位置
 const u8 *SPEC_PATCH_PATH = "0:/SYSTEM/APP/MP3/SPCALZ.BIN";		//频谱分析的PATCH的存放位置
 const u8 *MP3_DEMO_PIC = "0:/SYSTEM/APP/MP3/Demo.bmp";			//demo图片路径
 const u8 *MP3_BTN_PIC_TBL[2][5] =  								//5个图片按钮的路径
@@ -25,36 +24,10 @@ const u8 *MP3_BTN_PIC_TBL[2][5] =  								//5个图片按钮的路径
         "0:/SYSTEM/APP/MP3/BackP.bmp",
     },
 };
-const u8 *MP3_PLAYR_PIC = "0:/SYSTEM/APP/MP3/PlayR.bmp";		//播放 松开
-const u8 *MP3_PLAYP_PIC = "0:/SYSTEM/APP/MP3/PlayP.bmp";		//播放 按下
+const u8 *MP3_PLAYR_PIC = "0:/SYSTEM/APP/MP3/PlayR.bmp";	//播放 松开
+const u8 *MP3_PLAYP_PIC = "0:/SYSTEM/APP/MP3/PlayP.bmp";	//播放 按下
 const u8 *MP3_PAUSER_PIC = "0:/SYSTEM/APP/MP3/PauseR.bmp";	//暂停 松开
 const u8 *MP3_PAUSEP_PIC = "0:/SYSTEM/APP/MP3/PauseP.bmp";	//暂停 按下
-#else//存放在FLASH DISK
-const u8 *FLAC_PATCH_PATH = "1:/SYSTEM/APP/MP3/FLAC.BIN";			//FLAC播放的PATCH的存放位置
-const u8 *SPEC_PATCH_PATH = "1:/SYSTEM/APP/MP3/SPCALZ.BIN";		//频谱分析的PATCH的存放位置
-const u8 *MP3_DEMO_PIC = "1:/SYSTEM/APP/MP3/Demo.bmp";			//demo图片路径
-const u8 *MP3_BTN_PIC_TBL[2][5] =  								//5个图片按钮的路径
-{
-    {
-        "1:/SYSTEM/APP/MP3/ListR.bmp",
-        "1:/SYSTEM/APP/MP3/PrevR.bmp",
-        "1:/SYSTEM/APP/MP3/PauseR.bmp",
-        "1:/SYSTEM/APP/MP3/NextR.bmp",
-        "1:/SYSTEM/APP/MP3/BackR.bmp",
-    },
-    {
-        "1:/SYSTEM/APP/MP3/ListP.bmp",
-        "1:/SYSTEM/APP/MP3/PrevP.bmp",
-        "1:/SYSTEM/APP/MP3/PlayP.bmp",
-        "1:/SYSTEM/APP/MP3/NextP.bmp",
-        "1:/SYSTEM/APP/MP3/BackP.bmp",
-    },
-};
-const u8 *MP3_PLAYR_PIC = "1:/SYSTEM/APP/MP3/PlayR.bmp";		//播放 松开
-const u8 *MP3_PLAYP_PIC = "1:/SYSTEM/APP/MP3/PlayP.bmp";		//播放 按下
-const u8 *MP3_PAUSER_PIC = "1:/SYSTEM/APP/MP3/PauseR.bmp";	//暂停 松开
-const u8 *MP3_PAUSEP_PIC = "1:/SYSTEM/APP/MP3/PauseP.bmp";	//暂停 按下
-#endif
 
 //播放音乐任务
 //OS_EVENT * mp3mbox;//事件控制块
@@ -69,11 +42,13 @@ void music_task(void *pdata)
     u8 *patchbuf = 0;
     u16 i = 0;
     u8 *pname = 0;
-    OS_ERR   err;
-    OS_MSG_SIZE msg_size;
+	//os 
     CPU_TS ts;
+    OS_ERR err;
+    OS_MSG_SIZE msg_size;
+	
     VS_HD_Reset();
-    VS_Soft_Reset();  	//软复位VS1053
+    VS_Soft_Reset();
     printf("Music Play Task!\r\n");
     OSQCreate(&MusicQ, "MusicQuene", 2, &err);
     while(1)
@@ -104,7 +79,7 @@ void music_task(void *pdata)
             pname = gui_memin_malloc(strlen((const char *)mp3dev->name) + strlen((const char *)mp3dev->path) + 2); //申请内存
             if(pname == NULL)break; //申请失败
             pname = gui_path_name(pname, mp3dev->path, mp3dev->name);	//文件名加入路径
-            VS_Restart_Play();  	//重启播放
+            //VS_Restart_Play();  	//重启播放 VS1003与VS1053的寄存器有差别
             VS_Set_All();        	//设置音量等信息
             VS_Reset_DecodeTime();	//复位解码时间
             res = f_typetell(pname);
