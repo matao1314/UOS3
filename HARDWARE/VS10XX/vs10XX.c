@@ -30,7 +30,7 @@ void VS_SPI_SpeedLow(void)
 //SD卡正常工作的时候,可以高速了
 void VS_SPI_SpeedHigh(void)
 {
-    SPI2_SetSpeed(SPI_BaudRatePrescaler_8);//设置到高速模式
+    SPI2_SetSpeed(SPI_BaudRatePrescaler_4);//设置到高速模式
 }
 //初始化VS10XX的IO口
 void VS_Init(void)
@@ -95,7 +95,7 @@ void VS_Soft_Reset(void)
     while(VS_RD_Reg(SPI_MODE) != 0x0800) // 软件复位,新模式
     {
         VS_WR_Cmd(SPI_MODE, 0x0804); // 软件复位,新模式
-        delay_ms(2);//等待至少1.35ms
+        delay_ms(5);//等待至少1.35ms
         if(retry++ > 100)break;
     }
     while(VS_DQ == 0); //等待软件复位结束
@@ -131,7 +131,6 @@ void VS_Sine_Test(void)
 {
     VS_HD_Reset();
     VS_WR_Cmd(0x0b, 0X2020);	 //设置音量
-    VS_Set_Vol(254);
     VS_WR_Cmd(SPI_MODE, 0x0820); //进入VS10XX的测试模式
     while(VS_DQ == 0);   //等待DREQ为高
     //printf("mode sin:%x\n",VS_RD_Reg(SPI_MODE));
@@ -336,7 +335,7 @@ u16 VS_Get_EndFillByte(void)
 u8 VS_Send_MusicData(u8 *buf)
 {
     u8 n;
-    if(VS_DQ != 0) //送数据给VS10XX
+  	if(VS_DQ != 0) //送数据给VS10XX
     {
         VS_XDCS = 0;
         for(n = 0; n < 32; n++)

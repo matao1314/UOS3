@@ -3,8 +3,6 @@
 **********************************************************************************/
 #include "sd_fs_app.h"
 //#include "exti.h"
-#include "lcd.h"
-//#include "lcd_botton.h"
 #include <stdio.h>
 
 FATFS myfs[2];                 // Work area (file system object) for logical drive
@@ -38,7 +36,7 @@ void sd_fs_init(void)
     /* SD卡中断初始化 */
     SDIO_NVIC_Configuration();
     /* SD 卡硬件初始化，初始化盘符为0 */
-    // disk_initialize( 0 );
+    disk_initialize( 0 );
 }
 
 void Sd_fs_test(void)
@@ -46,7 +44,7 @@ void Sd_fs_test(void)
     int count = 0;
 
     SDIO_NVIC_Configuration();
-    // disk_initialize( 0 );	     /* SD 卡硬件初始化 */
+    //disk_initialize( 0 );	     /* SD 卡硬件初始化 */
 
     f_mount(0, &myfs[0]);
     myres = f_open( &myfsrc , "0:/my__Demo.TXT" ,/* FA_CREATE_NEW |*/ FA_WRITE);
@@ -197,43 +195,3 @@ int Sdfs_read(BYTE *read_file_name, BYTE *save_buffer)
 
 
 }
-
-
-
-
-/*******************************************************************************
-* Function Name  : GetGBKCode_from_sd
-* Description    : 从SD卡字库中读取自摸数据到指定的缓冲区
-* Input          : pBuffer---数据保存地址
-*				   					c--汉字字符低字节码
-* Output         : None
-* Return         : 0(success)  -1(fail)
-* Attention		 	 : None
-*******************************************************************************/
-int GetGBKCode_from_sd(unsigned char *pBuffer, const unsigned char *c)
-{
-    unsigned char High8bit, Low8bit;
-    unsigned int pos;
-    High8bit = *c;   /* 取高8位数据 */
-    Low8bit = *(c + 1); /* 取低8位数据 */
-
-    pos = ((High8bit - 0xb0) * 94 + Low8bit - 0xa1) * 2 * 16 ;
-    //    f_mount(0, &myfs[0]);
-    myres = f_open(&myfsrc , "FONT/HZLIB.bin", FA_OPEN_EXISTING | FA_READ);
-
-    if ( myres == FR_OK )
-    {
-        f_lseek (&myfsrc, pos);														 //指针偏移
-        myres = f_read( &myfsrc, pBuffer, 32, &mybr );		 //16*16大小的汉字 其字模 占用16*2个字节
-        f_close(&myfsrc);
-
-        return 0;
-    }
-
-    else
-        return -1;
-
-}
-/******************** (C) MODIFIED  2011 野火嵌入式开发工作室 *****END OF FILE***/
-
-

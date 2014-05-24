@@ -33,7 +33,7 @@ void SysTick_Init(void)
      * SystemFrequency / 1000000 1us中断一次
      */
 #if 1
-    if (SysTick_Config(SystemCoreClock / 100))	// ST3.5.0库版本
+    if (SysTick_Config(SystemCoreClock / 1000))	// ST3.5.0库版本
     {
         /* Capture error */
         while (1);
@@ -55,7 +55,13 @@ CPU_INT32U BSP_CPU_ClkFreq(void)
 *******************************************************************************/
 void NVIC_Cfg(void)
 {
-    NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4);//优先级设置  全为抢占式优先级
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 }
 
 /*******************************************************************************
@@ -88,7 +94,6 @@ CPU_TS_TMR  CPU_TS_TmrRd (void)
 void BSP_Init(void)
 {
     SystemInit();//Clock72MHZ
-    //SysTick_Init();
     delay_init(72);
     NVIC_Cfg();
     uart_init(72, 115200);
@@ -104,14 +109,13 @@ void BSP_Init(void)
     while(SD_USER_Init() != SD_OK)
     {
         POINT_COLOR = RED;
-        LCD_ShowString(20, 10, 8, 16, 16, "SD Card File!            ");
+        LCD_ShowString(20, 10, 180, 16, 16, "SD Card File!            ");
         LED0 = 0;
         delay_ms(500);
-        LCD_ShowString(20, 10, 8, 16, 16, "Please Check SD Card!");
+        LCD_ShowString(20, 10, 180, 16, 16, "Please Check SD Card!");
         LED0 = 1;
         delay_ms(500);
     }
-    sd_fs_init();//文件系统初始化-汉字字库保存在sd卡中，并将盘符设置为0
     exfuns_init();					//为fatfs相关变量申请内存
     f_mount(0, fs[0]); 		 		//挂载SD卡
     f_mount(1, fs[1]); 				//挂载FLASH.
@@ -137,7 +141,8 @@ void BSP_Init(void)
     printf("System Init Over!\r\n");
     printf(__DATE__"\r\n");
     printf(__TIME__"\r\n");
-    SysTick_Init();
+		SysTick->CTRL |= 1 << 1;  //开启systick中断;
+		//OS_CPU_SysTickInit(SystemCoreClock / (CPU_INT32U)OSCfg_TickRate_Hz);
 }
 
 SD_CardInfo   SDCardInfo;        //SD卡信息
@@ -169,11 +174,15 @@ SD_Error SD_USER_Init(void)
     if (Status == SD_OK)
     {
         /* 任选一种都可以工作 */
-        //Status = SD_SetDeviceMode( SD_DMA_MODE );
-        Status = SD_SetDeviceMode( SD_POLLING_MODE );
+        Status = SD_SetDeviceMode( SD_DMA_MODE );
+        //Status = SD_SetDeviceMode( SD_POLLING_MODE );
         //Status = SD_SetDeviceMode( SD_INTERRUPT_MODE );
     }
     return Status;
 }
 
+void SDIO_IRQHandler(void)
+{
+  SD_ProcessIRQSrc();
+}
 

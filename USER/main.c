@@ -19,9 +19,9 @@ static OS_TCB Music_Task_TCB;
 /* task stack size */
 #define START_STK_SIZE  	      128//注意栈溢出
 #define USART_STK_SIZE      		64
-#define MAIN_STK_SIZE  	  	    512
+#define MAIN_STK_SIZE  	  	    256
 #define WATCH_STK_SIZE      		128
-#define MUSIC_STK_SIZE          512
+#define MUSIC_STK_SIZE          700
 __align(8) static CPU_STK START_TASK_STK[START_STK_SIZE];
 __align(8) static CPU_STK USART_TASK_STK[USART_STK_SIZE];
 __align(8) static CPU_STK MAIN_TASK_STK[MAIN_STK_SIZE];
@@ -122,7 +122,7 @@ int main(void)
                     (void *)0,
                     (OS_OPT     )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
                     (OS_ERR *)&err);
-    OSStart(&err);/* Start multitasking (i.e. give control to uC/OS-III). */
+    OSStart(&err);/* Start multitasking (i.e. give control to uC/OS-III). */									
 }
 
 void Main_Task(void *p_arg)
@@ -168,11 +168,11 @@ void Usart_Task(void *pdata)
     while(1)
     {
         LED0 = 0;
-        TEST = 0;
-        delay_ms(500);
+        //TEST = 0;
+        delay_ms(1000);
         LED0 = 1;
-        TEST = 1;
-        delay_ms(500);
+        //TEST = 1;
+        delay_ms(1000);
         OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)
         printf("System Sram Use rate:%d%%\r\n", mem_perused(0)); //打印内存占用率
         OS_CRITICAL_EXIT();	//退出临界区(可以被中断打断)

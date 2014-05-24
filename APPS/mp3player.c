@@ -1,5 +1,7 @@
 #include "mp3player.h"
 //#include "settings.h"
+
+#define READ_BLOCK_SIZE 4096
 //mp3播放控制器
 _m_mp3dev  *mp3dev = NULL;
 
@@ -42,27 +44,24 @@ void music_task(void *pdata)
     u8 *patchbuf = 0;
     u16 i = 0;
     u8 *pname = 0;
-	//os 
+  	//os 
     CPU_TS ts;
     OS_ERR err;
     OS_MSG_SIZE msg_size;
-	
-    VS_HD_Reset();
-    VS_Soft_Reset();
-    printf("Music Play Task!\r\n");
-    OSQCreate(&MusicQ, "MusicQuene", 2, &err);
+    //VS_HD_Reset();
+    //VS_Soft_Reset();
+    OSQCreate(&MusicQ, "MusicQuene", 1, &err);
     while(1)
     {
-        mp3dev->curindex = (CPU_INT32U)OSQPend((OS_Q *)&MusicQ,
-                                               (OS_TICK ) 0,
-                                               (OS_OPT )OS_OPT_PEND_BLOCKING,
-                                               (OS_MSG_SIZE *)&msg_size,
-                                               (CPU_TS *)&ts,
-                                               (OS_ERR *)&err) - 1; /* Process message received */
-        printf("mp3dev->curindex = %d msf_size = %d,err= %d\r\n", mp3dev->curindex, msg_size, err);
-        //mp3dev->curindex=(u32)OSMboxPend(mp3mbox,0,&rval)-1;//请求邮箱,要减去1,因为发送的时候增加了1
+			(CPU_INT32U)OSQPend((OS_Q *)&MusicQ,
+												 (OS_TICK ) 0,
+												 (OS_OPT )OS_OPT_PEND_BLOCKING,
+												 (OS_MSG_SIZE *)&msg_size,
+												 (CPU_TS *)&ts,
+												 (OS_ERR *)&err); /* Process message received */
+			  mp3dev->curindex = msg_size-1;//传出消息队列中的当前选中的歌曲index
         rval = 0;
-        databuf = (u8 *)mymalloc(SRAMIN, 4096);		//开辟512字节的内存区域
+        databuf = (u8 *)mymalloc(SRAMIN,READ_BLOCK_SIZE);		//开辟512字节的内存区域
         if(databuf == NULL)rval = 1 ;				//内存申请失败.
         //为长文件名申请缓存区
         mp3info.lfsize = _MAX_LFN * 2 + 1;
@@ -79,6 +78,7 @@ void music_task(void *pdata)
             pname = gui_memin_malloc(strlen((const char *)mp3dev->name) + strlen((const char *)mp3dev->path) + 2); //申请内存
             if(pname == NULL)break; //申请失败
             pname = gui_path_name(pname, mp3dev->path, mp3dev->name);	//文件名加入路径
+		printf("pname = %s\r\n",pname);
             //VS_Restart_Play();  	//重启播放 VS1003与VS1053的寄存器有差别
             VS_Set_All();        	//设置音量等信息
             VS_Reset_DecodeTime();	//复位解码时间
@@ -114,14 +114,13 @@ void music_task(void *pdata)
                 VS_SPI_SpeedHigh();	//高速
                 mp3dev->sta |= 1 << 7;	//标记开始解码MP3
                 mp3dev->sta |= 1 << 6;	//标记执行了一次歌曲的切换
-                printf("mp3dev->sta =0x%x\r\n", mp3dev->sta);
                 while(1)
                 {
-                    res = f_read(mp3dev->fmp3, databuf, 4096, (UINT *)&br);	//读出readlen个字节
+                    res = f_read(mp3dev->fmp3, databuf, READ_BLOCK_SIZE, (UINT *)&br);	//读出readlen个字节
+										printf("br = %d  res= %d\r\n",br,res);
                     i = 0;
                     do//主播放循环
                     {
-                        //printf("Music Play Task Runing HeardL %d\r\n",i);
                         if(VS_Send_MusicData(databuf + i) == 0) //给VS10XX发送音频数据
                         {
                             i += 32;
@@ -135,13 +134,15 @@ void music_task(void *pdata)
                                 if((mp3dev->sta & 0x01) == 0)break; //请求终止
                             }
                             if((mp3dev->sta & 0x01) == 0)break; //请求终止
-                        }
+                        }	
+										printf("i = %i \r\n",i);
                     }
-                    while(i < 4096); //循环发送4096个字节
-                    if(br != 4096 || res != 0)
+                    while(i < READ_BLOCK_SIZE); //循环发送4096个字节
+                    if(br != READ_BLOCK_SIZE || res != 0)
                     {
                         break;//读完了.
                     }
+
                     if((mp3dev->sta & 0x01) == 0)break; //请求终止
                 }
                 f_close(mp3dev->fmp3);
@@ -172,7 +173,8 @@ void music_task(void *pdata)
 void mp3_stop(_m_mp3dev *mp3devx)
 {
     mp3devx->sta &= ~(1 << 0);		//请求终止播放
-    while(mp3devx->sta & 0X80);	//等待播放停止
+	  delay_ms(10);//允许调度
+    while(mp3devx->sta & 0X80);  //等待播放停止
     mp3devx->sta |= 1 << 0;			//允许播放
 }
 
@@ -194,11 +196,10 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
     u16 i;
     _btn_obj *rbtn;		//返回按钮控件
     _btn_obj *qbtn;		//退出按钮控件
-
     _filelistbox_obj *flistbox;
     _filelistbox_list *filelistx; 	//文件
-    OS_ERR err;
-
+ 
+  	OS_ERR err;
     app_filebrower((u8 *)MUSIC_LIST[gui_phy.language], 0X07);	//选择目标文件,并得到目标数量
     flistbox = filelistbox_creat(0, 20, 240, 280, 1, 12);		//创建一个filelistbox
     if(flistbox == NULL)rval = 1;							//申请内存失败.
@@ -245,7 +246,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
     {
         tp_dev.scan(0);
         in_obj.get_key(&tp_dev, IN_TYPE_TOUCH);	//得到按键键值
-        delay_ms(10);		//延时一个时钟节拍
+        delay_ms(5);		//延时一个时钟节拍
         filelistbox_check(flistbox, &in_obj);	//扫描文件
         res = btn_check(rbtn, &in_obj);
         if(res)
@@ -293,14 +294,12 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
             for(i = 0; i < flistbox->filecnt; i++)mp3devx->mfindextbl[i] = flistbox->findextbl[i]; //复制
 
             mp3devx->mfilenum = flistbox->filecnt;		//记录文件个数
-
-            printf("flistbox->selindex =%d - flistbox->foldercnt = %d\r\n", flistbox->selindex , flistbox->foldercnt);
+            //printf("flistbox->selindex =%d - flistbox->foldercnt = %d\r\n", flistbox->selindex , flistbox->foldercnt);
             OSQPost ((OS_Q *)&MusicQ,
                      (void *)1,
                      (OS_MSG_SIZE)(flistbox->selindex - flistbox->foldercnt + 1),
                      (OS_OPT )OS_OPT_POST_FIFO,
                      (OS_ERR *)&err);
-            //			OSMboxPost(mp3mbox,(void*)(flistbox->selindex-flistbox->foldercnt+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
             flistbox->dbclick = 0;
             break;
         }
@@ -472,7 +471,7 @@ void mp3_info_upd(_m_mp3dev *mp3devx, _progressbar_obj *mp3prgbx, _progressbar_o
         progressbar_draw_progressbar(mp3prgbx);//更新进度条位置
         temp = VS_Get_DecodeTime();
         if(temp != mp3devx->playtime)
-        {
+        {		
             mp3devx->playtime = temp;
             mp3_time_show(21, 133, mp3devx->playtime); //显示播放时间
             temp = VS_Get_HeadInfo(); //得到码率
@@ -517,12 +516,9 @@ u8 mp3_play(void)
     {
         VS_HD_Reset();
         VS_Soft_Reset();		//复位
-        mp3_filelist(mp3dev);//----------------------------------------------------------
-        delay_ms(1000);//允许调度
-        printf("mp3_filelist mp3dev->sta =0x%x\r\n", mp3dev->sta);
-        if((mp3dev->sta & 0x80) == 0) //0xC1 1100 0001
+        mp3_filelist(mp3dev);
+        if((mp3dev->sta & 0x80) == 0)
         {
-            printf("Exit Music program!");
             return 0;//还是没有MP3在播放,则退出程序
         }
     }
@@ -575,7 +571,7 @@ u8 mp3_play(void)
             tcnt++;//计时增加.
             tp_dev.scan(0);
             in_obj.get_key(&tp_dev, IN_TYPE_TOUCH);	//得到按键键值
-            delay_ms(1000 / OSCfg_TickRate_Hz);		//延时一个时钟节拍
+            delay_ms(10);		//延时一个时钟节拍
             for(i = 0; i < 5; i++)
             {
                 res = btn_check(tbtn[i], &in_obj);
@@ -610,7 +606,16 @@ u8 mp3_play(void)
                     case 1://上一曲或者下一曲
                     case 3:
                         mp3_stop(mp3dev);
-                        mp3dev->curindex = app_get_rand(mp3dev->mfilenum); //得到下一首歌曲的索引
+												if(i == 1) //上一曲
+												{
+														if(mp3dev->curindex)mp3dev->curindex--;
+														else mp3dev->curindex = mp3dev->mfilenum - 1;
+												}
+												else
+												{
+														if(mp3dev->curindex < (mp3dev->mfilenum - 1))mp3dev->curindex++;
+														else mp3dev->curindex = 0;
+												}
 
 #if 0
                         if(systemset.mp3mode == 1) //随机播放
@@ -631,13 +636,11 @@ u8 mp3_play(void)
                             }
                         }
 #endif
-                        printf("mp3dev->curindex+1=%d", mp3dev->curindex + 1);
                         OSQPost ((OS_Q *)&MusicQ,
                                  (void *)1,
-                                 (OS_MSG_SIZE)(mp3dev->curindex + 2), //sizeof(void *),//
+                                 (OS_MSG_SIZE)(mp3dev->curindex+1),
                                  (OS_OPT )OS_OPT_POST_FIFO,
                                  (OS_ERR *)&err);
-                        //							OSMboxPost(mp3mbox,(void*)(mp3dev->curindex+1));//发送邮箱,因为邮箱不能为空,所以在这必须加1
                         break;
                     case 2://播放/暂停
                         if(mp3dev->sta & (1 << 5)) //是暂停
@@ -682,11 +685,14 @@ u8 mp3_play(void)
             {
                 f_lseek(mp3dev->fmp3, mp3prgb->curpos); //快速定位
             }
-            if(((mp3dev->sta & (1 << 4)) == 0) && (tcnt % 5) == 0)		//不是flac,执行频谱显示
+						//if((tcnt%20)==0)mp3_info_upd(mp3dev,mp3prgb,volprgb);//更新显示信息,每100ms执行一次
+
+            if(((mp3dev->sta & (1 << 4)) == 0)&&(tcnt%5)==0)		//不是flac,执行频谱显示
             {
-                res = VS_Get_Spec(specbuf);
+                //res = VS_Get_Spec(specbuf);
                 if(res)mp3_specalz_show(mp3dev, specbuf);	//显示频谱
             }
+						
         }
     }
     for(i = 0; i < 5; i++)btn_delete(tbtn[i]); //删除按钮

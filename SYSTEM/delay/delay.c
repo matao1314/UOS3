@@ -17,9 +17,9 @@ void delay_init(u8 SYSCLK) {
     fac_us = SYSCLK / 8;		//不论是否使用ucos,fac_us都需要使用
     SysTick->CTRL &= ~(1 << 2); //systick使用外部时钟;
     //SysTick->CTRL |= 1 << 1;  //开启systick中断;
-    SysTick->LOAD = fac_us * (1000000 / OS_TICKS_PER_SEC); //产生1ms中断;
+    SysTick->LOAD = fac_us * (1000000 / OSCfg_TickRate_Hz); //产生1ms中断;
     SysTick->CTRL |= 1 << 0;   	//开启SYSTICK中断;
-    fac_ms = 1000 / OS_TICKS_PER_SEC; //代表ucos可以延时的最少单位
+    fac_ms = 1000 / OSCfg_TickRate_Hz; //代表ucos可以延时的最少单位
 }
 
 //延时nus
@@ -29,7 +29,7 @@ void delay_us(u32 nus) {
     u32 ticks;
     u32 told, tnow, tcnt;
     u32 reload = SysTick->LOAD;	//LOAD的值
-    ticks = nus * 9; 			//需要的节拍数
+    ticks = nus * fac_us; 			//需要的节拍数
     tcnt = 0;
     OSSchedLock((OS_ERR *)&d_err); //阻止ucos调度，防止打断us延时
     told = SysTick->VAL;        	 //刚进入时的计数器值

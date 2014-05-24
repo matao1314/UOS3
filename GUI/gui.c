@@ -2,6 +2,7 @@
 #include "touch.h"
 #include "text.h"
 #include "icos.h"
+#include "key.h"
 //////////////////////////////////////////////////////////////////////////////////
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK战舰STM32开发板
@@ -95,7 +96,7 @@ void gui_get_key(void *obj, u8 type)
         else in_obj.ksta &= ~(0X01);				//触摸松开了
         break;
     case IN_TYPE_KEY:
-        in_obj.keyval = (u32)obj;
+			  in_obj.keyval=(u32)KEY_Scan(0);
         in_obj.intype = IN_TYPE_KEY;
         break;
     case IN_TYPE_JOYPAD:

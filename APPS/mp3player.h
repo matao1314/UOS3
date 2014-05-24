@@ -76,10 +76,7 @@ __packed typedef struct
 } _m_mp3dev;
 
 extern _m_mp3dev *mp3dev;
-
-//extern OS_EVENT * mp3mbox;//ÊÂ¼þ¿ØÖÆ¿é
 extern u8 mp3sta;//MP3×´Ì¬
-
 
 void music_task(void *pdata);
 void mp3_stop(_m_mp3dev *mp3devx);

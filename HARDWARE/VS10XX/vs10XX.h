@@ -51,13 +51,13 @@ extern _vs10xx_obj vsset;		//VS10XX…Ë÷√
 #define SPI_WRAMADDR    	0x07
 #define SPI_HDAT0       	0x08
 #define SPI_HDAT1       	0x09
-
 #define SPI_AIADDR      	0x0a
 #define SPI_VOL         	0x0b
 #define SPI_AICTRL0     	0x0c
 #define SPI_AICTRL1     	0x0d
 #define SPI_AICTRL2     	0x0e
 #define SPI_AICTRL3     	0x0f
+//SPI_MODE
 #define SM_DIFF         	0x01
 #define SM_JUMP         	0x02
 #define SM_RESET        	0x04
