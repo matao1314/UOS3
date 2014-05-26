@@ -30,8 +30,7 @@
 
 
 //list结构体.链表结构
-__packed typedef struct
-{
+__packed typedef struct {
     void *prevlist;
     void *nextlist;
     u32 id;
@@ -39,8 +38,7 @@ __packed typedef struct
 } _listbox_list;
 
 //listbox结构体定义
-__packed typedef struct
-{
+__packed typedef struct {
     u16 top; 				  		//listbox顶端坐标
     u16 left;                       //listbox左端坐标
     u16 width; 				  		//宽度

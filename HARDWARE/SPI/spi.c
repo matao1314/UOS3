@@ -90,17 +90,19 @@ void SPI2_SetSpeed(u8 SpeedSet)
 u8 SPI1_ReadWriteByte(u8 TxData)
 {
     u8 retry = 0;
-    while((SPI1->SR & 1 << 1) == 0) //等待发送区空
-    {
+    while((SPI1->SR & 1 << 1) == 0) { //等待发送区空
         retry++;
-        if(retry > 200)return 0;
+        if(retry > 200) {
+            return 0;
+        }
     }
     SPI1->DR = TxData;	 	 //发送一个byte
     retry = 0;
-    while((SPI1->SR & 1 << 0) == 0) //等待接收完一个byte
-    {
+    while((SPI1->SR & 1 << 0) == 0) { //等待接收完一个byte
         retry++;
-        if(retry > 200)return 0;
+        if(retry > 200) {
+            return 0;
+        }
     }
     return SPI1->DR;          //返回收到的数据
 }
@@ -111,17 +113,19 @@ u8 SPI1_ReadWriteByte(u8 TxData)
 u8 SPI2_ReadWriteByte(u8 TxData)
 {
     u8 retry = 0;
-    while((SPI2->SR & 1 << 1) == 0) //等待发送区空
-    {
+    while((SPI2->SR & 1 << 1) == 0) { //等待发送区空
         retry++;
-        if(retry > 200)return 0;
+        if(retry > 200) {
+            return 0;
+        }
     }
     SPI2->DR = TxData;	 	 //发送一个byte
     retry = 0;
-    while((SPI2->SR & 1 << 0) == 0) //等待接收完一个byte
-    {
+    while((SPI2->SR & 1 << 0) == 0) { //等待接收完一个byte
         retry++;
-        if(retry > 200)return 0;
+        if(retry > 200) {
+            return 0;
+        }
     }
     return SPI2->DR;          //返回收到的数据
 }

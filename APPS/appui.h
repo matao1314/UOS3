@@ -10,8 +10,7 @@
 #define SPB_ALPHA_COLOR		WHITE	//SPB透明色
 #define SPB_FONT_COLOR 		BLUE 	//SPB字体颜色
 
-__packed typedef struct _m_spb_icos
-{
+__packed typedef struct _m_spb_icos {
     u16 x;			//图标坐标及尺寸
     u16 y;
     u8 width;
@@ -21,8 +20,7 @@ __packed typedef struct _m_spb_icos
 } m_spb_icos;
 
 //SPB 控制器
-typedef struct _m_spb_dev
-{
+typedef struct _m_spb_dev {
     u16 oldxpos;     			//上一次TP的x坐标位置
     u16 curxpos;     			//当前tp按下的x坐标
     u16 curypos;     			//当前tp按下的y坐标

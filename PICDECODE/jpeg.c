@@ -11,8 +11,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 //反Z字形编码表
-const int Zig_Zag[8][8] =
-{
+const int Zig_Zag[8][8] = {
     {0, 1, 5, 6, 14, 15, 27, 28},
     {2, 4, 7, 13, 16, 26, 29, 42},
     {3, 8, 12, 17, 25, 30, 41, 43},
@@ -86,41 +85,69 @@ u8 jpeg_mallocall(void)
 {
     u8 i;
     f_jpeg = (FIL *)mymalloc(SRAMIN, sizeof(FIL));
-    if(f_jpeg == NULL)return PIC_MEM_ERR;		//申请内存失败.
+    if(f_jpeg == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     iclip = (long *)mymalloc(SRAMIN, 1024 * 4);
-    if(iclip == NULL)return PIC_MEM_ERR;		//申请内存失败.
+    if(iclip == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     jpg_buffer = (u8 *)mymalloc(SRAMIN, 1024);
-    if(jpg_buffer == NULL)return PIC_MEM_ERR;	//申请内存失败.
-    for(i = 0; i < 4; i++)
-    {
-        if(i < 3)
-        {
+    if(jpg_buffer == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
+    for(i = 0; i < 4; i++) {
+        if(i < 3) {
             qt_table[i] = (short *)mymalloc(SRAMIN, 128);
-            if(qt_table[i] == NULL)return PIC_MEM_ERR; //申请内存失败.
+            if(qt_table[i] == NULL) {
+                return PIC_MEM_ERR;    //申请内存失败.
+            }
         }
         code_pos_table[i] = (short *)mymalloc(SRAMIN, 32);
-        if(code_pos_table[i] == NULL)return PIC_MEM_ERR; //申请内存失败.
+        if(code_pos_table[i] == NULL) {
+            return PIC_MEM_ERR;    //申请内存失败.
+        }
         code_len_table[i] = (short *)mymalloc(SRAMIN, 32);
-        if(code_len_table[i] == NULL)return PIC_MEM_ERR; //申请内存失败.
+        if(code_len_table[i] == NULL) {
+            return PIC_MEM_ERR;    //申请内存失败.
+        }
         huf_max_value[i] = (u16 *)mymalloc(SRAMIN, 32);
-        if(huf_max_value[i] == NULL)return PIC_MEM_ERR; //申请内存失败.
+        if(huf_max_value[i] == NULL) {
+            return PIC_MEM_ERR;    //申请内存失败.
+        }
         huf_min_value[i] = (u16 *)mymalloc(SRAMIN, 32);
-        if(huf_min_value[i] == NULL)return PIC_MEM_ERR; //申请内存失败.
+        if(huf_min_value[i] == NULL) {
+            return PIC_MEM_ERR;    //申请内存失败.
+        }
         code_value_table[i] = (u16 *)mymalloc(SRAMIN, 1024);
-        if(code_value_table[i] == NULL)return PIC_MEM_ERR; //申请内存失败.
+        if(code_value_table[i] == NULL) {
+            return PIC_MEM_ERR;    //申请内存失败.
+        }
     }
     MCUBuffer = (short *)mymalloc(SRAMIN, 1280);
-    if(MCUBuffer == NULL)return PIC_MEM_ERR; //申请内存失败.
+    if(MCUBuffer == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     QtZzMCUBuffer = (short *)mymalloc(SRAMIN, 1280);
-    if(QtZzMCUBuffer == NULL)return PIC_MEM_ERR; //申请内存失败.
+    if(QtZzMCUBuffer == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     BlockBuffer = (short *)mymalloc(SRAMIN, 128);
-    if(BlockBuffer == NULL)return PIC_MEM_ERR; //申请内存失败.
+    if(BlockBuffer == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     Y = (short *)mymalloc(SRAMIN, 512);
-    if(Y == NULL)return PIC_MEM_ERR; //申请内存失败.
+    if(Y == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     U = (short *)mymalloc(SRAMIN, 512);
-    if(U == NULL)return PIC_MEM_ERR; //申请内存失败.
+    if(U == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     V = (short *)mymalloc(SRAMIN, 512);
-    if(V == NULL)return PIC_MEM_ERR; //申请内存失败.
+    if(V == NULL) {
+        return PIC_MEM_ERR;    //申请内存失败.
+    }
     return 0;
 }
 //释放内存
@@ -130,9 +157,10 @@ void jpeg_freeall(void)
     myfree(SRAMIN, f_jpeg);			//释放f_jpeg申请到的内存
     myfree(SRAMIN, iclip);			//释放iclip申请到的内存
     myfree(SRAMIN, jpg_buffer);		//释放jpg_buffer申请到的内存
-    for(i = 0; i < 4; i++)
-    {
-        if(i < 3)myfree(SRAMIN, qt_table[i]);	//释放内存
+    for(i = 0; i < 4; i++) {
+        if(i < 3) {
+            myfree(SRAMIN, qt_table[i]);    //释放内存
+        }
         myfree(SRAMIN, code_pos_table[i]); 	//释放内存
         myfree(SRAMIN, code_len_table[i]); 	//释放内存
         myfree(SRAMIN, huf_max_value[i]); 	//释放内存
@@ -157,26 +185,24 @@ u8 jpg_decode(const u8 *filename)
 #if JPEG_USE_MALLOC == 1//使用malloc
     res = jpeg_mallocall();
 #endif
-    if(res == 0) //内存申请OK
-    {
+    if(res == 0) { //内存申请OK
         //得到JPEG/JPG图片的开始信息
         res = f_open(f_jpeg, (const TCHAR *)filename, FA_READ); //打开文件
-        if(res == 0)
-        {
+        if(res == 0) {
             //开始时读入1024个字节到缓存里面.方便后面提取JPEG解码的信息
             f_read(f_jpeg, jpg_buffer, 1024, (UINT *)&br);
             jpeg_inittable();//初始化各个数据表
             res = jpeg_inittag();
-            if(res == 0)
-            {
-                if((SampRate_Y_H != 0) && (SampRate_Y_V != 0))
-                {
+            if(res == 0) {
+                if((SampRate_Y_H != 0) && (SampRate_Y_V != 0)) {
                     ai_draw_init();	//初始化picinfo.Div_Fac,启动智能画图
                     res = jpeg_decode();	//解码JPEG开始
+                } else {
+                    res = 0XFD;    //采样率错误
                 }
-                else res = 0XFD;	 	//采样率错误
+            } else {
+                res = 0XFE;    //初始化表头不成功
             }
-            else res = 0XFE;			//初始化表头不成功
             f_close(f_jpeg);
         }
 
@@ -195,8 +221,7 @@ void jpg_seek(u8 *pbase, u8 **pnow)
     u32 pos;
     u16 offset;
     offset = *pnow - pbase; //当前的偏移量.
-    if(offset > 1000) //将要结束了,做下一次读取
-    {
+    if(offset > 1000) { //将要结束了,做下一次读取
         pos = f_tell(f_jpeg);				//得到当前位置
         f_lseek(f_jpeg, pos - 1024 + offset); //偏移
         f_read(f_jpeg, pbase, 1024, &br);	//读取1024个字节.
@@ -221,13 +246,11 @@ int jpeg_inittag(void)
 
     lp = jpg_buffer + 2; //跳过两个字节SOI(0xFF，0xD8 Start of Image)
     jpg_seek(jpg_buffer, &lp);
-    while (!finish)
-    {
+    while (!finish) {
         id = *(lp + 1); //取出低位字节(高位在前，低位在后)
         lp += 2;   //跳过取出的字节
         jpg_seek(jpg_buffer, &lp);
-        switch (id)
-        {
+        switch (id) {
         case M_APP0: //JFIF APP0 segment marker (0xE0)
             //标志应用数据段的开始
             llength = MAKEWORD(*(lp + 1), *lp); //得到应用数据段长度
@@ -240,15 +263,18 @@ int jpeg_inittag(void)
             //bit 4..7: QT 精度, 0 = 8 bit, 否则 16 bit
             lptemp = lp + 3;  				 //n 字节的 QT, n = 64*(精度+1)
             //d_buffer里面至少有有512个字节的余度,这里最大用到128个字节
-            if(llength < 80)				 //精度为 8 bit
-            {
-                for(i = 0; i < 64; i++)qt_table[qt_table_index][i] = (short) * (lptemp++);
-            }
-            else						  //精度为 16 bit
-            {
-                for(i = 0; i < 64; i++)qt_table[qt_table_index][i] = (short) * (lptemp++);
+            if(llength < 80) {			 //精度为 8 bit
+                for(i = 0; i < 64; i++) {
+                    qt_table[qt_table_index][i] = (short) * (lptemp++);
+                }
+            } else {					 //精度为 16 bit
+                for(i = 0; i < 64; i++) {
+                    qt_table[qt_table_index][i] = (short) * (lptemp++);
+                }
                 qt_table_index = (*(lptemp++)) & 0x0f;
-                for(i = 0; i < 64; i++)qt_table[qt_table_index][i] = (short) * (lptemp++);
+                for(i = 0; i < 64; i++) {
+                    qt_table[qt_table_index][i] = (short) * (lptemp++);
+                }
             }
             lp += llength; //跳过量化表
             jpg_seek(jpg_buffer, &lp);
@@ -258,9 +284,10 @@ int jpeg_inittag(void)
             picinfo.ImgHeight = MAKEWORD(*(lp + 4), *(lp + 3)); //图片高度 (高字节, 低字节), 如果不支持 DNL 就必须 >0
             picinfo.ImgWidth = MAKEWORD(*(lp + 6), *(lp + 5));	//图片宽度 (高字节, 低字节), 如果不支持 DNL 就必须 >0
             comp_num = *(lp + 7); //components 数量(1 u8), 灰度图是 1, YCbCr/YIQ 彩色图是 3, CMYK 彩色图是 4
-            if((comp_num != 1) && (comp_num != 3))return FUNC_FORMAT_ERROR; // 格式错误
-            if(comp_num == 3)						//YCbCr/YIQ 彩色图
-            {
+            if((comp_num != 1) && (comp_num != 3)) {
+                return FUNC_FORMAT_ERROR;    // 格式错误
+            }
+            if(comp_num == 3) {					//YCbCr/YIQ 彩色图
                 comp_index[0] = *(lp + 8);	 //component id (1 = Y, 2 = Cb, 3 = Cr, 4 = I, 5 = Q)
                 SampRate_Y_H = (*(lp + 9)) >> 4;	//水平采样系数
                 SampRate_Y_V = (*(lp + 9)) & 0x0f; //垂直采样系数
@@ -275,9 +302,7 @@ int jpeg_inittag(void)
                 SampRate_V_H = (*(lp + 15)) >> 4;			 //水平采样系数
                 SampRate_V_V = (*(lp + 15)) & 0x0f;		 //垂直采样系数
                 VQtTable = (short *)qt_table[*(lp + 16)]; //通过量化表号取得量化表地址
-            }
-            else								     //component id
-            {
+            } else {							   //component id
                 comp_index[0] = *(lp + 8);
                 SampRate_Y_H = (*(lp + 9)) >> 4;
                 SampRate_Y_V = (*(lp + 9)) & 0x0f;
@@ -298,23 +323,20 @@ int jpeg_inittag(void)
             break;
         case M_DHT: //定义哈夫曼表(0xFF,0xC4)
             llength = MAKEWORD(*(lp + 1), *lp); //长度 (高字节, 低字节)
-            if (llength < 0xd0)			 // Huffman Table信息 (1 u8)
-            {
+            if (llength < 0xd0) {		 // Huffman Table信息 (1 u8)
                 huftab1 = (short)(*(lp + 2)) >> 4; //huftab1=0,1(HT 类型,0 = DC 1 = AC)
                 huftab2 = (short)(*(lp + 2)) & 0x0f; //huftab2=0,1(HT 号  ,0 = Y  1 = UV)
                 huftabindex = huftab1 * 2 + huftab2;	 //0 = YDC 1 = UVDC 2 = YAC 3 = UVAC
                 lptemp = lp + 3; //!!!
                 //在这里可能出现余度不够,多于512字节,则会导致出错!!!!
-                for (i = 0; i < 16; i++)         //16 u8s: 长度是 1..16 代码的符号数
-                    code_len_table[huftabindex][i] = (short)(*(lptemp++)); //码长为i的码字个数
+                for (i = 0; i < 16; i++) {       //16 u8s: 长度是 1..16 代码的符号数
+                    code_len_table[huftabindex][i] = (short)(*(lptemp++));    //码长为i的码字个数
+                }
                 j = 0;
-                for (i = 0; i < 16; i++)			 //得出HT的所有码字的对应值
-                {
-                    if(code_len_table[huftabindex][i] != 0)
-                    {
+                for (i = 0; i < 16; i++) {		 //得出HT的所有码字的对应值
+                    if(code_len_table[huftabindex][i] != 0) {
                         k = 0;
-                        while(k < code_len_table[huftabindex][i])
-                        {
+                        while(k < code_len_table[huftabindex][i]) {
                             code_value_table[huftabindex][k + j] = (short)(*(lptemp++)); //最可能的出错地方
                             k++;
                         }
@@ -322,51 +344,46 @@ int jpeg_inittag(void)
                     }
                 }
                 i = 0;
-                while (code_len_table[huftabindex][i] == 0)i++;
-                for (j = 0; j < i; j++)
-                {
+                while (code_len_table[huftabindex][i] == 0) {
+                    i++;
+                }
+                for (j = 0; j < i; j++) {
                     huf_min_value[huftabindex][j] = 0;
                     huf_max_value[huftabindex][j] = 0;
                 }
                 huf_min_value[huftabindex][i] = 0;
                 huf_max_value[huftabindex][i] = code_len_table[huftabindex][i] - 1;
-                for (j = i + 1; j < 16; j++)
-                {
+                for (j = i + 1; j < 16; j++) {
                     huf_min_value[huftabindex][j] = (huf_max_value[huftabindex][j - 1] + 1) << 1;
                     huf_max_value[huftabindex][j] = huf_min_value[huftabindex][j] + code_len_table[huftabindex][j] - 1;
                 }
                 code_pos_table[huftabindex][0] = 0;
-                for (j = 1; j < 16; j++)
+                for (j = 1; j < 16; j++) {
                     code_pos_table[huftabindex][j] = code_len_table[huftabindex][j - 1] + code_pos_table[huftabindex][j - 1];
+                }
                 lp += llength;
                 jpg_seek(jpg_buffer, &lp);
             }//if
-            else
-            {
+            else {
                 hf_table_index = *(lp + 2);
                 lp += 2;
                 jpg_seek(jpg_buffer, &lp);
-                while (hf_table_index != 0xff)
-                {
+                while (hf_table_index != 0xff) {
                     huftab1 = (short)hf_table_index >> 4; //huftab1=0,1
                     huftab2 = (short)hf_table_index & 0x0f; //huftab2=0,1
                     huftabindex = huftab1 * 2 + huftab2;
                     lptemp = lp + 1;
                     colorount = 0;
-                    for (i = 0; i < 16; i++)
-                    {
+                    for (i = 0; i < 16; i++) {
                         code_len_table[huftabindex][i] = (short)(*(lptemp++));
                         colorount += code_len_table[huftabindex][i];
                     }
                     colorount += 17;
                     j = 0;
-                    for (i = 0; i < 16; i++)
-                    {
-                        if(code_len_table[huftabindex][i] != 0)
-                        {
+                    for (i = 0; i < 16; i++) {
+                        if(code_len_table[huftabindex][i] != 0) {
                             k = 0;
-                            while(k < code_len_table[huftabindex][i])
-                            {
+                            while(k < code_len_table[huftabindex][i]) {
                                 code_value_table[huftabindex][k + j] = (short)(*(lptemp++)); //最可能出错的地方,余度不够
                                 k++;
                             }
@@ -374,22 +391,23 @@ int jpeg_inittag(void)
                         }
                     }
                     i = 0;
-                    while (code_len_table[huftabindex][i] == 0)i++;
-                    for (j = 0; j < i; j++)
-                    {
+                    while (code_len_table[huftabindex][i] == 0) {
+                        i++;
+                    }
+                    for (j = 0; j < i; j++) {
                         huf_min_value[huftabindex][j] = 0;
                         huf_max_value[huftabindex][j] = 0;
                     }
                     huf_min_value[huftabindex][i] = 0;
                     huf_max_value[huftabindex][i] = code_len_table[huftabindex][i] - 1;
-                    for (j = i + 1; j < 16; j++)
-                    {
+                    for (j = i + 1; j < 16; j++) {
                         huf_min_value[huftabindex][j] = (huf_max_value[huftabindex][j - 1] + 1) << 1;
                         huf_max_value[huftabindex][j] = huf_min_value[huftabindex][j] + code_len_table[huftabindex][j] - 1;
                     }
                     code_pos_table[huftabindex][0] = 0;
-                    for (j = 1; j < 16; j++)
+                    for (j = 1; j < 16; j++) {
                         code_pos_table[huftabindex][j] = code_len_table[huftabindex][j - 1] + code_pos_table[huftabindex][j - 1];
+                    }
                     lp += colorount;
                     jpg_seek(jpg_buffer, &lp);
                     hf_table_index = *lp;
@@ -405,18 +423,16 @@ int jpeg_inittag(void)
         case M_SOS:	 //扫描开始 12字节
             llength = MAKEWORD(*(lp + 1), *lp);
             comnum = *(lp + 2);
-            if(comnum != comp_num)return FUNC_FORMAT_ERROR; //格式错误
+            if(comnum != comp_num) {
+                return FUNC_FORMAT_ERROR;    //格式错误
+            }
             lptemp = lp + 3; //这里也可能出现错误
             //这里也可能出错,但是几率比较小了
-            for (i = 0; i < comp_num; i++) //每组件的信息
-            {
-                if(*lptemp == comp_index[0])
-                {
+            for (i = 0; i < comp_num; i++) { //每组件的信息
+                if(*lptemp == comp_index[0]) {
                     YDcIndex = (*(lptemp + 1)) >> 4; //Y 使用的 Huffman 表
                     YAcIndex = ((*(lptemp + 1)) & 0x0f) + 2;
-                }
-                else
-                {
+                } else {
                     UVDcIndex = (*(lptemp + 1)) >> 4; //U,V
                     UVAcIndex = ((*(lptemp + 1)) & 0x0f) + 2;
                 }
@@ -429,13 +445,13 @@ int jpeg_inittag(void)
         case M_EOI:
             return FUNC_FORMAT_ERROR;//图片结束 标记
         default:
-            if ((id & 0xf0) != 0xd0)
-            {
+            if ((id & 0xf0) != 0xd0) {
                 llength = MAKEWORD(*(lp + 1), *lp);
                 lp += llength;
                 jpg_seek(jpg_buffer, &lp);
+            } else {
+                lp += 2;
             }
-            else lp += 2;
             break;
         }  //switch
     } //while
@@ -453,31 +469,31 @@ void jpeg_inittable(void)
     IntervalFlag = FALSE;
     restart = 0;
     for(i = 0; i < 3; i++) //量化表
-        for(j = 0; j < 64; j++)
+        for(j = 0; j < 64; j++) {
             qt_table[i][j] = 0;
+        }
     comp_num = 0;
     HufTabIndex = 0;
-    for(i = 0; i < 3; i++)
+    for(i = 0; i < 3; i++) {
         comp_index[i] = 0;
+    }
     for(i = 0; i < 4; i++)
-        for(j = 0; j < 16; j++)
-        {
+        for(j = 0; j < 16; j++) {
             code_len_table[i][j] = 0;
             code_pos_table[i][j] = 0;
             huf_max_value[i][j] = 0;
             huf_min_value[i][j] = 0;
         }
     for(i = 0; i < 4; i++)
-        for(j = 0; j < 256; j++)
+        for(j = 0; j < 256; j++) {
             code_value_table[i][j] = 0;
+        }
 
-    for(i = 0; i < 10 * 64; i++)
-    {
+    for(i = 0; i < 10 * 64; i++) {
         MCUBuffer[i] = 0;
         QtZzMCUBuffer[i] = 0;
     }
-    for(i = 0; i < 64; i++)
-    {
+    for(i = 0; i < 64; i++) {
         Y[i] = 0;
         U[i] = 0;
         V[i] = 0;
@@ -501,13 +517,13 @@ int jpeg_decode(void)
     H_YtoV = SampRate_Y_H / SampRate_V_H;
     V_YtoV = SampRate_Y_V / SampRate_V_V;
     jpeg_initfastidct();
-    while((funcret = jpeg_decodemcublock()) == FUNC_OK) //After Call DecodeMCUBUBlock()
-    {
+    while((funcret = jpeg_decodemcublock()) == FUNC_OK) { //After Call DecodeMCUBUBlock()
         interval++;						      //The Digital has been Huffman Decoded and
-        if((restart) && (interval % restart == 0)) //be stored in MCUBuffer(YDU,YDU,YDU,YDU
-            IntervalFlag = TRUE;				 // UDU,VDU) Every DU := 8*8
-        else
+        if((restart) && (interval % restart == 0)) { //be stored in MCUBuffer(YDU,YDU,YDU,YDU
+            IntervalFlag = TRUE;    // UDU,VDU) Every DU := 8*8
+        } else {
             IntervalFlag = FALSE;
+        }
         jpeg_iqtizzmcucomponent(0); //反量化 and IDCT The Data in QtZzMCUBuffer
         jpeg_iqtizzmcucomponent(1);
         jpeg_iqtizzmcucomponent(2);
@@ -516,12 +532,13 @@ int jpeg_decode(void)
         jpeg_getyuv(2);
         jpeg_storebuffer();		   //To RGB
         sizej += SampRate_Y_H * 8;
-        if(sizej >= picinfo.ImgWidth)
-        {
+        if(sizej >= picinfo.ImgWidth) {
             sizej = 0;
             sizei += SampRate_Y_V * 8;
         }
-        if ((sizej == 0) && (sizei >= picinfo.ImgHeight))break;
+        if ((sizej == 0) && (sizei >= picinfo.ImgHeight)) {
+            break;
+        }
     }
     return funcret;
 }
@@ -533,8 +550,7 @@ void  jpeg_getyuv(short flag)
     short	i, j, k, h;
     short	*buf = 0;
     short	*pQtZzMCU = 0;
-    switch(flag)
-    {
+    switch(flag) {
     case 0://亮度分量
         H = SampRate_Y_H;
         VV = SampRate_Y_V;
@@ -557,8 +573,9 @@ void  jpeg_getyuv(short flag)
     for (i = 0; i < VV; i++)
         for(j = 0; j < H; j++)
             for(k = 0; k < 8; k++)
-                for(h = 0; h < 8; h++)
+                for(h = 0; h < 8; h++) {
                     buf[(i * 8 + k)*SampRate_Y_H * 8 + j * 8 + h] = *pQtZzMCU++;
+                }
 }
 
 //将解出的字按RGB形式存储 lpbmp (BGR),(BGR) ......入口Y[] U[] V[] 出口lpPtr
@@ -571,21 +588,21 @@ void jpeg_storebuffer(void)
     //x,y的实际坐标
     u16 realx = sizej;
     u16 realy = 0;
-    for(i = 0; i < SampRate_Y_V * 8; i++)
-    {
-        if((sizei + i) < picinfo.ImgHeight) // sizei表示行 sizej 表示列
-        {
+    for(i = 0; i < SampRate_Y_V * 8; i++) {
+        if((sizei + i) < picinfo.ImgHeight) { // sizei表示行 sizej 表示列
             realy = (picinfo.Div_Fac * (sizei + i)) >> 13; //实际Y坐标
             //在这里不改变picinfo.staticx和picinfo.staticy的值 ,如果在这里改变,则会造成每块的第一个点不显示!!!
-            if(!is_element_ok(realx, realy, 0))continue; //列值是否满足条件? 寻找满足条件的列
+            if(!is_element_ok(realx, realy, 0)) {
+                continue;    //列值是否满足条件? 寻找满足条件的列
+            }
 
-            for(j = 0; j < SampRate_Y_H * 8; j++)
-            {
-                if((sizej + j) < picinfo.ImgWidth)
-                {
+            for(j = 0; j < SampRate_Y_H * 8; j++) {
+                if((sizej + j) < picinfo.ImgWidth) {
                     realx = (picinfo.Div_Fac * (sizej + j)) >> 13; //实际X坐标
                     //在这里改变picinfo.staticx和picinfo.staticy的值
-                    if(!is_element_ok(realx, realy, 1))continue; //列值是否满足条件? 寻找满足条件的行
+                    if(!is_element_ok(realx, realy, 1)) {
+                        continue;    //列值是否满足条件? 寻找满足条件的行
+                    }
 
                     y = Y[i * 8 * SampRate_Y_H + j];
                     u = U[(i / V_YtoU) * 8 * SampRate_Y_H + j / H_YtoU];
@@ -596,12 +613,21 @@ void jpeg_storebuffer(void)
                     R = (u8)rr;
                     G = (u8)gg;
                     B = (u8)bb;
-                    if (rr & 0xffffff00) if (rr > 255) R = 255;
-                        else if (rr < 0) R = 0;
-                    if (gg & 0xffffff00) if (gg > 255) G = 255;
-                        else if (gg < 0) G = 0;
-                    if (bb & 0xffffff00) if (bb > 255) B = 255;
-                        else if (bb < 0) B = 0;
+                    if (rr & 0xffffff00) if (rr > 255) {
+                            R = 255;
+                        } else if (rr < 0) {
+                            R = 0;
+                        }
+                    if (gg & 0xffffff00) if (gg > 255) {
+                            G = 255;
+                        } else if (gg < 0) {
+                            G = 0;
+                        }
+                    if (bb & 0xffffff00) if (bb > 255) {
+                            B = 255;
+                        } else if (bb < 0) {
+                            B = 0;
+                        }
                     color = R >> 3;
                     color = color << 6;
                     color |= (G >> 2);
@@ -609,11 +635,13 @@ void jpeg_storebuffer(void)
                     color |= (B >> 3);
                     //在这里送给LCD显示
                     pic_phy.draw_point(realx + picinfo.S_XOFF, realy + picinfo.S_YOFF, color); //显示图片
+                } else {
+                    break;
                 }
-                else break;
             }
+        } else {
+            break;
         }
-        else break;
     }
 }
 //Huffman Decode   MCU 出口 MCUBuffer  入口Blockbuffer[  ]
@@ -622,60 +650,64 @@ int jpeg_decodemcublock(void)
     short *lpMCUBuffer;
     short i, j;
     int funcret;
-    if (IntervalFlag)//差值复位
-    {
+    if (IntervalFlag) { //差值复位
         lp += 2;
         jpg_seek(jpg_buffer, &lp);
         ycoef = ucoef = vcoef = 0;
         BitPos = 0;
         Curu8 = 0;
     }
-    switch(comp_num)
-    {
+    switch(comp_num) {
     case 3:	 //comp_num 指图的类型（彩色图、灰度图）
         lpMCUBuffer = MCUBuffer;
-        for (i = 0; i < SampRate_Y_H * SampRate_Y_V; i++) //Y
-        {
+        for (i = 0; i < SampRate_Y_H * SampRate_Y_V; i++) { //Y
             funcret = jpeg_hufblock(YDcIndex, YAcIndex); //解码4 * (8*8)
-            if (funcret != FUNC_OK)
+            if (funcret != FUNC_OK) {
                 return funcret;
+            }
             BlockBuffer[0] = BlockBuffer[0] + ycoef; //直流分量是差值，所以要累加。
             ycoef = BlockBuffer[0];
-            for (j = 0; j < 64; j++)
+            for (j = 0; j < 64; j++) {
                 *lpMCUBuffer++ = BlockBuffer[j];
+            }
         }
-        for (i = 0; i < SampRate_U_H * SampRate_U_V; i++) //U
-        {
+        for (i = 0; i < SampRate_U_H * SampRate_U_V; i++) { //U
             funcret = jpeg_hufblock(UVDcIndex, UVAcIndex);
-            if (funcret != FUNC_OK)
+            if (funcret != FUNC_OK) {
                 return funcret;
+            }
             BlockBuffer[0] = BlockBuffer[0] + ucoef;
             ucoef = BlockBuffer[0];
-            for (j = 0; j < 64; j++)
+            for (j = 0; j < 64; j++) {
                 *lpMCUBuffer++ = BlockBuffer[j];
+            }
         }
-        for (i = 0; i < SampRate_V_H * SampRate_V_V; i++) //V
-        {
+        for (i = 0; i < SampRate_V_H * SampRate_V_V; i++) { //V
             funcret = jpeg_hufblock(UVDcIndex, UVAcIndex);
-            if (funcret != FUNC_OK)
+            if (funcret != FUNC_OK) {
                 return funcret;
+            }
             BlockBuffer[0] = BlockBuffer[0] + vcoef;
             vcoef = BlockBuffer[0];
-            for (j = 0; j < 64; j++)
+            for (j = 0; j < 64; j++) {
                 *lpMCUBuffer++ = BlockBuffer[j];
+            }
         }
         break;
     case 1:	//Gray Picture
         lpMCUBuffer = MCUBuffer;
         funcret = jpeg_hufblock(YDcIndex, YAcIndex);
-        if (funcret != FUNC_OK)
+        if (funcret != FUNC_OK) {
             return funcret;
+        }
         BlockBuffer[0] = BlockBuffer[0] + ycoef;
         ycoef = BlockBuffer[0];
-        for (j = 0; j < 64; j++)
+        for (j = 0; j < 64; j++) {
             *lpMCUBuffer++ = BlockBuffer[j];
-        for (i = 0; i < 128; i++)
+        }
+        for (i = 0; i < 128; i++) {
             *lpMCUBuffer++ = 0;
+        }
         break;
     default:
         return FUNC_FORMAT_ERROR;
@@ -691,23 +723,26 @@ int jpeg_hufblock(u8 dchufindex, u8 achufindex)
     //dc
     HufTabIndex = dchufindex;
     funcret = jpeg_decodeelement();
-    if(funcret != FUNC_OK)return funcret;
+    if(funcret != FUNC_OK) {
+        return funcret;
+    }
     BlockBuffer[count++] = vvalue; //解出的直流系数
     //ac
     HufTabIndex = achufindex;
-    while (count < 64)
-    {
+    while (count < 64) {
         funcret = jpeg_decodeelement();
-        if(funcret != FUNC_OK)
+        if(funcret != FUNC_OK) {
             return funcret;
-        if ((rrun == 0) && (vvalue == 0))
-        {
-            for (i = count; i < 64; i++)BlockBuffer[i] = 0;
-            count = 64;
         }
-        else
-        {
-            for (i = 0; i < rrun; i++)BlockBuffer[count++] = 0; //前面的零
+        if ((rrun == 0) && (vvalue == 0)) {
+            for (i = count; i < 64; i++) {
+                BlockBuffer[i] = 0;
+            }
+            count = 64;
+        } else {
+            for (i = 0; i < rrun; i++) {
+                BlockBuffer[count++] = 0;    //前面的零
+            }
             BlockBuffer[count++] = vvalue; //解出的值
         }
     }
@@ -722,14 +757,11 @@ int jpeg_decodeelement()
     u8 hufexu8, runsize, tempsize, sign;
     u8 newu8, lastu8;
 
-    if(BitPos >= 1) //BitPos指示当前比特位置
-    {
+    if(BitPos >= 1) { //BitPos指示当前比特位置
         BitPos--;
         thiscode = (u8)Curu8 >> BitPos; //取一个比特
         Curu8 = Curu8 & And[BitPos]; //清除取走的比特位
-    }
-    else							   //取出的一个字节已用完
-    {
+    } else {						 //取出的一个字节已用完
         //新取
         lastu8 = jpeg_readu8();		 //读出一个字节
         BitPos--;					   //and[]:=0x0,0x1,0x3,0x7,0xf,0x1f,0x2f,0x3f,0x4f
@@ -741,16 +773,12 @@ int jpeg_decodeelement()
     //与Huffman表中的码字匹配，直自找到为止
     while ((thiscode < huf_min_value[HufTabIndex][codelen - 1]) ||
             (code_len_table[HufTabIndex][codelen - 1] == 0) ||
-            (thiscode > huf_max_value[HufTabIndex][codelen - 1]))
-    {
-        if(BitPos >= 1) //取出的一个字节还有
-        {
+            (thiscode > huf_max_value[HufTabIndex][codelen - 1])) {
+        if(BitPos >= 1) { //取出的一个字节还有
             BitPos--;
             tempcode = (u8)Curu8 >> BitPos;
             Curu8 = Curu8 & And[BitPos];
-        }
-        else
-        {
+        } else {
             lastu8 = jpeg_readu8();
             BitPos--;
             newu8 = Curu8 & And[BitPos];
@@ -759,30 +787,27 @@ int jpeg_decodeelement()
         }
         thiscode = (thiscode << 1) + tempcode;
         codelen++;
-        if(codelen > 16)return FUNC_FORMAT_ERROR;
+        if(codelen > 16) {
+            return FUNC_FORMAT_ERROR;
+        }
     }  //while
     temp = thiscode - huf_min_value[HufTabIndex][codelen - 1] + code_pos_table[HufTabIndex][codelen - 1];
     hufexu8 = (u8)code_value_table[HufTabIndex][temp];
     rrun = (short)(hufexu8 >> 4);	 //一个字节中，高四位是其前面的零的个数。
     runsize = hufexu8 & 0x0f;		 //后四位为后面字的尺寸
-    if(runsize == 0)
-    {
+    if(runsize == 0) {
         vvalue = 0;
         return FUNC_OK;
     }
     tempsize = runsize;
-    if(BitPos >= runsize)
-    {
+    if(BitPos >= runsize) {
         BitPos -= runsize;
         valueex = (u8)Curu8 >> BitPos;
         Curu8 = Curu8 & And[BitPos];
-    }
-    else
-    {
+    } else {
         valueex = Curu8;
         tempsize -= BitPos;
-        while(tempsize > 8)
-        {
+        while(tempsize > 8) {
             lastu8 = jpeg_readu8();
             valueex = (valueex << 8) + (u8)lastu8;
             tempsize -= 8;
@@ -793,9 +818,9 @@ int jpeg_decodeelement()
         Curu8 = lastu8 & And[BitPos];
     }  //else
     sign = valueex >> (runsize - 1);
-    if(sign)vvalue = valueex; //解出的码值
-    else
-    {
+    if(sign) {
+        vvalue = valueex;    //解出的码值
+    } else {
         valueex = valueex ^ 0xffff;
         temp = 0xffff << runsize;
         vvalue = -(short)(valueex ^ temp);
@@ -810,8 +835,7 @@ void jpeg_iqtizzmcucomponent(short flag)
     short *pQtZzMCUBuffer = 0;
     short  *pMCUBuffer = 0;
 
-    switch(flag)
-    {
+    switch(flag) {
     case 0:
         H = SampRate_Y_H;
         VV = SampRate_Y_V;
@@ -832,8 +856,9 @@ void jpeg_iqtizzmcucomponent(short flag)
         break;
     }
     for(i = 0; i < VV; i++)
-        for (j = 0; j < H; j++)
+        for (j = 0; j < H; j++) {
             jpeg_iqtizzblock(pMCUBuffer + (i * H + j) * 64, pQtZzMCUBuffer + (i * H + j) * 64, flag);
+        }
 }
 //要量化的字
 //反量化 8*8 DU
@@ -846,8 +871,7 @@ void jpeg_iqtizzblock(short  *s , short *d, short flag)
     int *buffer1;
     short offset = 0;
 
-    switch(flag)
-    {
+    switch(flag) {
     case 0:	  //亮度
         pQt = YQtTable;
         offset = 128;
@@ -863,23 +887,27 @@ void jpeg_iqtizzblock(short  *s , short *d, short flag)
     }
 
     for(i = 0; i < 8; i++)
-        for(j = 0; j < 8; j++)
-        {
+        for(j = 0; j < 8; j++) {
             tag = Zig_Zag[i][j];
             buffer2[i][j] = (int)s[tag] * (int)pQt[tag];
         }
     buffer1 = (int *)buffer2;
     jpeg_fastidct(buffer1);//反DCT
     for(i = 0; i < 8; i++)
-        for(j = 0; j < 8; j++)
+        for(j = 0; j < 8; j++) {
             d[i * 8 + j] = buffer2[i][j] + offset;
+        }
 }
 //快速反DCT
 void jpeg_fastidct(int *block)
 {
     short i;
-    for (i = 0; i < 8; i++)jpeg_idctrow(block + 8 * i);
-    for (i = 0; i < 8; i++)jpeg_idctcol(block + i);
+    for (i = 0; i < 8; i++) {
+        jpeg_idctrow(block + 8 * i);
+    }
+    for (i = 0; i < 8; i++) {
+        jpeg_idctcol(block + i);
+    }
 }
 //从源文件读取一个字节
 u8 jpeg_readu8(void)
@@ -887,7 +915,9 @@ u8 jpeg_readu8(void)
     u8 i;
     i = *lp++;
     jpg_seek(jpg_buffer, &lp);
-    if(i == 0xff)lp++;
+    if(i == 0xff) {
+        lp++;
+    }
     BitPos = 8;
     Curu8 = i;
     return i;
@@ -898,8 +928,9 @@ void jpeg_initfastidct(void)
     short i;
 
     iclp = iclip + 512;
-    for (i = -512; i < 512; i++)
+    for (i = -512; i < 512; i++) {
         iclp[i] = (i < -256) ? -256 : ((i > 255) ? 255 : i);
+    }
 }
 ////////////////////////////////////////////////////////////////////////
 void jpeg_idctrow(int *blk)
@@ -907,8 +938,7 @@ void jpeg_idctrow(int *blk)
     int x0, x1, x2, x3, x4, x5, x6, x7, x8;
     //intcut
     if (!((x1 = blk[4] << 11) | (x2 = blk[6]) | (x3 = blk[2]) |
-            (x4 = blk[1]) | (x5 = blk[7]) | (x6 = blk[5]) | (x7 = blk[3])))
-    {
+            (x4 = blk[1]) | (x5 = blk[7]) | (x6 = blk[5]) | (x7 = blk[3]))) {
         blk[0] = blk[1] = blk[2] = blk[3] = blk[4] = blk[5] = blk[6] = blk[7] = blk[0] << 3;
         return;
     }
@@ -953,8 +983,7 @@ void jpeg_idctcol(int *blk)
     int x0, x1, x2, x3, x4, x5, x6, x7, x8;
     //intcut
     if (!((x1 = (blk[8 * 4] << 8)) | (x2 = blk[8 * 6]) | (x3 = blk[8 * 2]) |
-            (x4 = blk[8 * 1]) | (x5 = blk[8 * 7]) | (x6 = blk[8 * 5]) | (x7 = blk[8 * 3])))
-    {
+            (x4 = blk[8 * 1]) | (x5 = blk[8 * 7]) | (x6 = blk[8 * 5]) | (x7 = blk[8 * 3]))) {
         blk[8 * 0] = blk[8 * 1] = blk[8 * 2] = blk[8 * 3] = blk[8 * 4] = blk[8 * 5]
                                                = blk[8 * 6] = blk[8 * 7] = iclp[(blk[8 * 0] + 32) >> 6];
         return;

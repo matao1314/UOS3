@@ -86,7 +86,9 @@ u16 LCD_ReadPoint(u16 x, u16 y)
     u16 r = 0;
     LCD_SetCursor(x, y);
     LCD_LCD_WriteReg(0x22);
-    if(LCD_DAT)  r = 0;	//dummy Read
+    if(LCD_DAT) {
+        r = 0;    //dummy Read
+    }
     delay_us(2);
     r = LCD_DAT;  		  		//实际坐标颜色
     return LCD_BGR2RGB(r);	//其他IC
@@ -291,8 +293,7 @@ void LCD_Clear(u16 color)
     totalpoint *= lcddev.height; 	//得到总点数
     LCD_SetCursor(0x00, 0x0000);	//设置光标位置
     LCD_WriteRAM_Prepare();     //开始写入GRAM
-    for(index = 0; index < totalpoint; index++)
-    {
+    for(index = 0; index < totalpoint; index++) {
         LCD_DAT = color;
     }
 }
@@ -316,10 +317,8 @@ void LCD_Fill(u16 sx, u16 sy, u16 ex, u16 ey, u16 color)
     height = ey - sy + 1;		//高度
     LCD_SetDisplayWindow(sx, sy, ex, ey);
     LCD_WriteRAM_Prepare();     			//开始写入GRAM
-    for(i = 0; i < height; i++)
-    {
-        for(j = 0; j < width; j++)
-        {
+    for(i = 0; i < height; i++) {
+        for(j = 0; j < width; j++) {
             LCD_DAT = color; //写入数据
         }
     }
@@ -341,10 +340,8 @@ void LCD_Color_Fill(u16 sx, u16 sy, u16 ex, u16 ey, u16 *color)
     //	}
     LCD_SetDisplayWindow(sx, sy, ex, ey);
     LCD_WriteRAM_Prepare();     			//开始写入GRAM
-    for(i = 0; i < height; i++)
-    {
-        for(j = 0; j < width; j++)
-        {
+    for(i = 0; i < height; i++) {
+        for(j = 0; j < width; j++) {
             LCD_DAT = color[i * height + j]; //写入数据
         }
     }
@@ -362,34 +359,36 @@ void LCD_DrawLine(u16 x1, u16 y1, u16 x2, u16 y2)
     delta_y = y2 - y1;
     uRow = x1;
     uCol = y1;
-    if(delta_x > 0)incx = 1; //设置单步方向
-    else if(delta_x == 0)incx = 0; //垂直线
-    else
-    {
+    if(delta_x > 0) {
+        incx = 1;    //设置单步方向
+    } else if(delta_x == 0) {
+        incx = 0;    //垂直线
+    } else {
         incx = -1;
         delta_x = -delta_x;
     }
-    if(delta_y > 0)incy = 1;
-    else if(delta_y == 0)incy = 0; //水平线
-    else
-    {
+    if(delta_y > 0) {
+        incy = 1;
+    } else if(delta_y == 0) {
+        incy = 0;    //水平线
+    } else {
         incy = -1;
         delta_y = -delta_y;
     }
-    if( delta_x > delta_y)distance = delta_x; //选取基本增量坐标轴
-    else distance = delta_y;
-    for(t = 0; t <= distance + 1; t++ ) //画线输出
-    {
+    if( delta_x > delta_y) {
+        distance = delta_x;    //选取基本增量坐标轴
+    } else {
+        distance = delta_y;
+    }
+    for(t = 0; t <= distance + 1; t++ ) { //画线输出
         LCD_DrawPoint(uRow, uCol); //画点
         xerr += delta_x ;
         yerr += delta_y ;
-        if(xerr > distance)
-        {
+        if(xerr > distance) {
             xerr -= distance;
             uRow += incx;
         }
-        if(yerr > distance)
-        {
+        if(yerr > distance) {
             yerr -= distance;
             uCol += incy;
         }
@@ -414,8 +413,7 @@ void Draw_Circle(u16 x0, u16 y0, u8 r)
     a = 0;
     b = r;
     di = 3 - (r << 1);       //判断下个点位置的标志
-    while(a <= b)
-    {
+    while(a <= b) {
         LCD_DrawPoint(x0 + a, y0 - b);        //5
         LCD_DrawPoint(x0 + b, y0 - a);        //0
         LCD_DrawPoint(x0 + b, y0 + a);        //4
@@ -426,9 +424,9 @@ void Draw_Circle(u16 x0, u16 y0, u8 r)
         LCD_DrawPoint(x0 - b, y0 - a);        //7
         a++;
         //使用Bresenham算法画圆
-        if(di < 0)di += 4 * a + 6;
-        else
-        {
+        if(di < 0) {
+            di += 4 * a + 6;
+        } else {
             di += 10 + 4 * (a - b);
             b--;
         }
@@ -446,30 +444,30 @@ void LCD_ShowChar(u16 x, u16 y, u8 num, u8 size, u8 mode)
     u16 colortemp = POINT_COLOR;
     //设置窗口
     num = num - ' '; //得到偏移后的值
-    if(!mode) //非叠加方式
-    {
-        for(t = 0; t < size; t++)
-        {
-            if(size == 12)temp = asc2_1206[num][t]; //调用1206字体
-            else temp = asc2_1608[num][t];		 //调用1608字体
-            for(t1 = 0; t1 < 8; t1++)
-            {
-                if(temp & 0x80)POINT_COLOR = colortemp;
-                else POINT_COLOR = BACK_COLOR;
+    if(!mode) { //非叠加方式
+        for(t = 0; t < size; t++) {
+            if(size == 12) {
+                temp = asc2_1206[num][t];    //调用1206字体
+            } else {
+                temp = asc2_1608[num][t];    //调用1608字体
+            }
+            for(t1 = 0; t1 < 8; t1++) {
+                if(temp & 0x80) {
+                    POINT_COLOR = colortemp;
+                } else {
+                    POINT_COLOR = BACK_COLOR;
+                }
                 LCD_DrawPoint(x, y);
                 temp <<= 1;
                 y++;
-                if(x >= lcddev.width)
-                {
+                if(x >= lcddev.width) {
                     POINT_COLOR = colortemp;    //超区域了
                     return;
                 }
-                if((y - y0) == size)
-                {
+                if((y - y0) == size) {
                     y = y0;
                     x++;
-                    if(x >= lcddev.width)
-                    {
+                    if(x >= lcddev.width) {
                         POINT_COLOR = colortemp;    //超区域了
                         return;
                     }
@@ -477,29 +475,27 @@ void LCD_ShowChar(u16 x, u16 y, u8 num, u8 size, u8 mode)
                 }
             }
         }
-    }
-    else //叠加方式
-    {
-        for(t = 0; t < size; t++)
-        {
-            if(size == 12)temp = asc2_1206[num][t]; //调用1206字体
-            else temp = asc2_1608[num][t];		 //调用1608字体
-            for(t1 = 0; t1 < 8; t1++)
-            {
-                if(temp & 0x80)LCD_DrawPoint(x, y);
+    } else { //叠加方式
+        for(t = 0; t < size; t++) {
+            if(size == 12) {
+                temp = asc2_1206[num][t];    //调用1206字体
+            } else {
+                temp = asc2_1608[num][t];    //调用1608字体
+            }
+            for(t1 = 0; t1 < 8; t1++) {
+                if(temp & 0x80) {
+                    LCD_DrawPoint(x, y);
+                }
                 temp <<= 1;
                 y++;
-                if(x >= lcddev.height)
-                {
+                if(x >= lcddev.height) {
                     POINT_COLOR = colortemp;    //超区域了
                     return;
                 }
-                if((y - y0) == size)
-                {
+                if((y - y0) == size) {
                     y = y0;
                     x++;
-                    if(x >= lcddev.width)
-                    {
+                    if(x >= lcddev.width) {
                         POINT_COLOR = colortemp;    //超区域了
                         return;
                     }
@@ -515,7 +511,9 @@ void LCD_ShowChar(u16 x, u16 y, u8 num, u8 size, u8 mode)
 u32 LCD_Pow(u8 m, u8 n)
 {
     u32 result = 1;
-    while(n--)result *= m;
+    while(n--) {
+        result *= m;
+    }
     return result;
 }
 //显示数字,高位为0,则不显示
@@ -528,17 +526,15 @@ void LCD_ShowNum(u16 x, u16 y, u32 num, u8 len, u8 size)
 {
     u8 t, temp;
     u8 enshow = 0;
-    for(t = 0; t < len; t++)
-    {
+    for(t = 0; t < len; t++) {
         temp = (num / LCD_Pow(10, len - t - 1)) % 10;
-        if(enshow == 0 && t < (len - 1))
-        {
-            if(temp == 0)
-            {
+        if(enshow == 0 && t < (len - 1)) {
+            if(temp == 0) {
                 LCD_ShowChar(x + (size / 2)*t, y, ' ', size, 0);
                 continue;
+            } else {
+                enshow = 1;
             }
-            else enshow = 1;
 
         }
         LCD_ShowChar(x + (size / 2)*t, y, temp + '0', size, 0);
@@ -557,18 +553,19 @@ void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode)
 {
     u8 t, temp;
     u8 enshow = 0;
-    for(t = 0; t < len; t++)
-    {
+    for(t = 0; t < len; t++) {
         temp = (num / LCD_Pow(10, len - t - 1)) % 10;
-        if(enshow == 0 && t < (len - 1))
-        {
-            if(temp == 0)
-            {
-                if(mode & 0X80)LCD_ShowChar(x + (size / 2)*t, y, '0', size, mode & 0X01);
-                else LCD_ShowChar(x + (size / 2)*t, y, ' ', size, mode & 0X01);
+        if(enshow == 0 && t < (len - 1)) {
+            if(temp == 0) {
+                if(mode & 0X80) {
+                    LCD_ShowChar(x + (size / 2)*t, y, '0', size, mode & 0X01);
+                } else {
+                    LCD_ShowChar(x + (size / 2)*t, y, ' ', size, mode & 0X01);
+                }
                 continue;
+            } else {
+                enshow = 1;
             }
-            else enshow = 1;
 
         }
         LCD_ShowChar(x + (size / 2)*t, y, temp + '0', size, mode & 0X01);
@@ -584,14 +581,14 @@ void LCD_ShowString(u16 x, u16 y, u16 width, u16 height, u8 size, u8 *p)
     u8 x0 = x;
     width += x;
     height += y;
-    while((*p <= '~') && (*p >= ' ')) //判断是不是非法字符!
-    {
-        if(x >= width)
-        {
+    while((*p <= '~') && (*p >= ' ')) { //判断是不是非法字符!
+        if(x >= width) {
             x = x0;
             y += size;
         }
-        if(y >= height)break; //退出
+        if(y >= height) {
+            break;    //退出
+        }
         LCD_ShowChar(x, y, *p, size, 0);
         x += size / 2;
         p++;

@@ -30,11 +30,12 @@ u32 fupd_prog(u16 x, u16 y, u8 size, u32 fsize, u32 pos)
     u8 t = 0XFF;
     prog = (float)pos / fsize;
     prog *= 100;
-    if(t != prog)
-    {
+    if(t != prog) {
         LCD_ShowString(x + 3 * size / 2, y, 240, 320, size, "%");
         t = prog;
-        if(t > 100)t = 100;
+        if(t > 100) {
+            t = 100;
+        }
         LCD_ShowNum(x, y, t, 3, size); //显示数值
     }
     return 0;
@@ -55,39 +56,42 @@ u8 updata_fontx(u16 x, u16 y, u8 size, u8 *fxpath, u8 fx)
     u32 offx = 0;
     u8 rval = 0;
     fftemp = (FIL *)mymalloc(SRAMIN, sizeof(FIL));	//分配内存
-    if(fftemp == NULL)rval = 1;
+    if(fftemp == NULL) {
+        rval = 1;
+    }
     tempbuf = mymalloc(SRAMIN, 512);	//分配4096个字节空间
-    if(tempbuf == NULL)rval = 1;
+    if(tempbuf == NULL) {
+        rval = 1;
+    }
     res = f_open(fftemp, (const TCHAR *)fxpath, FA_READ);
-    if(res)rval = 2; //打开文件失败
-    if(rval == 0)
-    {
-        if(fx == 0)		//更新UNIGBK.BIN
-        {
+    if(res) {
+        rval = 2;    //打开文件失败
+    }
+    if(rval == 0) {
+        if(fx == 0) {	//更新UNIGBK.BIN
             ftinfo.ugbkaddr = FONTINFOADDR + sizeof(ftinfo); //信息头之后，紧跟UNIGBK转换码表
             ftinfo.ugbksize = fftemp->fsize;				//UNIGBK大小
             flashaddr = ftinfo.ugbkaddr;
-        }
-        else if(fx == 1)	//GBK12
-        {
+        } else if(fx == 1) {	//GBK12
             ftinfo.f12addr = ftinfo.ugbkaddr + ftinfo.ugbksize;		//UNIGBK之后，紧跟GBK12字库
             ftinfo.gbk12size = fftemp->fsize;						//GBK12字库大小
             flashaddr = ftinfo.f12addr;							//GBK12的起始地址
-        }
-        else			//GBK16
-        {
+        } else {		//GBK16
             ftinfo.f16addr = ftinfo.f12addr + ftinfo.gbk12size;		//GBK12之后，紧跟GBK16字库
             ftinfo.gkb16size = fftemp->fsize;						//GBK16字库大小
             flashaddr = ftinfo.f16addr;							//GBK16的起始地址
         }
-        while(res == FR_OK) //死循环执行
-        {
+        while(res == FR_OK) { //死循环执行
             res = f_read(fftemp, tempbuf, 512, (UINT *)&bread);		//读取数据
-            if(res != FR_OK)break;								//执行错误
+            if(res != FR_OK) {
+                break;    //执行错误
+            }
             SPI_Flash_Write(tempbuf, offx + flashaddr, 512);		//从0开始写入4096个数据
             offx += bread;
             fupd_prog(x, y, size, fftemp->fsize, offx);	 			//进度显示
-            if(bread != 512)break;								//读完了.
+            if(bread != 512) {
+                break;    //读完了.
+            }
         }
         f_close(fftemp);
     }
@@ -110,14 +114,11 @@ u8 update_font(u16 x, u16 y, u8 size, u8 src)
     u8 *gbk12_path;
     u8 *unigbk_path;
     u8 res;
-    if(src)//从25qxx更新
-    {
+    if(src) { //从25qxx更新
         unigbk_path = (u8 *)UNIGBK_25QPATH;
         gbk12_path = (u8 *)GBK12_25QPATH;
         gbk16_path = (u8 *)GBK16_25QPATH;
-    }
-    else //从sd卡更新
-    {
+    } else { //从sd卡更新
         unigbk_path = (u8 *)UNIGBK_SDPATH;
         gbk12_path = (u8 *)GBK12_SDPATH;
         gbk16_path = (u8 *)GBK16_SDPATH;
@@ -128,13 +129,19 @@ u8 update_font(u16 x, u16 y, u8 size, u8 src)
     SPI_Flash_Read((u8 *)&ftinfo, FONTINFOADDR, sizeof(ftinfo));	//重新读出ftinfo结构体数据
     LCD_ShowString(x, y, 240, 320, size, "Updating UNIGBK.BIN");
     res = updata_fontx(x + 20 * size / 2, y, size, unigbk_path, 0);			//更新UNIGBK.BIN
-    if(res)return 1;
+    if(res) {
+        return 1;
+    }
     LCD_ShowString(x, y, 240, 320, size, "Updating GBK12.BIN  ");
     res = updata_fontx(x + 20 * size / 2, y, size, gbk12_path, 1);			//更新GBK12.FON
-    if(res)return 2;
+    if(res) {
+        return 2;
+    }
     LCD_ShowString(x, y, 240, 320, size, "Updating GBK16.BIN  ");
     res = updata_fontx(x + 20 * size / 2, y, size, gbk16_path, 2);			//更新GBK16.FON
-    if(res)return 3;
+    if(res) {
+        return 3;
+    }
     //全部更新好了
     ftinfo.fontok = 0XAA;
     SPI_Flash_Write((u8 *)&ftinfo, FONTINFOADDR, sizeof(ftinfo));	//保存字库信息
@@ -156,6 +163,8 @@ u8 font_init(void)
     //	printf("gbk16地址:%x\n",ftinfo.f16addr);
     //	printf("gbk16的大小:%d\n",ftinfo.gkb16size);
 
-    if(ftinfo.fontok != 0XAA)return 1;		//字库错误.
+    if(ftinfo.fontok != 0XAA) {
+        return 1;    //字库错误.
+    }
     return 0;
 }

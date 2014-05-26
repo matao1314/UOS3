@@ -27,8 +27,7 @@
 
 
 //EDIT结构体定义
-__packed typedef struct
-{
+__packed typedef struct {
     u16 top; 				  		//编辑框顶端坐标
     u16 left;                       //编辑框左端坐标
     u16 width; 				  		//宽度(比字符串的长度多6个点)

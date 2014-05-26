@@ -18,8 +18,7 @@ Y10
 //////////////////////////////////////////////////////////////////////////////////
 
 //LCD重要参数集
-typedef struct
-{
+typedef struct {
     u16 width;			//LCD 宽度
     u16 height;			//LCD 高度
     u16 id;				//LCD ID

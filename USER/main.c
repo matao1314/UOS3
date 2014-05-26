@@ -122,7 +122,7 @@ int main(void)
                     (void *)0,
                     (OS_OPT     )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
                     (OS_ERR *)&err);
-    OSStart(&err);/* Start multitasking (i.e. give control to uC/OS-III). */									
+    OSStart(&err);/* Start multitasking (i.e. give control to uC/OS-III). */
 }
 
 void Main_Task(void *p_arg)
@@ -130,12 +130,10 @@ void Main_Task(void *p_arg)
     u8 selx;
     u8 keyval;
     Draw_mainPage();
-    while(1)
-    {
+    while(1) {
         keyval = KEY_Scan(0);
         selx = icon_press_chk();
-        switch(selx)
-        {
+        switch(selx) {
         case 0:
             picviewer_play();
             break;
@@ -154,8 +152,7 @@ void Main_Task(void *p_arg)
 void Watch_Task(void *pdata)
 {
     pdata = pdata; //avoid compile warning
-    while(1)
-    {
+    while(1) {
         //calendar_play();
         delay_ms(500);
     }
@@ -165,8 +162,7 @@ void Usart_Task(void *pdata)
 {
     CPU_SR cpu_sr = 0;
     pdata = pdata; //avoid compile warning
-    while(1)
-    {
+    while(1) {
         LED0 = 0;
         //TEST = 0;
         delay_ms(1000);

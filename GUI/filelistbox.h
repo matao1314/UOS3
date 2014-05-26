@@ -62,8 +62,7 @@
 
 
 //filelist结构体.链表结构
-__packed typedef struct
-{
+__packed typedef struct {
     void *prevlist;
     void *nextlist;
     u8 type;		//文件类型
@@ -71,8 +70,7 @@ __packed typedef struct
 } _filelistbox_list;
 
 //filelistbox结构体定义
-__packed typedef struct
-{
+__packed typedef struct {
     u16 top; 				  		//filelistbox顶端坐标
     u16 left;                       //filelistbox左端坐标
     u16 width; 				  		//宽度

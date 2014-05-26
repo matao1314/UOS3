@@ -4,8 +4,7 @@
 #include "common.h"
 #include "bsp.h"
 //闹钟结构体
-__packed typedef struct
-{
+__packed typedef struct {
     u8  weekmask;		//闹钟响铃掩码
     u8  ringsta;		//闹铃状态及铃声标志.
     //[7]:0,无闹铃;1,闹铃中;

@@ -34,8 +34,7 @@ extern const u8 *MP3_PAUSEP_PIC;			//暂停 按下
 #define FFT_BANDS			14			//14个频段
 
 //MP3控制管理器
-__packed typedef struct
-{
+__packed typedef struct {
     vu8 sta; 			//播放器状态
     //bit7:0,空闲;1,MP3播放中(包括暂停状态)
     //bit6:0,没有切歌;1,已经切歌了.

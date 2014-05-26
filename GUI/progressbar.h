@@ -34,8 +34,7 @@
 
 
 //进度条结构体定义
-__packed typedef struct
-{
+__packed typedef struct {
     u16 top; 				  		//进度条顶端坐标
     u16 left;                       //进度条左端坐标
     u16 width; 				  		//宽度(至少大于40)

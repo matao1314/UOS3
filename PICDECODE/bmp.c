@@ -57,10 +57,11 @@ u8 stdbmp_decode(const u8 *filename)
 
 #if BMP_USE_MALLOC == 1	//使用malloc	
     databuf = (u8 *)mymalloc(SRAMIN, readlen);		//开辟readlen字节的内存区域
-    if(databuf == NULL)return PIC_MEM_ERR;	//内存申请失败.
+    if(databuf == NULL) {
+        return PIC_MEM_ERR;    //内存申请失败.
+    }
     f_bmp = (FIL *)mymalloc(SRAMIN, sizeof(FIL));	//开辟FIL字节的内存区域
-    if(f_bmp == NULL)							//内存申请失败.
-    {
+    if(f_bmp == NULL) {						//内存申请失败.
         myfree(SRAMIN, databuf);
         return PIC_MEM_ERR;
     }
@@ -69,8 +70,7 @@ u8 stdbmp_decode(const u8 *filename)
     f_bmp = &f_bfile;
 #endif
     res = f_open(f_bmp, (const TCHAR *)filename, FA_READ); //打开文件
-    if(res == 0) //打开成功.
-    {
+    if(res == 0) { //打开成功.
         f_read(f_bmp, databuf, readlen, (UINT *)&br);	//读出readlen个字节
         pbmp = (BITMAPINFO *)databuf;					//得到BMP的头部信息
         count = pbmp->bmfHeader.bfOffBits;        	//数据偏移,得到数据段的开始地址
@@ -79,8 +79,11 @@ u8 stdbmp_decode(const u8 *filename)
         picinfo.ImgHeight = pbmp->bmiHeader.biHeight;	//得到图片高度
         picinfo.ImgWidth = pbmp->bmiHeader.biWidth;  	//得到图片宽度
         //水平像素必须是4的倍数!!
-        if((picinfo.ImgWidth * color_byte) % 4)rowlen = ((picinfo.ImgWidth * color_byte) / 4 + 1) * 4;
-        else rowlen = picinfo.ImgWidth * color_byte;
+        if((picinfo.ImgWidth * color_byte) % 4) {
+            rowlen = ((picinfo.ImgWidth * color_byte) / 4 + 1) * 4;
+        } else {
+            rowlen = picinfo.ImgWidth * color_byte;
+        }
         ai_draw_init();//初始化智能画图
         //开始解码BMP
         color = 0; //颜色清空
@@ -90,14 +93,10 @@ u8 stdbmp_decode(const u8 *filename)
         //对于尺寸小于等于设定尺寸的图片,进行快速解码
         realy = (y * picinfo.Div_Fac) >> 13;
         bmpbuf = databuf;
-        while(1)
-        {
-            while(count < readlen) //读取一簇1024扇区 (SectorsPerClust 每簇扇区数)
-            {
-                if(color_byte == 3) //24位颜色图
-                {
-                    switch (rgb)
-                    {
+        while(1) {
+            while(count < readlen) { //读取一簇1024扇区 (SectorsPerClust 每簇扇区数)
+                if(color_byte == 3) { //24位颜色图
+                    switch (rgb) {
                     case 0:
                         color = bmpbuf[count] >> 3; //B
                         break ;
@@ -108,38 +107,26 @@ u8 stdbmp_decode(const u8 *filename)
                         color += ((u16)bmpbuf[count] << 8) & 0XF800; //R
                         break ;
                     }
-                }
-                else if(color_byte == 2) //16位颜色图
-                {
-                    switch(rgb)
-                    {
+                } else if(color_byte == 2) { //16位颜色图
+                    switch(rgb) {
                     case 0 :
-                        if(biCompression == BI_RGB) //RGB:5,5,5
-                        {
+                        if(biCompression == BI_RGB) { //RGB:5,5,5
                             color = ((u16)bmpbuf[count] & 0X1F);	 	//R
                             color += (((u16)bmpbuf[count]) & 0XE0) << 1; //G
-                        }
-                        else		//RGB:5,6,5
-                        {
+                        } else {	//RGB:5,6,5
                             color = bmpbuf[count];  			//G,B
                         }
                         break ;
                     case 1 :
-                        if(biCompression == BI_RGB) //RGB:5,5,5
-                        {
+                        if(biCompression == BI_RGB) { //RGB:5,5,5
                             color += (u16)bmpbuf[count] << 9; //R,G
-                        }
-                        else  		//RGB:5,6,5
-                        {
+                        } else {		//RGB:5,6,5
                             color += (u16)bmpbuf[count] << 8;	//R,G
                         }
                         break ;
                     }
-                }
-                else if(color_byte == 4) //32位颜色图
-                {
-                    switch (rgb)
-                    {
+                } else if(color_byte == 4) { //32位颜色图
+                    switch (rgb) {
                     case 0:
                         color = bmpbuf[count] >> 3; //B
                         break ;
@@ -153,19 +140,14 @@ u8 stdbmp_decode(const u8 *filename)
                         //alphabend=bmpbuf[count];//不读取  ALPHA通道
                         break ;
                     }
-                }
-                else if(color_byte == 1) //8位色,暂时不支持,需要用到颜色表.
-                {
+                } else if(color_byte == 1) { //8位色,暂时不支持,需要用到颜色表.
                 }
                 rgb++;
                 count++ ;
-                if(rgb == color_byte) //水平方向读取到1像素数数据后显示
-                {
-                    if(x < picinfo.ImgWidth)
-                    {
+                if(rgb == color_byte) { //水平方向读取到1像素数数据后显示
+                    if(x < picinfo.ImgWidth) {
                         realx = (x * picinfo.Div_Fac) >> 13; //x轴实际值
-                        if(is_element_ok(realx, realy, 1) && yok) //符合条件
-                        {
+                        if(is_element_ok(realx, realy, 1) && yok) { //符合条件
                             pic_phy.draw_point(realx + picinfo.S_XOFF, realy + picinfo.S_YOFF, color); //显示图片
                             //POINT_COLOR=color;
                             //LCD_DrawPoint(realx+picinfo.S_XOFF,realy+picinfo.S_YOFF);
@@ -177,13 +159,17 @@ u8 stdbmp_decode(const u8 *filename)
                     rgb = 0;
                 }
                 countpix++;//像素累加
-                if(countpix >= rowlen) //水平方向像素值到了.换行
-                {
+                if(countpix >= rowlen) { //水平方向像素值到了.换行
                     y--;
-                    if(y == 0)break;
+                    if(y == 0) {
+                        break;
+                    }
                     realy = (y * picinfo.Div_Fac) >> 13; //实际y值改变
-                    if(is_element_ok(realx, realy, 0))yok = 1; //此处不改变picinfo.staticx,y的值
-                    else yok = 0;
+                    if(is_element_ok(realx, realy, 0)) {
+                        yok = 1;    //此处不改变picinfo.staticx,y的值
+                    } else {
+                        yok = 0;
+                    }
                     x = 0;
                     countpix = 0;
                     color = 0x00;
@@ -191,8 +177,12 @@ u8 stdbmp_decode(const u8 *filename)
                 }
             }
             res = f_read(f_bmp, databuf, readlen, (UINT *)&br); //读出readlen个字节
-            if(br != readlen)readlen = br;	//最后一批数据
-            if(res || br == 0)break;		//读取出错
+            if(br != readlen) {
+                readlen = br;    //最后一批数据
+            }
+            if(res || br == 0) {
+                break;    //读取出错
+            }
             bmpbuf = databuf;
             count = 0;
         }
@@ -247,10 +237,11 @@ u8 minibmp_decode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u16 acolor,
 
 #if BMP_USE_MALLOC == 1	//使用malloc	
     databuf = (u8 *)mymalloc(SRAMIN, readlen);		//开辟readlen字节的内存区域
-    if(databuf == NULL)return PIC_MEM_ERR;		//内存申请失败.
+    if(databuf == NULL) {
+        return PIC_MEM_ERR;    //内存申请失败.
+    }
     f_bmp = (FIL *)mymalloc(SRAMIN, sizeof(FIL));	//开辟FIL字节的内存区域
-    if(f_bmp == NULL)								//内存申请失败.
-    {
+    if(f_bmp == NULL) {							//内存申请失败.
         myfree(SRAMIN, databuf);
         return PIC_MEM_ERR;
     }
@@ -259,8 +250,7 @@ u8 minibmp_decode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u16 acolor,
     f_bmp = &f_bfile;
 #endif
     res = f_open(f_bmp, (const TCHAR *)filename, FA_READ); //打开文件
-    if(res == 0) //打开成功.
-    {
+    if(res == 0) { //打开成功.
         f_read(f_bmp, databuf, sizeof(BITMAPINFO), (UINT *)&br); //读出BITMAPINFO信息
         pbmp = (BITMAPINFO *)databuf;					//得到BMP的头部信息
         color_byte = pbmp->bmiHeader.biBitCount / 8;	//彩色位 16/24/32
@@ -268,30 +258,30 @@ u8 minibmp_decode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u16 acolor,
         picinfo.ImgHeight = pbmp->bmiHeader.biHeight;	//得到图片高度
         picinfo.ImgWidth = pbmp->bmiHeader.biWidth;  	//得到图片宽度
         //水平像素必须是4的倍数!!
-        if((picinfo.ImgWidth * color_byte) % 4)rowlen = ((picinfo.ImgWidth * color_byte) / 4 + 1) * 4;
-        else rowlen = picinfo.ImgWidth * color_byte;
+        if((picinfo.ImgWidth * color_byte) % 4) {
+            rowlen = ((picinfo.ImgWidth * color_byte) / 4 + 1) * 4;
+        } else {
+            rowlen = picinfo.ImgWidth * color_byte;
+        }
         rowadd = rowlen - picinfo.ImgWidth * color_byte;	//每行填充字节数
         //开始解码BMP
         color = 0; //颜色清空
         tx = 0 ;
         ty = picinfo.ImgHeight - 1;
-        if(picinfo.ImgWidth <= picinfo.S_Width && picinfo.ImgHeight <= picinfo.S_Height)
-        {
+        if(picinfo.ImgWidth <= picinfo.S_Width && picinfo.ImgHeight <= picinfo.S_Height) {
             rowcnt = readlen / rowlen;						//一次读取的行数
             readlen = rowcnt * rowlen;						//一次读取的字节数
             rowpix = picinfo.ImgWidth;					//水平像素数就是宽度
             f_lseek(f_bmp, pbmp->bmfHeader.bfOffBits);	//偏移到数据起始位置
-            while(1)
-            {
+            while(1) {
                 res = f_read(f_bmp, databuf, readlen, (UINT *)&br);	//读出readlen个字节
                 bmpbuf = databuf;									//数据首地址
-                if(br != readlen)rowcnt = br / rowlen;				//最后剩下的行数
-                if(color_byte == 3)  			//24位BMP图片
-                {
-                    for(j = 0; j < rowcnt; j++)	//每次读到的行数
-                    {
-                        for(i = 0; i < rowpix; i++) //写一行像素
-                        {
+                if(br != readlen) {
+                    rowcnt = br / rowlen;    //最后剩下的行数
+                }
+                if(color_byte == 3) {			//24位BMP图片
+                    for(j = 0; j < rowcnt; j++) {	//每次读到的行数
+                        for(i = 0; i < rowpix; i++) { //写一行像素
                             color = (*bmpbuf++) >> 3;		   		 	//B
                             color += ((u16)(*bmpbuf++) << 3) & 0X07E0;	//G
                             color += (((u16) * bmpbuf++) << 8) & 0XF800;	//R
@@ -302,26 +292,18 @@ u8 minibmp_decode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u16 acolor,
                         tx = 0;
                         ty--;
                     }
-                }
-                else if(color_byte == 2) //16位BMP图片
-                {
-                    for(j = 0; j < rowcnt; j++) //每次读到的行数
-                    {
-                        if(biCompression == BI_RGB) //RGB:5,5,5
-                        {
-                            for(i = 0; i < rowpix; i++)
-                            {
+                } else if(color_byte == 2) { //16位BMP图片
+                    for(j = 0; j < rowcnt; j++) { //每次读到的行数
+                        if(biCompression == BI_RGB) { //RGB:5,5,5
+                            for(i = 0; i < rowpix; i++) {
                                 color = ((u16) * bmpbuf & 0X1F);			//R
                                 color += (((u16) * bmpbuf++) & 0XE0) << 1; 	//G
                                 color += ((u16) * bmpbuf++) << 9;  	 //R,G
                                 pic_phy.draw_point(x + tx, y + ty, color); //显示图片
                                 tx++;
                             }
-                        }
-                        else   //RGB 565
-                        {
-                            for(i = 0; i < rowpix; i++)
-                            {
+                        } else { //RGB 565
+                            for(i = 0; i < rowpix; i++) {
                                 color = *bmpbuf++;  			//G,B
                                 color += ((u16) * bmpbuf++) << 8;	//R,G
                                 pic_phy.draw_point(x + tx, y + ty, color); //显示图片
@@ -332,27 +314,22 @@ u8 minibmp_decode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u16 acolor,
                         tx = 0;
                         ty--;
                     }
-                }
-                else if(color_byte == 4)		//32位BMP图片
-                {
-                    for(j = 0; j < rowcnt; j++)	//每次读到的行数
-                    {
-                        for(i = 0; i < rowpix; i++)
-                        {
+                } else if(color_byte == 4) {	//32位BMP图片
+                    for(j = 0; j < rowcnt; j++) {	//每次读到的行数
+                        for(i = 0; i < rowpix; i++) {
                             color = (*bmpbuf++) >> 3;		   		 	//B
                             color += ((u16)(*bmpbuf++) << 3) & 0X07E0;	//G
                             color += (((u16) * bmpbuf++) << 8) & 0XF800;	//R
                             alphabend = *bmpbuf++;					//ALPHA通道
-                            if(alphamode != 1) //需要读取底色
-                            {
+                            if(alphamode != 1) { //需要读取底色
                                 tmp_color = pic_phy.read_point(x + tx, y + ty); //读取颜色
-                                if(alphamode == 2) //需要附加的alphablend
-                                {
+                                if(alphamode == 2) { //需要附加的alphablend
                                     tmp_color = piclib_alpha_blend(tmp_color, acolor, mode & 0X1F);	//与指定颜色进行blend
                                 }
                                 color = piclib_alpha_blend(tmp_color, color, alphabend / 8); 			//和底色进行alphablend
+                            } else {
+                                tmp_color = piclib_alpha_blend(acolor, color, alphabend / 8);    //与指定颜色进行blend
                             }
-                            else tmp_color = piclib_alpha_blend(acolor, color, alphabend / 8);		//与指定颜色进行blend
                             pic_phy.draw_point(x + tx, y + ty, color); //显示图片
                             tx++;//x轴增加一个像素
                         }
@@ -362,12 +339,15 @@ u8 minibmp_decode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u16 acolor,
                     }
 
                 }
-                if(br != readlen || res)break;
+                if(br != readlen || res) {
+                    break;
+                }
             }
         }
         f_close(f_bmp);//关闭文件
+    } else {
+        res = PIC_SIZE_ERR;    //图片尺寸错误
     }
-    else res = PIC_SIZE_ERR; //图片尺寸错误
 #if BMP_USE_MALLOC == 1	//使用malloc	
     myfree(SRAMIN, databuf);
     myfree(SRAMIN, f_bmp);
@@ -392,16 +372,23 @@ u8 bmp_encode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u8 mode)
     u16 *databuf;				//数据缓存区地址
     u16 pixcnt;				   	//像素计数器
     u16 bi4width;		       	//水平像素字节数
-    if(width == 0 || height == 0)return PIC_WINDOW_ERR;	//区域错误
-    if((x + width - 1) > lcddev.width)return PIC_WINDOW_ERR;		//区域错误
-    if((y + height - 1) > lcddev.height)return PIC_WINDOW_ERR;	//区域错误
+    if(width == 0 || height == 0) {
+        return PIC_WINDOW_ERR;    //区域错误
+    }
+    if((x + width - 1) > lcddev.width) {
+        return PIC_WINDOW_ERR;    //区域错误
+    }
+    if((y + height - 1) > lcddev.height) {
+        return PIC_WINDOW_ERR;    //区域错误
+    }
 
 #if BMP_USE_MALLOC == 1	//使用malloc	
     databuf = (u16 *)mymalloc(SRAMIN, 1024);		//开辟至少bi4width大小的字节的内存区域 ,对240宽的屏,480个字节就够了.
-    if(databuf == NULL)return PIC_MEM_ERR;		//内存申请失败.
+    if(databuf == NULL) {
+        return PIC_MEM_ERR;    //内存申请失败.
+    }
     f_bmp = (FIL *)mymalloc(SRAMIN, sizeof(FIL));	//开辟FIL字节的内存区域
-    if(f_bmp == NULL)								//内存申请失败.
-    {
+    if(f_bmp == NULL) {							//内存申请失败.
         myfree(SRAMIN, databuf);
         return PIC_MEM_ERR;
     }
@@ -427,23 +414,27 @@ u8 bmp_encode(u8 *filename, u16 x, u16 y, u16 width, u16 height, u8 mode)
     hbmp.RGB_MASK[1] = 0X0007E0;	 		//绿色掩码
     hbmp.RGB_MASK[2] = 0X00001F;	 		//蓝色掩码
 
-    if(mode == 1)res = f_open(f_bmp, (const TCHAR *)filename, FA_READ | FA_WRITE); //尝试打开之前的文件
-    if(mode == 0 || res == 0x04)res = f_open(f_bmp, (const TCHAR *)filename, FA_WRITE | FA_CREATE_NEW); //模式0,或者尝试打开失败,则创建新文件
-    if((hbmp.bmiHeader.biWidth * 2) % 4) //水平像素(字节)不为4的倍数
-    {
-        bi4width = ((hbmp.bmiHeader.biWidth * 2) / 4 + 1) * 4; //实际要写入的宽度像素,必须为4的倍数.
+    if(mode == 1) {
+        res = f_open(f_bmp, (const TCHAR *)filename, FA_READ | FA_WRITE);    //尝试打开之前的文件
     }
-    else bi4width = hbmp.bmiHeader.biWidth * 2;		//刚好为4的倍数
-    if(res == FR_OK) //创建成功
-    {
+    if(mode == 0 || res == 0x04) {
+        res = f_open(f_bmp, (const TCHAR *)filename, FA_WRITE | FA_CREATE_NEW);    //模式0,或者尝试打开失败,则创建新文件
+    }
+    if((hbmp.bmiHeader.biWidth * 2) % 4) { //水平像素(字节)不为4的倍数
+        bi4width = ((hbmp.bmiHeader.biWidth * 2) / 4 + 1) * 4; //实际要写入的宽度像素,必须为4的倍数.
+    } else {
+        bi4width = hbmp.bmiHeader.biWidth * 2;    //刚好为4的倍数
+    }
+    if(res == FR_OK) { //创建成功
         res = f_write(f_bmp, (u8 *)&hbmp, bmpheadsize, &bw); //写入BMP首部
-        for(ty = y + height - 1; hbmp.bmiHeader.biHeight; ty--)
-        {
+        for(ty = y + height - 1; hbmp.bmiHeader.biHeight; ty--) {
             pixcnt = 0;
-            for(tx = x; pixcnt != (bi4width / 2);)
-            {
-                if(pixcnt < hbmp.bmiHeader.biWidth)databuf[pixcnt] = LCD_ReadPoint(tx, ty); //读取坐标点的值
-                else databuf[pixcnt] = 0Xffff; //补充白色的像素.
+            for(tx = x; pixcnt != (bi4width / 2);) {
+                if(pixcnt < hbmp.bmiHeader.biWidth) {
+                    databuf[pixcnt] = LCD_ReadPoint(tx, ty);    //读取坐标点的值
+                } else {
+                    databuf[pixcnt] = 0Xffff;    //补充白色的像素.
+                }
                 pixcnt++;
                 tx++;
             }

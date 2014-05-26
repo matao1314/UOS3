@@ -29,8 +29,7 @@
 #define GIF_PLAINTEXT   	0x01
 #define GIF_GRAPHICCTL  	0xF9
 
-typedef struct
-{
+typedef struct {
     u8    aBuffer[258];                     // Input buffer for data block
     short aCode  [(1 << MAX_NUM_LWZ_BITS)]; // This array stores the LZW codes for the compressed strings
     u8    aPrefix[(1 << MAX_NUM_LWZ_BITS)]; // Prefix character of the LZW code.
@@ -52,8 +51,7 @@ typedef struct
 } LZW_INFO;
 
 //逻辑屏幕描述块
-__packed typedef struct
-{
+__packed typedef struct {
     u16 width;		//GIF宽度
     u16 height;		//GIF高度
     u8 flag;		//标识符  1:3:1:3=全局颜色表标志(1):颜色深度(3):分类标志(1):全局颜色表大小(3)
@@ -63,8 +61,7 @@ __packed typedef struct
 
 
 //图像描述块
-__packed typedef struct
-{
+__packed typedef struct {
     u16 xoff;		//x方向偏移
     u16 yoff;		//y方向偏移
     u16 width;		//宽度
@@ -73,8 +70,7 @@ __packed typedef struct
 } ImageScreenDescriptor;
 
 //图像描述
-__packed typedef struct
-{
+__packed typedef struct {
     LogicalScreenDescriptor gifLSD;	//逻辑屏幕描述块
     ImageScreenDescriptor gifISD;	//图像描述快
     u16 colortbl[256];				//当前使用颜色表

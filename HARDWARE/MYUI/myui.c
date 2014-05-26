@@ -16,8 +16,7 @@
 #define SPB_FONT_COLOR 		BLUE 	//SPB字体颜色
 
 //icos的路径表
-const u8 *icos_path[] =
-{
+const u8 *icos_path[] = {
 
     "0:/SYSTEM/SPB/ICOS/ebook.bmp",
     "0:/SYSTEM/SPB/ICOS/picture.bmp",
@@ -33,8 +32,7 @@ const u8 *icos_path[] =
     "0:/ICO/2.bmp",
     "0:/ICO/3.bmp",
 };
-const u8 *GUI_TBL[3] =
-{
+const u8 *GUI_TBL[3] = {
     "Sure", "返回", "BACK",
 };
 //主操作界面

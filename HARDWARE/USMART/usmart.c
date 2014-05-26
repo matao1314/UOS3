@@ -53,8 +53,7 @@
 //1,修正了list等不带参数的指令发送后可能导致死机的bug.
 /////////////////////////////////////////////////////////////////////////////////////
 //系统命令
-u8 *sys_cmd_tab[] =
-{
+u8 *sys_cmd_tab[] = {
     "?",
     "help",
     "list",
@@ -73,14 +72,16 @@ u8 usmart_sys_cmd_exe(u8 *str)
     u32 res;
 
     res = usmart_get_cmdname(str, sfname, &i, MAX_FNAME_LEN); //得到指令及指令长度
-    if(res)return USMART_FUNCERR;//错误的指令
-    str += i;
-    for(i = 0; i < 8; i++) //支持8个系统指令
-    {
-        if(usmart_strcmp(sfname, sys_cmd_tab[i]) == 0)break;
+    if(res) {
+        return USMART_FUNCERR;    //错误的指令
     }
-    switch(i)
-    {
+    str += i;
+    for(i = 0; i < 8; i++) { //支持8个系统指令
+        if(usmart_strcmp(sfname, sys_cmd_tab[i]) == 0) {
+            break;
+        }
+    }
+    switch(i) {
     case 0:
     case 1://帮助指令
         printf("\r\n");
@@ -108,14 +109,15 @@ u8 usmart_sys_cmd_exe(u8 *str)
     case 2://查询指令
         printf("\r\n");
         printf("-------------------------函数清单--------------------------- \r\n");
-        for(i = 0; i < usmart_dev.fnum; i++)printf("%s\r\n", usmart_dev.funs[i].name);
+        for(i = 0; i < usmart_dev.fnum; i++) {
+            printf("%s\r\n", usmart_dev.funs[i].name);
+        }
         printf("\r\n");
         break;
     case 3://查询ID
         printf("\r\n");
         printf("-------------------------函数 ID --------------------------- \r\n");
-        for(i = 0; i < usmart_dev.fnum; i++)
-        {
+        for(i = 0; i < usmart_dev.fnum; i++) {
             usmart_get_fname((u8 *)usmart_dev.funs[i].name, sfname, &pnum, &rval); //得到本地函数名
             printf("%s id is:\r\n0X%08X\r\n", sfname, usmart_dev.funs[i].func); //显示ID
         }
@@ -124,59 +126,58 @@ u8 usmart_sys_cmd_exe(u8 *str)
     case 4://hex指令
         printf("\r\n");
         usmart_get_aparm(str, sfname, &i);
-        if(i == 0) //参数正常
-        {
+        if(i == 0) { //参数正常
             i = usmart_str2num(sfname, &res);	   	//记录该参数
-            if(i == 0)						  	//进制转换功能
-            {
+            if(i == 0) {					  	//进制转换功能
                 printf("HEX:0X%X\r\n", res);	   	//转为16进制
-            }
-            else if(i != 4)return USMART_PARMERR; //参数错误.
-            else 				   				//参数显示设定功能
-            {
+            } else if(i != 4) {
+                return USMART_PARMERR;    //参数错误.
+            } else {			   				//参数显示设定功能
                 printf("16进制参数显示!\r\n");
                 usmart_dev.sptype = SP_TYPE_HEX;
             }
 
+        } else {
+            return USMART_PARMERR;    //参数错误.
         }
-        else return USMART_PARMERR;			//参数错误.
         printf("\r\n");
         break;
     case 5://dec指令
         printf("\r\n");
         usmart_get_aparm(str, sfname, &i);
-        if(i == 0) //参数正常
-        {
+        if(i == 0) { //参数正常
             i = usmart_str2num(sfname, &res);	   	//记录该参数
-            if(i == 0)						   	//进制转换功能
-            {
+            if(i == 0) {					   	//进制转换功能
                 printf("DEC:%lu\r\n", res);	   	//转为10进制
-            }
-            else if(i != 4)return USMART_PARMERR; //参数错误.
-            else 				   				//参数显示设定功能
-            {
+            } else if(i != 4) {
+                return USMART_PARMERR;    //参数错误.
+            } else {			   				//参数显示设定功能
                 printf("10进制参数显示!\r\n");
                 usmart_dev.sptype = SP_TYPE_DEC;
             }
 
+        } else {
+            return USMART_PARMERR;    //参数错误.
         }
-        else return USMART_PARMERR;			//参数错误.
         printf("\r\n");
         break;
     case 6://read指令
         printf("\r\n");
         usmart_get_aparm(str, sfname, &i);
-        if(i == 0) //参数正常
-        {
+        if(i == 0) { //参数正常
             i = usmart_str2num(sfname, &res);	   		//记录该参数
-            if(i == 0)						   		//读取指定地址数据功能
-            {
-                if(usmart_dev.sptype == SP_TYPE_HEX)printf("*(0X%X)=0X%X\r\n", res, *(u32 *)res);	//读取指定地址的值
-                else printf("*(%d)=%d\r\n", res, *(u32 *)res);	//读取指定地址的值
+            if(i == 0) {					   		//读取指定地址数据功能
+                if(usmart_dev.sptype == SP_TYPE_HEX) {
+                    printf("*(0X%X)=0X%X\r\n", res, *(u32 *)res);    //读取指定地址的值
+                } else {
+                    printf("*(%d)=%d\r\n", res, *(u32 *)res);    //读取指定地址的值
+                }
+            } else {
+                return USMART_PARMERR;    //未带参数,或者参数错误
             }
-            else return USMART_PARMERR;   			//未带参数,或者参数错误
+        } else {
+            return USMART_PARMERR;    //参数错误.
         }
-        else return USMART_PARMERR;				//参数错误.
         printf("\r\n");
         break;
     default://非法指令
@@ -191,8 +192,7 @@ u8 usmart_sys_cmd_exe(u8 *str)
 void TIM2_IRQHandler(void)
 {
 
-    if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源
-    {
+    if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) { //检查指定的TIM中断发生与否:TIM 中断源
         usmart_dev.scan();//执行usmart扫描
     }
     TIM_ClearITPendingBit(TIM2, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源
@@ -245,21 +245,29 @@ u8 usmart_cmd_rec(u8 *str)
     u8 rfname[MAX_FNAME_LEN];//暂存空间,用于存放接收到的函数名
     u8 sfname[MAX_FNAME_LEN];//存放本地函数名
     sta = usmart_get_fname(str, rfname, &rpnum, &rval); //得到接收到的数据的函数名及参数个数
-    if(sta)return sta;//错误
-    for(i = 0; i < usmart_dev.fnum; i++)
-    {
+    if(sta) {
+        return sta;    //错误
+    }
+    for(i = 0; i < usmart_dev.fnum; i++) {
         sta = usmart_get_fname((u8 *)usmart_dev.funs[i].name, sfname, &spnum, &rval); //得到本地函数名及参数个数
-        if(sta)return sta;//本地解析有误
-        if(usmart_strcmp(sfname, rfname) == 0) //相等
-        {
-            if(spnum > rpnum)return USMART_PARMERR; //参数错误(输入参数比源函数参数少)
+        if(sta) {
+            return sta;    //本地解析有误
+        }
+        if(usmart_strcmp(sfname, rfname) == 0) { //相等
+            if(spnum > rpnum) {
+                return USMART_PARMERR;    //参数错误(输入参数比源函数参数少)
+            }
             usmart_dev.id = i; //记录函数ID.
             break;//跳出.
         }
     }
-    if(i == usmart_dev.fnum)return USMART_NOFUNCFIND;	//未找到匹配的函数
+    if(i == usmart_dev.fnum) {
+        return USMART_NOFUNCFIND;    //未找到匹配的函数
+    }
     sta = usmart_get_fparam(str, &i);					//得到函数参数个数
-    if(sta)return sta;								//返回错误
+    if(sta) {
+        return sta;    //返回错误
+    }
     usmart_dev.pnum = i;								//参数个数记录
     return USMART_OK;
 }
@@ -276,29 +284,31 @@ void usmart_exe(void)
     u8 sfname[MAX_FNAME_LEN];//存放本地函数名
     u8 pnum, rval;
     id = usmart_dev.id;
-    if(id >= usmart_dev.fnum)return; //不执行.
+    if(id >= usmart_dev.fnum) {
+        return;    //不执行.
+    }
     usmart_get_fname((u8 *)usmart_dev.funs[id].name, sfname, &pnum, &rval); //得到本地函数名,及参数个数
     printf("\r\n%s(", sfname); //输出正要执行的函数名
-    for(i = 0; i < pnum; i++) //输出参数
-    {
-        if(usmart_dev.parmtype & (1 << i)) //参数是字符串
-        {
+    for(i = 0; i < pnum; i++) { //输出参数
+        if(usmart_dev.parmtype & (1 << i)) { //参数是字符串
             printf("%c", '"');
             printf("%s", usmart_dev.parm + usmart_get_parmpos(i));
             printf("%c", '"');
             temp[i] = (u32) & (usmart_dev.parm[usmart_get_parmpos(i)]);
-        }
-        else						   //参数是数字
-        {
+        } else {					 //参数是数字
             temp[i] = *(u32 *)(usmart_dev.parm + usmart_get_parmpos(i));
-            if(usmart_dev.sptype == SP_TYPE_DEC)printf("%lu", temp[i]); //10进制参数显示
-            else printf("0X%X", temp[i]); //16进制参数显示
+            if(usmart_dev.sptype == SP_TYPE_DEC) {
+                printf("%lu", temp[i]);    //10进制参数显示
+            } else {
+                printf("0X%X", temp[i]);    //16进制参数显示
+            }
         }
-        if(i != pnum - 1)printf(",");
+        if(i != pnum - 1) {
+            printf(",");
+        }
     }
     printf(")");
-    switch(usmart_dev.pnum)
-    {
+    switch(usmart_dev.pnum) {
     case 0://无参数(void类型)
         res = (*(u32( *)())usmart_dev.funs[id].func)();
         break;
@@ -338,12 +348,15 @@ void usmart_exe(void)
                 temp[5], temp[6], temp[7], temp[8], temp[9]);
         break;
     }
-    if(rval == 1) //需要返回值.
-    {
-        if(usmart_dev.sptype == SP_TYPE_DEC)printf("=%lu;\r\n", res); //输出执行结果(10进制参数显示)
-        else printf("=0X%X;\r\n", res); //输出执行结果(16进制参数显示)
+    if(rval == 1) { //需要返回值.
+        if(usmart_dev.sptype == SP_TYPE_DEC) {
+            printf("=%lu;\r\n", res);    //输出执行结果(10进制参数显示)
+        } else {
+            printf("=0X%X;\r\n", res);    //输出执行结果(16进制参数显示)
+        }
+    } else {
+        printf(";\r\n");    //不需要返回值,直接输出结束
     }
-    else printf(";\r\n"); //不需要返回值,直接输出结束
 
 }
 //usmart扫描函数
@@ -354,20 +367,19 @@ void usmart_exe(void)
 void usmart_scan(void)
 {
     u8 sta, len;
-    if(USART_RX_STA & 0x8000) //串口接收完成？
-    {
+    if(USART_RX_STA & 0x8000) { //串口接收完成？
         len = USART_RX_STA & 0x3fff;	//得到此次接收到的数据长度
         USART_RX_BUF[len] = '\0';	//在末尾加入结束符.
         sta = usmart_dev.cmd_rec(USART_RX_BUF); //得到函数各个信息
-        if(sta == 0)usmart_dev.exe(); //执行函数
-        else
-        {
+        if(sta == 0) {
+            usmart_dev.exe();    //执行函数
+        } else {
             len = usmart_sys_cmd_exe(USART_RX_BUF);
-            if(len != USMART_FUNCERR)sta = len;
-            if(sta)
-            {
-                switch(sta)
-                {
+            if(len != USMART_FUNCERR) {
+                sta = len;
+            }
+            if(sta) {
+                switch(sta) {
                 case USMART_FUNCERR:
                     printf("函数错误!\r\n");
                     break;

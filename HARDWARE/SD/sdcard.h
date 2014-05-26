@@ -7,8 +7,7 @@
 //typedef enum {FALSE = 0, TRUE = !FALSE} bool;
 
 /* Exported types ------------------------------------------------------------*/
-typedef enum
-{
+typedef enum {
     /* SDIO specific error defines */
     SD_CMD_CRC_FAIL                    = (1), /* Command response received (but CRC check failed) */
     SD_DATA_CRC_FAIL                   = (2), /* Data bock sent/received (CRC check Failed) */
@@ -130,21 +129,18 @@ continuous range to be erased. (For MMC card only spec 3.31) */
 #define SDIO_SD_APP_CHANGE_SECURE_AREA           ((uint8_t)49) /* For SD Card only */
 #define SDIO_SD_APP_SECURE_WRITE_MKB             ((uint8_t)48) /* For SD Card only */
 
-typedef enum
-{
+typedef enum {
     SD_NO_TRANSFER  = 0,
     SD_TRANSFER_IN_PROGRESS
 } SDTransferState;
 
-typedef struct
-{
+typedef struct {
     uint16_t TransferredBytes;
     SD_Error TransferError;
     uint8_t  padding;
 } SDLastTransferInfo;
 
-typedef struct       /* Card Specific Data */
-{
+typedef struct {     /* Card Specific Data */
     __IO uint8_t  CSDStruct;            /* CSD structure */
     __IO uint8_t  SysSpecVersion;       /* System specification version */
     __IO uint8_t  Reserved1;            /* Reserved */
@@ -184,8 +180,7 @@ typedef struct       /* Card Specific Data */
     __IO uint8_t  Reserved4;            /* always 1*/
 } SD_CSD;
 
-typedef struct      /*Card Identification Data*/
-{
+typedef struct {    /*Card Identification Data*/
     __IO uint8_t  ManufacturerID;       /* ManufacturerID */
     __IO uint16_t OEM_AppliID;          /* OEM/Application ID */
     __IO uint32_t ProdName1;            /* Product Name part1 */
@@ -198,8 +193,7 @@ typedef struct      /*Card Identification Data*/
     __IO uint8_t  Reserved2;            /* always 1 */
 } SD_CID;
 
-typedef struct
-{
+typedef struct {
     SD_CSD SD_csd;
     SD_CID SD_cid;
     uint32_t CardCapacity;  /* Card Capacity   ÈÝÁ¿*/

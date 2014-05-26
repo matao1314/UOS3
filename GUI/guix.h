@@ -61,8 +61,7 @@ extern const u8 *GUI_QUIT_CAPTION_TBL[GUI_LANGUAGE_NUM];		//退出按钮
 #define IN_TYPE_ERR	 	0XFF
 
 //gui输入接口
-__packed typedef struct
-{
+__packed typedef struct {
     void (*get_key)(void *, u8);	//获取键值参数
     u16 x;						//坐标
     u16 y;
@@ -79,8 +78,7 @@ extern _in_obj in_obj;
 //2,画点函数;
 //3,单色填充函数;
 //4,彩色填充函数
-__packed typedef struct
-{
+__packed typedef struct {
     u8 language;							//GUI当前语言,取值范围0~GUI_LANGUAGE_NUM-1;
     u16 back_color;							//背景色
     u16(*read_point)(u16, u16);				//读点函数

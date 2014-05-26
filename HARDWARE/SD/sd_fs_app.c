@@ -49,29 +49,28 @@ void Sd_fs_test(void)
     f_mount(0, &myfs[0]);
     myres = f_open( &myfsrc , "0:/my__Demo.TXT" ,/* FA_CREATE_NEW |*/ FA_WRITE);
 
-    if ( myres == FR_OK )
-    {
+    if ( myres == FR_OK ) {
         /* Write buffer to file */
         myres = f_write(&myfsrc, mystring, sizeof(mystring), &mybr);
         f_close(&myfsrc);
-    }
-    else if ( myres == FR_EXIST )  //如果文件已经存在
-    {
+    } else if ( myres == FR_EXIST ) { //如果文件已经存在
     }
 
     myres = f_open(&myfsrc, "0:/my__Demo.TXT", FA_OPEN_EXISTING | FA_READ); /* 打开文件 */	  //ok
     mybr = 1;
     mya = 0;
 
-    for (;;)
-    {
-        for ( mya = 0; mya < 512; mya++ ) 	/* 清缓冲区 */
+    for (;;) {
+        for ( mya = 0; mya < 512; mya++ ) {	/* 清缓冲区 */
             mybuffer[mya] = 0;
+        }
 
         myres = f_read( &myfsrc, mybuffer, sizeof(mybuffer), &mybr ); /* 将文件里面的内容读到缓冲区 */
         sprintf( (char *)&my_latest_buffer[count * 512], "%s" , mybuffer );	 //打印到缓冲区
         count++;
-        if (myres || mybr == 0) break;   // error or eof
+        if (myres || mybr == 0) {
+            break;    // error or eof
+        }
     }
     f_close(&myfsrc);	 /* 关闭打开的文件 */
 }
@@ -95,8 +94,7 @@ int Sdfs_new(BYTE *new_file_name, BYTE *write_buffer, BYTE buffer_size)
     f_mount(0, &myfs[0]);
     myres = f_open( &myfsrc , (char *)name_buffer , FA_CREATE_NEW | FA_WRITE);
 
-    if ( myres == FR_OK )
-    {
+    if ( myres == FR_OK ) {
 
         myres = f_write(&myfsrc, write_buffer, buffer_size, &mybr); //写入数据
         f_close(&myfsrc);
@@ -104,13 +102,11 @@ int Sdfs_new(BYTE *new_file_name, BYTE *write_buffer, BYTE buffer_size)
         return 0;
     }
 
-    else if ( myres == FR_EXIST )  //如果文件已经存在
-    {
+    else if ( myres == FR_EXIST ) { //如果文件已经存在
         return FR_EXIST;
     }
 
-    else
-    {
+    else {
         return -1;
     }
 
@@ -135,20 +131,17 @@ int Sdfs_write(BYTE *write_file_name, BYTE *write_buffer, BYTE buffer_size)
     f_mount(0, &myfs[0]);
     myres = f_open( &myfsrc , (char *)name_buffer , FA_WRITE);
 
-    if ( myres == FR_OK )
-    {
+    if ( myres == FR_OK ) {
         /* Write buffer to file */
         myres = f_write(&myfsrc, write_buffer, buffer_size, &mybr); //写入数据
         f_close(&myfsrc);
 
         return 0;
-    }
-    else if(myres == FR_NO_FILE)	 //如果没有该文件
-    {
+    } else if(myres == FR_NO_FILE) { //如果没有该文件
         return FR_NO_FILE;
-    }
-    else
+    } else {
         return -1;
+    }
 }
 
 
@@ -172,26 +165,28 @@ int Sdfs_read(BYTE *read_file_name, BYTE *save_buffer)
     f_mount(0, &myfs[0]);
     myres = f_open(&myfsrc , (char *)name_buffer , FA_OPEN_EXISTING | FA_READ);
 
-    if ( myres == FR_OK )
-    {
-        for (;;)
-        {
+    if ( myres == FR_OK ) {
+        for (;;) {
 
-            for ( mya = 0; mya < 512; mya++ ) 	/* 清缓冲区 */
+            for ( mya = 0; mya < 512; mya++ ) {	/* 清缓冲区 */
                 mybuffer[mya] = 0;
+            }
 
             myres = f_read( &myfsrc, mybuffer, sizeof(mybuffer), &mybr ); /* 将文件里面的内容以512字节为单位读到本地缓冲区 */
             sprintf((char *)&save_buffer[count * 512], "%s", mybuffer);					//打印到用户指定的缓冲区缓冲区
 
             count++;
-            if (myres || mybr == 0) break;   // error or eof
+            if (myres || mybr == 0) {
+                break;    // error or eof
+            }
         }
 
         return 0;
     }
 
-    else
+    else {
         return -1;
+    }
 
 
 }

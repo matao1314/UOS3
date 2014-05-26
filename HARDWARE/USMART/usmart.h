@@ -76,14 +76,12 @@
 
 
 //函数名列表
-struct _m_usmart_nametab
-{
+struct _m_usmart_nametab {
     void *func;			//函数指针
     const u8 *name;		//函数名(查找串)
 };
 //usmart控制管理器
-struct _m_usmart_dev
-{
+struct _m_usmart_dev {
     struct _m_usmart_nametab *funs;	//函数名指针
 
     void (*init)(u8);				//初始化

@@ -6,8 +6,7 @@
 #include "i2cee.h"
 #include "spi.h"
 #include "usart.h"
-_m_tp_dev tp_dev =
-{
+_m_tp_dev tp_dev = {
     TP_Init,
     TP_Scan,
     TP_Adjust,
@@ -25,8 +24,7 @@ _m_tp_dev tp_dev =
 //默认为touchtype=0的数据.
 u8 CMD_RDX = 0XD0;
 u8 CMD_RDY = 0X90;
-__packed typedef struct
-{
+__packed typedef struct {
     u8 fac;
     u8 touchtype;
     u32 xfac;
@@ -74,13 +72,12 @@ u16 TP_Read_XOY(u8 xy)
     u16 buf[READ_TIMES];
     u16 sum = 0;
     u16 temp;
-    for(i = 0; i < READ_TIMES; i++)buf[i] = TP_Read_AD(xy);
-    for(i = 0; i < READ_TIMES - 1; i++) //排序
-    {
-        for(j = i + 1; j < READ_TIMES; j++)
-        {
-            if(buf[i] > buf[j]) //升序排列
-            {
+    for(i = 0; i < READ_TIMES; i++) {
+        buf[i] = TP_Read_AD(xy);
+    }
+    for(i = 0; i < READ_TIMES - 1; i++) { //排序
+        for(j = i + 1; j < READ_TIMES; j++) {
+            if(buf[i] > buf[j]) { //升序排列
                 temp = buf[i];
                 buf[i] = buf[j];
                 buf[j] = temp;
@@ -88,7 +85,9 @@ u16 TP_Read_XOY(u8 xy)
         }
     }
     sum = 0;
-    for(i = LOST_VAL; i < READ_TIMES - LOST_VAL; i++)sum += buf[i];
+    for(i = LOST_VAL; i < READ_TIMES - LOST_VAL; i++) {
+        sum += buf[i];
+    }
     temp = sum / (READ_TIMES - 2 * LOST_VAL);
     return temp;
 }
@@ -120,17 +119,21 @@ u8 TP_Read_XY2(u16 *x, u16 *y)
     u16 x2, y2;
     u8 flag;
     flag = TP_Read_XY(&x1, &y1);
-    if(flag == 0)return(0);
+    if(flag == 0) {
+        return(0);
+    }
     flag = TP_Read_XY(&x2, &y2);
-    if(flag == 0)return(0);
+    if(flag == 0) {
+        return(0);
+    }
     if(((x2 <= x1 && x1 < x2 + ERR_RANGE) || (x1 <= x2 && x2 < x1 + ERR_RANGE)) //前后两次采样在+-50内
-            && ((y2 <= y1 && y1 < y2 + ERR_RANGE) || (y1 <= y2 && y2 < y1 + ERR_RANGE)))
-    {
+            && ((y2 <= y1 && y1 < y2 + ERR_RANGE) || (y1 <= y2 && y2 < y1 + ERR_RANGE))) {
         *x = (x1 + x2) / 2;
         *y = (y1 + y2) / 2;
         return 1;
+    } else {
+        return 0;
     }
-    else return 0;
 }
 //////////////////////////////////////////////////////////////////////////////////
 //与LCD部分有关的函数
@@ -167,29 +170,22 @@ void TP_Draw_Big_Point(u16 x, u16 y, u16 color)
 //0,触屏无触摸;1,触屏有触摸
 u8 TP_Scan(u8 tp)
 {
-    if(PEN == 0) //有按键按下
-    {
-        if(tp)TP_Read_XY2(&tp_dev.x, &tp_dev.y); //读取物理坐标
-        else if(TP_Read_XY2(&tp_dev.x, &tp_dev.y)) //读取屏幕坐标
-        {
+    if(PEN == 0) { //有按键按下
+        if(tp) {
+            TP_Read_XY2(&tp_dev.x, &tp_dev.y);    //读取物理坐标
+        } else if(TP_Read_XY2(&tp_dev.x, &tp_dev.y)) { //读取屏幕坐标
             tp_dev.x = tp_dev.xfac * tp_dev.x + tp_dev.xoff; //将结果转换为屏幕坐标
             tp_dev.y = tp_dev.yfac * tp_dev.y + tp_dev.yoff;
         }
-        if((tp_dev.sta & TP_PRES_DOWN) == 0) //之前没有被按下
-        {
+        if((tp_dev.sta & TP_PRES_DOWN) == 0) { //之前没有被按下
             tp_dev.sta = TP_PRES_DOWN | TP_CATH_PRES; //按键按下
             tp_dev.x0 = tp_dev.x; //记录第一次按下时的坐标
             tp_dev.y0 = tp_dev.y;
         }
-    }
-    else
-    {
-        if(tp_dev.sta & TP_PRES_DOWN) //之前是被按下的
-        {
+    } else {
+        if(tp_dev.sta & TP_PRES_DOWN) { //之前是被按下的
             tp_dev.sta &= ~(1 << 7); //标记按键松开
-        }
-        else //之前就没有被按下
-        {
+        } else { //之前就没有被按下
             tp_dev.x0 = 0;
             tp_dev.y0 = 0;
             tp_dev.x = 0xffff;
@@ -231,8 +227,7 @@ u8 TP_Get_Adjdata(void)
 {
     s32 tempfac;
     tempfac = I2C_EE_ReadByte(SAVE_ADDR_BASE + 13); //读取标记字,看是否校准过！
-    if(tempfac == 0XAA) //触摸屏已经校准过了
-    {
+    if(tempfac == 0XAA) { //触摸屏已经校准过了
         tempfac = I2C_EE_ReadLenByte(SAVE_ADDR_BASE, 4);
         tp_dev.xfac = (float)tempfac / 100000000; //得到x校准参数
         tempfac = I2C_EE_ReadLenByte(SAVE_ADDR_BASE + 4, 4);
@@ -242,13 +237,10 @@ u8 TP_Get_Adjdata(void)
         //得到y偏移量
         tp_dev.yoff = I2C_EE_ReadLenByte(SAVE_ADDR_BASE + 10, 2);
         tp_dev.touchtype = I2C_EE_ReadByte(SAVE_ADDR_BASE + 12); //读取触屏类型标记
-        if(tp_dev.touchtype)//X,Y方向与屏幕相反
-        {
+        if(tp_dev.touchtype) { //X,Y方向与屏幕相反
             CMD_RDX = 0X90;
             CMD_RDY = 0XD0;
-        }
-        else 				    //X,Y方向与屏幕相同
-        {
+        } else {			  //X,Y方向与屏幕相同
             CMD_RDX = 0XD0;
             CMD_RDY = 0X90;
         }
@@ -305,19 +297,16 @@ void TP_Adjust(void)
     TP_Drow_Touch_Point(20, 20, RED); //画点1
     tp_dev.sta = 0; //消除触发信号
     tp_dev.xfac = 0; //xfac用来标记是否校准过,所以校准之前必须清掉!以免错误
-    while(1)//如果连续10秒钟没有按下,则自动退出
-    {
+    while(1) { //如果连续10秒钟没有按下,则自动退出
         tp_dev.scan(1);//扫描物理坐标
-        if((tp_dev.sta & 0xc0) == TP_CATH_PRES) //按键按下了一次(此时按键松开了.)
-        {
+        if((tp_dev.sta & 0xc0) == TP_CATH_PRES) { //按键按下了一次(此时按键松开了.)
             outtime = 0;
             tp_dev.sta &= ~(1 << 6); //标记按键已经被处理过了.
 
             pos_temp[cnt][0] = tp_dev.x;
             pos_temp[cnt][1] = tp_dev.y;
             cnt++;
-            switch(cnt)
-            {
+            switch(cnt) {
             case 1:
                 TP_Drow_Touch_Point(20, 20, WHITE);				//清除点1
                 TP_Drow_Touch_Point(lcddev.width - 20, 20, RED);	//画点2
@@ -344,8 +333,7 @@ void TP_Adjust(void)
                 tem2 *= tem2;
                 d2 = sqrt(tem1 + tem2); //得到3,4的距离
                 fac = (float)d1 / d2;
-                if(fac < 0.95 || fac > 1.05 || d1 == 0 || d2 == 0) //不合格
-                {
+                if(fac < 0.95 || fac > 1.05 || d1 == 0 || d2 == 0) { //不合格
                     cnt = 0;
                     TP_Drow_Touch_Point(lcddev.width - 20, lcddev.height - 20, WHITE);	//清除点4
                     TP_Drow_Touch_Point(20, 20, RED);								//画点1
@@ -364,8 +352,7 @@ void TP_Adjust(void)
                 tem2 *= tem2;
                 d2 = sqrt(tem1 + tem2); //得到2,4的距离
                 fac = (float)d1 / d2;
-                if(fac < 0.95 || fac > 1.05) //不合格
-                {
+                if(fac < 0.95 || fac > 1.05) { //不合格
                     cnt = 0;
                     TP_Drow_Touch_Point(lcddev.width - 20, lcddev.height - 20, WHITE);	//清除点4
                     TP_Drow_Touch_Point(20, 20, RED);								//画点1
@@ -386,8 +373,7 @@ void TP_Adjust(void)
                 tem2 *= tem2;
                 d2 = sqrt(tem1 + tem2); //得到2,3的距离
                 fac = (float)d1 / d2;
-                if(fac < 0.95 || fac > 1.05) //不合格
-                {
+                if(fac < 0.95 || fac > 1.05) { //不合格
                     cnt = 0;
                     TP_Drow_Touch_Point(lcddev.width - 20, lcddev.height - 20, WHITE);	//清除点4
                     TP_Drow_Touch_Point(20, 20, RED);								//画点1
@@ -400,20 +386,16 @@ void TP_Adjust(void)
 
                 tp_dev.yfac = (float)(lcddev.height - 40) / (pos_temp[2][1] - pos_temp[0][1]); //得到yfac
                 tp_dev.yoff = (lcddev.height - tp_dev.yfac * (pos_temp[2][1] + pos_temp[0][1])) / 2; //得到yoff
-                if(abs(tp_dev.xfac) > 2 || abs(tp_dev.yfac) > 2) //触屏和预设的相反了.
-                {
+                if(abs(tp_dev.xfac) > 2 || abs(tp_dev.yfac) > 2) { //触屏和预设的相反了.
                     cnt = 0;
                     TP_Drow_Touch_Point(lcddev.width - 20, lcddev.height - 20, WHITE);	//清除点4
                     TP_Drow_Touch_Point(20, 20, RED);								//画点1
                     LCD_ShowString(40, 26, lcddev.width, lcddev.height, 16, "TP Need readjust!");
                     tp_dev.touchtype = !tp_dev.touchtype; //修改触屏类型.
-                    if(tp_dev.touchtype)//X,Y方向与屏幕相反
-                    {
+                    if(tp_dev.touchtype) { //X,Y方向与屏幕相反
                         CMD_RDX = 0X90;
                         CMD_RDY = 0XD0;
-                    }
-                    else				    //X,Y方向与屏幕相同
-                    {
+                    } else {			  //X,Y方向与屏幕相同
                         CMD_RDX = 0XD0;
                         CMD_RDY = 0X90;
                     }
@@ -430,8 +412,7 @@ void TP_Adjust(void)
         }
         delay_ms(10);
         outtime++;
-        if(outtime > 1000)
-        {
+        if(outtime > 1000) {
             TP_Get_Adjdata();
             break;
         }
@@ -487,9 +468,9 @@ u8 TP_Init(void)
     //  TP_NVIC_Config();//TP Interrupt
     TP_Read_XY(&tp_dev.x, &tp_dev.y); //第一次读取初始化
     I2C_EE_Init();//初始化24CXX
-    if(TP_Get_Adjdata())return 0;//已经校准
-    else			   //未校准?
-    {
+    if(TP_Get_Adjdata()) {
+        return 0;    //已经校准
+    } else {		 //未校准?
         LCD_Clear(WHITE);//清屏
         TP_Adjust();  //屏幕校准
         TP_Save_Adjdata();

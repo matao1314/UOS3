@@ -19,8 +19,7 @@
 
 
 //内存管理控制器
-struct _m_mallco_dev
-{
+struct _m_mallco_dev {
     void (*init)(u8);					//初始化
     u8 (*perused)(u8);		  	    	//内存使用率
     u8 	*membase[1];					//内存池 管理2个区域的内存

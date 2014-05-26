@@ -30,8 +30,7 @@
 //定时器3中断服务程序
 void TIM3_IRQHandler(void)
 {
-    if(TIM3->SR & 0X0001) //溢出中断
-    {
+    if(TIM3->SR & 0X0001) { //溢出中断
         LED1 = !LED1;
     }
     TIM3->SR &= ~(1 << 0); //清除中断标志位
@@ -115,30 +114,23 @@ void TIM5_IRQHandler(void)
 {
     u16 tsr;
     tsr = TIM5->SR;
-    if((TIM5CH1_CAPTURE_STA & 0X80) == 0) //还未成功捕获
-    {
-        if(tsr & 0X01) //溢出
-        {
-            if(TIM5CH1_CAPTURE_STA & 0X40) //已经捕获到高电平了
-            {
-                if((TIM5CH1_CAPTURE_STA & 0X3F) == 0X3F) //高电平太长了
-                {
+    if((TIM5CH1_CAPTURE_STA & 0X80) == 0) { //还未成功捕获
+        if(tsr & 0X01) { //溢出
+            if(TIM5CH1_CAPTURE_STA & 0X40) { //已经捕获到高电平了
+                if((TIM5CH1_CAPTURE_STA & 0X3F) == 0X3F) { //高电平太长了
                     TIM5CH1_CAPTURE_STA |= 0X80; //标记成功捕获了一次
                     TIM5CH1_CAPTURE_VAL = 0XFFFF;
+                } else {
+                    TIM5CH1_CAPTURE_STA++;
                 }
-                else TIM5CH1_CAPTURE_STA++;
             }
         }
-        if(tsr & 0x02) //捕获1发生捕获事件
-        {
-            if(TIM5CH1_CAPTURE_STA & 0X40)		//捕获到一个下降沿
-            {
+        if(tsr & 0x02) { //捕获1发生捕获事件
+            if(TIM5CH1_CAPTURE_STA & 0X40) {	//捕获到一个下降沿
                 TIM5CH1_CAPTURE_STA |= 0X80;		//标记成功捕获到一次高电平脉宽
                 TIM5CH1_CAPTURE_VAL = TIM5->CCR1;	//获取当前的捕获值.
                 TIM5->CCER &= ~(1 << 1);			//CC1P=0 设置为上升沿捕获
-            }
-            else  								//还未开始,第一次捕获上升沿
-            {
+            } else {								//还未开始,第一次捕获上升沿
                 TIM5CH1_CAPTURE_STA = 0;			//清空
                 TIM5CH1_CAPTURE_VAL = 0;
                 TIM5CH1_CAPTURE_STA |= 0X40;		//标记捕获到了上升沿
@@ -178,8 +170,7 @@ u8 ov_frame; 	//统计帧数
 //定时器6中断服务程序
 void TIM6_IRQHandler(void)
 {
-    if(TIM6->SR & 0X0001) //溢出中断
-    {
+    if(TIM6->SR & 0X0001) { //溢出中断
         printf("frame:%dfps\r\n", ov_frame);	//打印帧率
         ov_frame = 0;
     }

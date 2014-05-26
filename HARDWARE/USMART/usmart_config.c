@@ -63,8 +63,7 @@
 #include "vs10xx.h"
 //函数名列表初始化(用户自己添加)
 //用户直接在这里输入要执行的函数名及其查找串
-struct _m_usmart_nametab usmart_nametab[] =
-{
+struct _m_usmart_nametab usmart_nametab[] = {
 #if USMART_USE_WRFUNS==1 	//如果使能了读写操作
     (void *)read_addr, "u32 read_addr(u32 addr)",
     (void *)write_addr, "void write_addr(u32 addr,u32 val)",
@@ -114,8 +113,7 @@ struct _m_usmart_nametab usmart_nametab[] =
 //函数控制管理器初始化
 //得到各个受控函数的名字
 //得到函数总数量
-struct _m_usmart_dev usmart_dev =
-{
+struct _m_usmart_dev usmart_dev = {
     usmart_nametab,
     usmart_init,
     usmart_cmd_rec,

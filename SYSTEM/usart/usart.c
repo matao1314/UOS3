@@ -10,8 +10,7 @@
 #if 1
 #pragma import(__use_no_semihosting)
 //标准库需要的支持函数
-struct __FILE
-{
+struct __FILE {
     int handle;
     /* Whatever you require here. If the only file you are using is */
     /* standard output using printf() for debugging, no file handling */
@@ -48,24 +47,24 @@ u8 USART_RX_STA = 0;     //接收状态标记
 void USART1_IRQHandler(void)
 {
     u8 res;
-    if(USART1->SR & (1 << 5)) //接收到数据
-    {
+    if(USART1->SR & (1 << 5)) { //接收到数据
         res = USART1->DR;
-        if((USART_RX_STA & 0x80) == 0) //接收未完成
-        {
-            if(USART_RX_STA & 0x40) //接收到了0x0d
-            {
-                if(res != 0x0a)USART_RX_STA = 0; //接收错误,重新开始
-                else USART_RX_STA |= 0x80;	//接收完成了
-            }
-            else  //还没收到0X0D
-            {
-                if(res == 0x0d)USART_RX_STA |= 0x40;
-                else
-                {
+        if((USART_RX_STA & 0x80) == 0) { //接收未完成
+            if(USART_RX_STA & 0x40) { //接收到了0x0d
+                if(res != 0x0a) {
+                    USART_RX_STA = 0;    //接收错误,重新开始
+                } else {
+                    USART_RX_STA |= 0x80;    //接收完成了
+                }
+            } else { //还没收到0X0D
+                if(res == 0x0d) {
+                    USART_RX_STA |= 0x40;
+                } else {
                     USART_RX_BUF[USART_RX_STA & 0X3F] = res;
                     USART_RX_STA++;
-                    if(USART_RX_STA > 63)USART_RX_STA = 0; //接收数据错误,重新开始接收
+                    if(USART_RX_STA > 63) {
+                        USART_RX_STA = 0;    //接收数据错误,重新开始接收
+                    }
                 }
             }
         }

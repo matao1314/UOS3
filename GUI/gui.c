@@ -23,35 +23,29 @@ extern const unsigned char asc2_1608[95][16];
 
 ////////////////////////////GUI通用字符串集//////////////////////////////
 //确认
-const u8 *GUI_OK_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *GUI_OK_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "确定", "確定", "OK",
 };
 //选项
-const u8 *GUI_OPTION_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *GUI_OPTION_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "选项", "選項", "MENU",
 };
 //返回
-const u8 *GUI_BACK_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *GUI_BACK_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "返回", "返回", "BACK",
 };
 //取消
-const u8 *GUI_CANCEL_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *GUI_CANCEL_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "取消", "取消", "CANCEL",
 };
 //退出
-const u8 *GUI_QUIT_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *GUI_QUIT_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "退出", "退出", "QUIT",
 };
 ///////////////////////////////////////////////////////////////////////////
 
 //输入接口
-_in_obj in_obj =
-{
+_in_obj in_obj = {
     gui_get_key,		//获取键值参数
     0,					//坐标
     0,
@@ -85,18 +79,20 @@ void gui_init(void)
 void gui_get_key(void *obj, u8 type)
 {
     _m_tp_dev *tp_dev;
-    switch(type)
-    {
+    switch(type) {
     case IN_TYPE_TOUCH:
         in_obj.intype = IN_TYPE_TOUCH;
         tp_dev = (_m_tp_dev *)obj;
         in_obj.x = tp_dev->x;		 		//得到触屏坐标
         in_obj.y = tp_dev->y;
-        if(tp_dev->sta & 0X80)in_obj.ksta |= 0X01;	//触摸被按下
-        else in_obj.ksta &= ~(0X01);				//触摸松开了
+        if(tp_dev->sta & 0X80) {
+            in_obj.ksta |= 0X01;    //触摸被按下
+        } else {
+            in_obj.ksta &= ~(0X01);    //触摸松开了
+        }
         break;
     case IN_TYPE_KEY:
-			  in_obj.keyval=(u32)KEY_Scan(0);
+        in_obj.keyval = (u32)KEY_Scan(0);
         in_obj.intype = IN_TYPE_KEY;
         break;
     case IN_TYPE_JOYPAD:
@@ -137,7 +133,9 @@ u16 gui_rgb332torgb565(u16 rgb332)
 long long gui_pow(u8 m, u8 n)
 {
     long long result = 1;
-    while(n--)result *= m;
+    while(n--) {
+        result *= m;
+    }
     return result;
 }
 //两个数的差的绝对值
@@ -153,10 +151,8 @@ void gui_alphablend_area(u16 x, u16 y, u16 width, u16 height, u16 color, u8 aval
 {
     u16 i, j;
     u16 tempcolor;
-    for(i = 0; i < width; i++)
-    {
-        for(j = 0; j < height; j++)
-        {
+    for(i = 0; i < width; i++) {
+        for(j = 0; j < height; j++) {
             tempcolor = gui_phy.read_point(x + i, y + j);
             tempcolor = gui_alpha_blend565(tempcolor, color, aval);
             gui_phy.draw_point(x + i, y + j, tempcolor);
@@ -172,13 +168,20 @@ void gui_draw_bigpoint(u16 x0, u16 y0, u16 color)
 {
     u16 i, j;
     u16 x, y;
-    if(x0 >= 1)x = x0 - 1;
-    else x = x0;
-    if(y0 >= 1)y = y0 - 1;
-    else y = y0;
-    for(i = y; i < y0 + 2; i++)
-    {
-        for(j = x; j < x0 + 2; j++)gui_phy.draw_point(j, i, color);
+    if(x0 >= 1) {
+        x = x0 - 1;
+    } else {
+        x = x0;
+    }
+    if(y0 >= 1) {
+        y = y0 - 1;
+    } else {
+        y = y0;
+    }
+    for(i = y; i < y0 + 2; i++) {
+        for(j = x; j < x0 + 2; j++) {
+            gui_phy.draw_point(j, i, color);
+        }
     }
 }
 //画任意线
@@ -194,34 +197,36 @@ void gui_draw_line(u16 x0, u16 y0, u16 x1, u16 y1, u16 color)
     delta_y = y1 - y0;
     uRow = x0;
     uCol = y0;
-    if(delta_x > 0)incx = 1; //设置单步方向
-    else if(delta_x == 0)incx = 0; //垂直线
-    else
-    {
+    if(delta_x > 0) {
+        incx = 1;    //设置单步方向
+    } else if(delta_x == 0) {
+        incx = 0;    //垂直线
+    } else {
         incx = -1;
         delta_x = -delta_x;
     }
-    if(delta_y > 0)incy = 1;
-    else if(delta_y == 0)incy = 0; //水平线
-    else
-    {
+    if(delta_y > 0) {
+        incy = 1;
+    } else if(delta_y == 0) {
+        incy = 0;    //水平线
+    } else {
         incy = -1;
         delta_y = -delta_y;
     }
-    if( delta_x > delta_y)distance = delta_x; //选取基本增量坐标轴
-    else distance = delta_y;
-    for(t = 0; t <= distance + 1; t++ ) //画线输出
-    {
+    if( delta_x > delta_y) {
+        distance = delta_x;    //选取基本增量坐标轴
+    } else {
+        distance = delta_y;
+    }
+    for(t = 0; t <= distance + 1; t++ ) { //画线输出
         gui_phy.draw_point(uRow, uCol, color); //画点
         xerr += delta_x ;
         yerr += delta_y ;
-        if(xerr > distance)
-        {
+        if(xerr > distance) {
             xerr -= distance;
             uRow += incx;
         }
-        if(yerr > distance)
-        {
+        if(yerr > distance) {
             yerr -= distance;
             uCol += incy;
         }
@@ -233,7 +238,9 @@ void gui_draw_line(u16 x0, u16 y0, u16 x1, u16 y1, u16 color)
 //color:颜色
 void gui_draw_vline(u16 x0, u16 y0, u16 len, u16 color)
 {
-    if((len == 0) || (x0 > GUI_LCD_W) || (y0 > GUI_LCD_H))return;
+    if((len == 0) || (x0 > GUI_LCD_W) || (y0 > GUI_LCD_H)) {
+        return;
+    }
     gui_phy.fill(x0, y0, x0, y0 + len - 1, color);
 }
 //画水平线
@@ -242,7 +249,9 @@ void gui_draw_vline(u16 x0, u16 y0, u16 len, u16 color)
 //color:颜色
 void gui_draw_hline(u16 x0, u16 y0, u16 len, u16 color)
 {
-    if((len == 0) || (x0 > GUI_LCD_W) || (y0 > GUI_LCD_H))return;
+    if((len == 0) || (x0 > GUI_LCD_W) || (y0 > GUI_LCD_H)) {
+        return;
+    }
     gui_phy.fill(x0, y0, x0 + len - 1, y0, color);
 }
 //填充一个色块.
@@ -254,18 +263,15 @@ void gui_draw_hline(u16 x0, u16 y0, u16 len, u16 color)
 void gui_fill_colorblock(u16 x0, u16 y0, u16 width, u16 height, u16 *ctbl, u8 mode)
 {
     u16 i;
-    if(height == 0 || width == 0)return;
-    if(mode & 0x01) //横向
-    {
-        for(i = 0; i < width; i++)
-        {
+    if(height == 0 || width == 0) {
+        return;
+    }
+    if(mode & 0x01) { //横向
+        for(i = 0; i < width; i++) {
             gui_draw_vline(x0 + i, y0, height - 1, ctbl[i]);
         }
-    }
-    else
-    {
-        for(i = 0; i < height; i++)
-        {
+    } else {
+        for(i = 0; i < height; i++) {
             gui_draw_hline(x0, y0 + i, width - 1, ctbl[i]);
         }
     }
@@ -287,8 +293,7 @@ void gui_smooth_color(u32 srgb, u32 ergb, u16 *cbuf, u16 len)
     dr = (ergb >> 16) - sr;
     dg = ((ergb >> 8) & 0XFF) - sg;
     db = (ergb & 0XFF) - sb;
-    for(i = 0; i < len; i++)
-    {
+    for(i = 0; i < len; i++) {
         r = sr + (dr * i) / len;
         g = sg + (dg * i) / len;
         b = sb + (db * i) / len;
@@ -306,12 +311,12 @@ void gui_draw_smooth_rectangle(u16 x, u16 y, u16 width, u16 height, u32 srgb, u3
     u16 i, j;
     u16 *colortbl = NULL;
     colortbl = (u16 *)gui_memin_malloc(width * 2); //分配内存
-    if(colortbl == NULL)return ; //内存申请失败
+    if(colortbl == NULL) {
+        return ;    //内存申请失败
+    }
     gui_smooth_color(srgb, ergb, colortbl, width); //获得颜色组
-    for(i = 0; i < width; i++)
-    {
-        for(j = 0; j < height; j++)
-        {
+    for(i = 0; i < width; i++) {
+        for(j = 0; j < height; j++) {
             gui_phy.draw_point(x + i, y + j, colortbl[i]); //画点
         }
     }
@@ -337,19 +342,19 @@ void gui_draw_rectangle(u16 x0, u16 y0, u16 width, u16 height, u16 color)
 void gui_draw_arcrectangle(u16 x, u16 y, u16 width, u16 height, u8 r, u8 mode, u16 upcolor, u16 downcolor)
 {
     u16 btnxh = 0;
-    if(height % 2)btnxh = height + 1; //基偶数处理
-    else btnxh = height;
-    if(mode)//填充
-    {
+    if(height % 2) {
+        btnxh = height + 1;    //基偶数处理
+    } else {
+        btnxh = height;
+    }
+    if(mode) { //填充
         gui_fill_rectangle(x + r, y, width - 2 * r, btnxh / 2, upcolor);			//中上
         gui_fill_rectangle(x + r, y + btnxh / 2, width - 2 * r, btnxh / 2, downcolor);	//中下
         gui_fill_rectangle(x, y + r, r, btnxh / 2 - r, upcolor);					//左上
         gui_fill_rectangle(x, y + btnxh / 2, r, btnxh / 2 - r, downcolor);			//左下
         gui_fill_rectangle(x + width - r, y + r, r, btnxh / 2 - r, upcolor);			//右上
         gui_fill_rectangle(x + width - r, y + btnxh / 2, r, btnxh / 2 - r, downcolor);	//右下
-    }
-    else
-    {
+    } else {
         gui_draw_hline (x + r, y, width - 2 * r, upcolor);					//上
         gui_draw_hline (x + r, y + btnxh - 1, width - 2 * r, downcolor);			//下
         gui_draw_vline (x, y + r, btnxh / 2 - r, upcolor);					//左上
@@ -370,9 +375,10 @@ void gui_draw_icos(u16 x, u16 y, u8 index)
     u16 *colorbuf;
     u16 i = 0;
     colorbuf = gui_memin_malloc(2 * 256); //申请内存
-    if(colorbuf)
-    {
-        for(i = 0; i < 256; i++)colorbuf[i] = gui_rgb332torgb565(icostbl[index][i]); //RGB332转换为RGB565;
+    if(colorbuf) {
+        for(i = 0; i < 256; i++) {
+            colorbuf[i] = gui_rgb332torgb565(icostbl[index][i]);    //RGB332转换为RGB565;
+        }
         gui_phy.colorfill(x, y, x + 15, y + 15, colorbuf); //画出ICOS
     }
     gui_memin_free(colorbuf);//释放内存
@@ -387,17 +393,16 @@ void gui_draw_icosalpha(u16 x, u16 y, u8 index)
     u8 *icoaddr = (u8 *)pathico[index];
     u16 color;
     u8 alphabend;
-    for(i = y; i < y + 16; i++)
-    {
-        for(j = x; j < x + 16; j++)
-        {
+    for(i = y; i < y + 16; i++) {
+        for(j = x; j < x + 16; j++) {
             color = (*icoaddr++) >> 3;		   		 	//B
             color += ((u16)(*icoaddr++) << 3) & 0X07E0;	//G
             color += (((u16) * icoaddr++) << 8) & 0XF800;	//R
             alphabend = *icoaddr++;					//ALPHA通道
-            if(alphabend == 0) //只对透明的颜色进行画图
-            {
-                if(color)gui_phy.draw_point(j, i, color);
+            if(alphabend == 0) { //只对透明的颜色进行画图
+                if(color) {
+                    gui_phy.draw_point(j, i, color);
+                }
             }
         }
     }
@@ -408,7 +413,9 @@ void gui_draw_icosalpha(u16 x, u16 y, u8 index)
 //color:颜色
 void gui_fill_rectangle(u16 x0, u16 y0, u16 width, u16 height, u16 color)
 {
-    if(width == 0 || height == 0)return; //非法.
+    if(width == 0 || height == 0) {
+        return;    //非法.
+    }
     gui_phy.fill(x0, y0, x0 + width - 1, y0 + height - 1, color);
 }
 //画实心圆
@@ -422,13 +429,10 @@ void gui_fill_circle(u16 x0, u16 y0, u16 r, u16 color)
     u32 sqmax = (u32)r * (u32)r + (u32)r / 2;
     u32 x = r;
     gui_draw_hline(x0 - r, y0, 2 * r, color);
-    for (i = 1; i <= imax; i++)
-    {
-        if ((i * i + x * x) > sqmax)
-        {
+    for (i = 1; i <= imax; i++) {
+        if ((i * i + x * x) > sqmax) {
             // draw lines from outside
-            if (x > imax)
-            {
+            if (x > imax) {
                 gui_draw_hline (x0 - i + 1, y0 + x, 2 * (i - 1), color);
                 gui_draw_hline (x0 - i + 1, y0 - x, 2 * (i - 1), color);
             }
@@ -446,8 +450,7 @@ void gui_fill_circle(u16 x0, u16 y0, u16 r, u16 color)
 void gui_draw_expoint(u16 sx, u16 sy, u16 ex, u16 ey, u16 x, u16 y, u16 color)
 {
     u16 tempcolor;
-    if(x <= ex && x >= sx && y <= ey && y >= sy)
-    {
+    if(x <= ex && x >= sx && y <= ey && y >= sy) {
         tempcolor = POINT_COLOR;
         POINT_COLOR = color;
         LCD_DrawPoint(x, y);
@@ -482,15 +485,18 @@ void gui_draw_arc(u16 sx, u16 sy, u16 ex, u16 ey, u16 rx, u16 ry, u16 r, u16 col
     a = 0;
     b = r;
     di = 3 - (r << 1);	//判断下个点位置的标志
-    while(a <= b)
-    {
-        if(mode)for(c = a; c <= b; c++)gui_draw_circle8(sx, sy, ex, ey, rx, ry, a, c, color); //画实心圆
-        else gui_draw_circle8(sx, sy, ex, ey, rx, ry, a, b, color);					 //画空心圆
+    while(a <= b) {
+        if(mode)for(c = a; c <= b; c++) {
+                gui_draw_circle8(sx, sy, ex, ey, rx, ry, a, c, color);    //画实心圆
+            }
+        else {
+            gui_draw_circle8(sx, sy, ex, ey, rx, ry, a, b, color);    //画空心圆
+        }
         a++;
         //使用Bresenham算法画圆
-        if(di < 0)di += 4 * a + 6;
-        else
-        {
+        if(di < 0) {
+            di += 4 * a + 6;
+        } else {
             di += 10 + 4 * (a - b);
             b--;
         }
@@ -508,21 +514,23 @@ void gui_draw_ellipse(u16 x0, u16 y0, u16 rx, u16 ry, u16 color)
     u16 xOld;
     u32 _rx = rx;
     u32 _ry = ry;
-    if(rx > x0 || ry > y0)return; //非法.
+    if(rx > x0 || ry > y0) {
+        return;    //非法.
+    }
     OutConst = _rx * _rx * _ry * _ry + (_rx * _rx * _ry >> 1); // Constant as explaint above
     // To compensate for rounding
     xOld = x = rx;
-    for (y = 0; y <= ry; y++)
-    {
-        if (y == ry)x = 0;
-        else
-        {
+    for (y = 0; y <= ry; y++) {
+        if (y == ry) {
+            x = 0;
+        } else {
             SumY = ((u32)(rx * rx)) * ((u32)(y * y)); // Does not change in loop
-            while(Sum = SumY + ((u32)(ry * ry)) * ((u32)(x * x)), (x > 0) && (Sum > OutConst)) x--;
+            while(Sum = SumY + ((u32)(ry * ry)) * ((u32)(x * x)), (x > 0) && (Sum > OutConst)) {
+                x--;
+            }
         }
         // Since we draw lines, we can not draw on the first iteration
-        if (y)
-        {
+        if (y) {
             gui_draw_line(x0 - xOld, y0 - y + 1, x0 - x, y0 - y, color);
             gui_draw_line(x0 - xOld, y0 + y - 1, x0 - x, y0 + y, color);
             gui_draw_line(x0 + xOld, y0 - y + 1, x0 + x, y0 - y, color);
@@ -545,12 +553,15 @@ void gui_fill_ellipse(u16 x0, u16 y0, u16 rx, u16 ry, u16 color)
     OutConst = _rx * _rx * _ry * _ry + (_rx * _rx * _ry >> 1); // Constant as explaint above
     // To compensate for rounding
     x = rx;
-    for (y = 0; y <= ry; y++)
-    {
+    for (y = 0; y <= ry; y++) {
         SumY = ((u32)(rx * rx)) * ((u32)(y * y)); // Does not change in loop
-        while (Sum = SumY + ((u32)(ry * ry)) * ((u32)(x * x)), (x > 0) && (Sum > OutConst))x--;
+        while (Sum = SumY + ((u32)(ry * ry)) * ((u32)(x * x)), (x > 0) && (Sum > OutConst)) {
+            x--;
+        }
         gui_draw_hline(x0 - x, y0 + y, 2 * x, color);
-        if(y)gui_draw_hline(x0 - x, y0 - y, 2 * x, color);
+        if(y) {
+            gui_draw_hline(x0 - x, y0 - y, 2 * x, color);
+        }
     }
 }
 //快速ALPHA BLENDING算法.
@@ -586,9 +597,10 @@ void gui_show_strmid(u16 x, u16 y, u16 width, u16 height, u16 color, u8 size, u8
     u16 strwidth;
     strlenth = strlen((const char *)str);	//得到字符串长度
     strwidth = strlenth * size / 2;		//字符串显示占用宽度
-    if(height > size)yoff = (height - size) / 2;
-    if(strwidth <= width) //字符串没超过宽度
-    {
+    if(height > size) {
+        yoff = (height - size) / 2;
+    }
+    if(strwidth <= width) { //字符串没超过宽度
         xoff = (width - strwidth) / 2;
     }
     gui_show_ptstr(x + xoff, y + yoff, x + width - 1, y + height - 1, 0, color, size, str, 1);
@@ -608,60 +620,71 @@ void gui_show_ptchar(u16 x, u16 y, u16 xend, u16 yend, u8 offset, u16 color, u16
     u8 pos, t;
     u8 tempoff;
     u16 y0 = y;
-    if(chr > ' ')chr = chr - ' '; //得到偏移后的值
-    else chr = 0; //小于空格的一律用空格代替,比如TAB键(键值为9)
-    if(mode == 0) //非叠加方式
-    {
-        for(pos = 0; pos < size; pos++)
-        {
-            if(size == 12)temp = asc2_1206[chr][pos]; //调用1206字体
-            else temp = asc2_1608[chr][pos];		 	//调用1608字体
-            tempoff = offset;
-            if(x > xend)return;						//超区域了
-            for(t = 0; t < 8; t++)
-            {
-                if(tempoff == 0)
-                {
-                    if(temp & 0x80)gui_phy.draw_point(x, y, color);
-                    else gui_phy.draw_point(x, y, gui_phy.back_color);
-                }
-                temp <<= 1;
-                y++;
-                if((y - y0) == size || (y > yend))
-                {
-                    y = y0;
-                    x++;
-                    if(tempoff)tempoff--;
-                    break;
-                }
-            }
-        }
+    if(chr > ' ') {
+        chr = chr - ' ';    //得到偏移后的值
+    } else {
+        chr = 0;    //小于空格的一律用空格代替,比如TAB键(键值为9)
     }
-    else //叠加方式(1,普通叠加,2,大点叠加)
-    {
-        for(pos = 0; pos < size; pos++)
-        {
-            if(size == 12)temp = asc2_1206[chr][pos]; //调用1206字体
-            else temp = asc2_1608[chr][pos];		 	//调用1608字体
+    if(mode == 0) { //非叠加方式
+        for(pos = 0; pos < size; pos++) {
+            if(size == 12) {
+                temp = asc2_1206[chr][pos];    //调用1206字体
+            } else {
+                temp = asc2_1608[chr][pos];    //调用1608字体
+            }
             tempoff = offset;
-            if(x > xend)return;						//超区域了
-            for(t = 0; t < 8; t++)
-            {
-                if(tempoff == 0)
-                {
-                    if(temp & 0x80)
-                    {
-                        if(mode == 0X01)gui_phy.draw_point(x, y, color);
-                        else if(mode == 0x02)gui_draw_bigpoint(x, y, color);
+            if(x > xend) {
+                return;    //超区域了
+            }
+            for(t = 0; t < 8; t++) {
+                if(tempoff == 0) {
+                    if(temp & 0x80) {
+                        gui_phy.draw_point(x, y, color);
+                    } else {
+                        gui_phy.draw_point(x, y, gui_phy.back_color);
                     }
                 }
                 temp <<= 1;
                 y++;
-                if((y - y0) == size || (y > yend))
-                {
+                if((y - y0) == size || (y > yend)) {
                     y = y0;
                     x++;
-                    if(tempoff)tempoff--;
+                    if(tempoff) {
+                        tempoff--;
+                    }
+                    break;
+                }
+            }
+        }
+    } else { //叠加方式(1,普通叠加,2,大点叠加)
+        for(pos = 0; pos < size; pos++) {
+            if(size == 12) {
+                temp = asc2_1206[chr][pos];    //调用1206字体
+            } else {
+                temp = asc2_1608[chr][pos];    //调用1608字体
+            }
+            tempoff = offset;
+            if(x > xend) {
+                return;    //超区域了
+            }
+            for(t = 0; t < 8; t++) {
+                if(tempoff == 0) {
+                    if(temp & 0x80) {
+                        if(mode == 0X01) {
+                            gui_phy.draw_point(x, y, color);
+                        } else if(mode == 0x02) {
+                            gui_draw_bigpoint(x, y, color);
+                        }
+                    }
+                }
+                temp <<= 1;
+                y++;
+                if((y - y0) == size || (y > yend)) {
+                    y = y0;
+                    x++;
+                    if(tempoff) {
+                        tempoff--;
+                    }
                     break;
                 }
             }
@@ -681,18 +704,19 @@ void gui_show_num(u16 x, u16 y, u8 len, u16 color, u8 size, long long num, u8 mo
 {
     u8 t, temp;
     u8 enshow = 0;
-    for(t = 0; t < len; t++)
-    {
+    for(t = 0; t < len; t++) {
         temp = (num / gui_pow(10, len - t - 1)) % 10;
-        if(enshow == 0 && t < (len - 1))
-        {
-            if(temp == 0)
-            {
-                if(mode & 0X80)gui_show_ptchar(x + (size / 2)*t, y, GUI_LCD_W, GUI_LCD_H, 0, color, size, '0', mode & 0xf); //填充0
-                else gui_show_ptchar(x + (size / 2)*t, y, GUI_LCD_W, GUI_LCD_H, 0, color, size, ' ', mode & 0xf);
+        if(enshow == 0 && t < (len - 1)) {
+            if(temp == 0) {
+                if(mode & 0X80) {
+                    gui_show_ptchar(x + (size / 2)*t, y, GUI_LCD_W, GUI_LCD_H, 0, color, size, '0', mode & 0xf);    //填充0
+                } else {
+                    gui_show_ptchar(x + (size / 2)*t, y, GUI_LCD_W, GUI_LCD_H, 0, color, size, ' ', mode & 0xf);
+                }
                 continue;
+            } else {
+                enshow = 1;
             }
-            else enshow = 1;
 
         }
         gui_show_ptchar(x + (size / 2)*t, y, GUI_LCD_W, GUI_LCD_H, 0, color, size, temp + '0', mode & 0xf);
@@ -705,13 +729,14 @@ u8 *gui_num2str(u8 *str, u32 num)
 {
     u8 t, temp;
     u8 enrec = 0;
-    for(t = 0; t < 10; t++)
-    {
+    for(t = 0; t < 10; t++) {
         temp = (num / gui_pow(10, 10 - t - 1)) % 10;
-        if(enrec == 0 && t < 9)
-        {
-            if(temp == 0)continue; //还不需要记录
-            else enrec = 1; 		//需要记录了.
+        if(enrec == 0 && t < 9) {
+            if(temp == 0) {
+                continue;    //还不需要记录
+            } else {
+                enrec = 1;    //需要记录了.
+            }
         }
         *str = temp + '0';
         str++;
@@ -737,75 +762,68 @@ void gui_show_ptfont(u16 x, u16 y, u16 xend, u16 yend, u8 offset, u16 color, u16
     u16 y0 = y;
     u8 dzk[32];
 
-    if(size != 12 && size != 16)return;	//不支持的size
+    if(size != 12 && size != 16) {
+        return;    //不支持的size
+    }
     Get_HzMat(chr, dzk, size);		//得到相应大小的点阵数据
     tempoff = offset;
-    if(mode == 0) 	//非叠加方式
-    {
-        for(pos = 0; pos < size * 2; pos++)
-        {
-            if(x > xend)break; //到达终点坐标
+    if(mode == 0) {	//非叠加方式
+        for(pos = 0; pos < size * 2; pos++) {
+            if(x > xend) {
+                break;    //到达终点坐标
+            }
             temp = dzk[pos];	//得到点阵数据
-            if(tempoff == 0)	//偏移地址到了
-            {
-                for(t = 0; t < 8; t++)
-                {
-                    if(y <= yend)
-                    {
-                        if(temp & 0x80)gui_phy.draw_point(x, y, color);
-                        else gui_phy.draw_point(x, y, gui_phy.back_color);
+            if(tempoff == 0) {	//偏移地址到了
+                for(t = 0; t < 8; t++) {
+                    if(y <= yend) {
+                        if(temp & 0x80) {
+                            gui_phy.draw_point(x, y, color);
+                        } else {
+                            gui_phy.draw_point(x, y, gui_phy.back_color);
+                        }
                     }
                     temp <<= 1;
                     y++;
-                    if((y - y0) == size)
-                    {
+                    if((y - y0) == size) {
                         y = y0;
                         x++;
                         break;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 y += 8;
-                if((y - y0) >= size) //大于一个字的高度了
-                {
+                if((y - y0) >= size) { //大于一个字的高度了
                     y = y0;		//y坐标归零
                     tempoff--;
                 }
             }
         }
-    }
-    else		//叠加方式
-    {
-        for(pos = 0; pos < size * 2; pos++)
-        {
-            if(x > xend)break; //到达终点坐标
+    } else {	//叠加方式
+        for(pos = 0; pos < size * 2; pos++) {
+            if(x > xend) {
+                break;    //到达终点坐标
+            }
             temp = dzk[pos];	//得到点阵数据
-            if(tempoff == 0)	//偏移地址到了
-            {
-                for(t = 0; t < 8; t++)
-                {
-                    if((y <= yend) && (temp & 0x80))
-                    {
-                        if(mode == 0X01)gui_phy.draw_point(x, y, color);
-                        else if(mode == 0x02)gui_draw_bigpoint(x, y, color);
+            if(tempoff == 0) {	//偏移地址到了
+                for(t = 0; t < 8; t++) {
+                    if((y <= yend) && (temp & 0x80)) {
+                        if(mode == 0X01) {
+                            gui_phy.draw_point(x, y, color);
+                        } else if(mode == 0x02) {
+                            gui_draw_bigpoint(x, y, color);
+                        }
                     }
                     temp <<= 1;
                     y++;
-                    if((y - y0) == size)
-                    {
+                    if((y - y0) == size) {
                         y = y0;
                         x++;
                         break;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 y += 8;
-                if((y - y0) >= size) //大于一个字的高度了
-                {
+                if((y - y0) >= size) { //大于一个字的高度了
                     y = y0;		//y坐标归零
                     tempoff--;
                 }
@@ -825,67 +843,61 @@ void gui_show_ptstr(u16 x, u16 y, u16 xend, u16 yend, u16 offset, u16 color, u8 
 {
     u8 bHz = 0;     	//字符或者中文
     u8 EnDisp = 0;  	//使能显示
-    while(*str != 0)	//数据未结束
-    {
-        if(!bHz)
-        {
-            if(*str > 0x80)bHz = 1;	//中文
-            else              	//字符
-            {
-                if(EnDisp == 0)	//还未使能显示
-                {
-                    if(offset >= size / 2)	//超过了一个字符
-                    {
+    while(*str != 0) {	//数据未结束
+        if(!bHz) {
+            if(*str > 0x80) {
+                bHz = 1;    //中文
+            } else {            	//字符
+                if(EnDisp == 0) {	//还未使能显示
+                    if(offset >= size / 2) {	//超过了一个字符
                         offset -= size / 2;	//减少一个字符的偏移
-                    }
-                    else				//未超过一个字符的偏移
-                    {
+                    } else {			//未超过一个字符的偏移
                         offset = offset % (size / 2);	//得到字符偏移量
                         EnDisp = 1;				//可以开始显示了
                     }
                 }
-                if(EnDisp == 1)	//使能显示
-                {
+                if(EnDisp == 1) {	//使能显示
                     gui_show_ptchar(x, y, xend, yend, offset, color, size, *str, mode); //显示一个字符
-                    if((xend - x) > size / 2)x += size / 2;	//字符,为全字的一半
-                    else x += xend - x;					//未完全显示
-                    if(offset)
-                    {
+                    if((xend - x) > size / 2) {
+                        x += size / 2;    //字符,为全字的一半
+                    } else {
+                        x += xend - x;    //未完全显示
+                    }
+                    if(offset) {
                         x -= offset;
                         offset = 0; //清除偏移
                     }
                 }
-                if(x >= xend)return; //超过了,退出
+                if(x >= xend) {
+                    return;    //超过了,退出
+                }
                 str++;
             }
-        }
-        else //中文
-        {
+        } else { //中文
             bHz = 0; //有汉字库
-            if(EnDisp == 0) //还未使能
-            {
-                if(offset >= size) //超过了一个字
-                {
+            if(EnDisp == 0) { //还未使能
+                if(offset >= size) { //超过了一个字
                     offset -= size; //减少
-                }
-                else
-                {
+                } else {
                     offset = offset % (size); //得到字符偏移
                     EnDisp = 1; //可以开始显示了
                 }
             }
-            if(EnDisp)
-            {
+            if(EnDisp) {
                 gui_show_ptfont(x, y, xend, yend, offset, color, size, str, mode); //显示这个汉字,空心显示
-                if((xend - x) > size)x += size; //字符,为全字的一半
-                else x += xend - x; //未完全显示
-                if(offset)
-                {
+                if((xend - x) > size) {
+                    x += size;    //字符,为全字的一半
+                } else {
+                    x += xend - x;    //未完全显示
+                }
+                if(offset) {
                     x -= offset;
                     offset = 0; //清除偏移
                 }
             }
-            if(x >= xend)return; //超过了,退出
+            if(x >= xend) {
+                return;    //超过了,退出
+            }
             str += 2;
         }
     }
@@ -927,31 +939,25 @@ u32 gui_get_stringline(u8 *str, u16 linelenth, u8 font)
 {
     u16 xpos = 0;
     u32	lincnt = 1; //最少就是1行.
-    if(linelenth < font / 2)return 0XFFFFFFFF; //无法统计完成
-    while(*str != '\0' && lincnt != 0xffffffff)
-    {
-        if(*str == 0x0D && (*(str + 1) == 0X0A)) //是回车符
-        {
+    if(linelenth < font / 2) {
+        return 0XFFFFFFFF;    //无法统计完成
+    }
+    while(*str != '\0' && lincnt != 0xffffffff) {
+        if(*str == 0x0D && (*(str + 1) == 0X0A)) { //是回车符
             str += 2;
             lincnt++;//行数加1
             xpos = 0;
-        }
-        else if(*str >= 0X81 && (*(str + 1) >= 0X40)) //是gbk汉字
-        {
+        } else if(*str >= 0X81 && (*(str + 1) >= 0X40)) { //是gbk汉字
             xpos += font;
             str += 2;
-            if(xpos > linelenth) //已经不在本行之内
-            {
+            if(xpos > linelenth) { //已经不在本行之内
                 xpos = font;
                 lincnt++;//行数加1
             }
-        }
-        else //是字符
-        {
+        } else { //是字符
             xpos += font / 2;
             str += 1;
-            if(xpos > linelenth) //已经不在本行之内
-            {
+            if(xpos > linelenth) { //已经不在本行之内
                 xpos = font / 2;
                 lincnt++;//行数加1
             }
@@ -970,19 +976,16 @@ void gui_show_string(u8 *str, u16 x, u16 y, u16 width, u16 height, u8 font, u16 
     u16 ypos = y;
     u16 endx = x + width - 1;
     u16 endy = y + height - 1;
-    if(width < font / 2)return ; //无法显示完成
-    while(*str != '\0') //未结束
-    {
-        if(*str == 0x0D && (*(str + 1) == 0X0A)) //是回车符
-        {
+    if(width < font / 2) {
+        return ;    //无法显示完成
+    }
+    while(*str != '\0') { //未结束
+        if(*str == 0x0D && (*(str + 1) == 0X0A)) { //是回车符
             str += 2;
             xpos = x;
             ypos += font; //y增加16
-        }
-        else if(*str >= 0X81 && (*(str + 1) >= 0X40)) //是gbk汉字
-        {
-            if((xpos + font) > (endx + 1)) //已经不在本行之内
-            {
+        } else if(*str >= 0X81 && (*(str + 1) >= 0X40)) { //是gbk汉字
+            if((xpos + font) > (endx + 1)) { //已经不在本行之内
                 xpos = x;
                 ypos += font;
             }
@@ -990,11 +993,8 @@ void gui_show_string(u8 *str, u16 x, u16 y, u16 width, u16 height, u8 font, u16 
             xpos += font; //偏移
             str += 2;
 
-        }
-        else //是字符
-        {
-            if((xpos + font / 2) > (endx + 1))
-            {
+        } else { //是字符
+            if((xpos + font / 2) > (endx + 1)) {
                 xpos = x;
                 ypos += font;
             }
@@ -1002,7 +1002,9 @@ void gui_show_string(u8 *str, u16 x, u16 y, u16 width, u16 height, u8 font, u16 
             xpos += font / 2;
             str += 1;
         }
-        if(ypos > endy)break; //超过了显示区域了.
+        if(ypos > endy) {
+            break;    //超过了显示区域了.
+        }
     }
 }
 //由此处开始向前寻找gbk码(即大于0x80的字节)的个数
@@ -1012,10 +1014,11 @@ void gui_show_string(u8 *str, u16 x, u16 y, u16 width, u16 height, u8 font, u16 
 u16 gui_string_forwardgbk_count(u8 *str, u16 pos)
 {
     u16 t = 0;
-    while(str[pos] > 0x80)
-    {
+    while(str[pos] > 0x80) {
         t++;
-        if(pos == 0)break;
+        if(pos == 0) {
+            break;
+        }
         pos--;
     }
     return t;
@@ -1028,8 +1031,7 @@ u16 gui_string_forwardgbk_count(u8 *str, u16 pos)
 void gui_memset(void *p, u8 c, u32 len)
 {
     u8 *pt = (u8 *)p;
-    while(len)
-    {
+    while(len) {
         *pt = c;
         pt++;
         len--;

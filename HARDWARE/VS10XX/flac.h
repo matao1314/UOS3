@@ -1,7 +1,6 @@
 #define VS1053B_PATCHLEN  5433  //with FLAC decoder       
 //VS1053B: Patches with FLAC decoder 1.1 (2009-06-23)
-const unsigned short vs1053b_patch[VS1053B_PATCHLEN] =
-{
+const unsigned short vs1053b_patch[VS1053B_PATCHLEN] = {
     0x0007, 0x0001, 0x8300, 0x0006, 0x0202, 0xb080, 0x0024, 0x0007, /*    0 */
     0x9257, 0x3f00, 0x0024, 0x0030, 0x0297, 0x3f00, 0x0024, 0x0006, /*    8 */
     0x0017, 0x3f10, 0x0024, 0x3f00, 0x0024, 0x0000, 0xf8d7, 0xf400, /*   10 */

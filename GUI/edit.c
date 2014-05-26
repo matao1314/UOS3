@@ -13,9 +13,13 @@ _edit_obj *edit_creat(u16 left, u16 top, u16 width, u16 height, u8 id, u8 type, 
 {
     _edit_obj *edit_crt;
     u16 temp;
-    if(width < 6 + 6 || height < 12 + 6)return NULL; //尺寸不能太小
+    if(width < 6 + 6 || height < 12 + 6) {
+        return NULL;    //尺寸不能太小
+    }
     edit_crt = (_edit_obj *)gui_memin_malloc(sizeof(_edit_obj)); //分配内存
-    if(edit_crt == NULL)return NULL; //内存分配不够.
+    if(edit_crt == NULL) {
+        return NULL;    //内存分配不够.
+    }
     edit_crt->top = top;
     edit_crt->left = left;
     edit_crt->width = width;
@@ -27,8 +31,7 @@ _edit_obj *edit_creat(u16 left, u16 top, u16 width, u16 height, u8 id, u8 type, 
     edit_crt->font = font;			//字体
     temp = (edit_crt->width - 6) / (edit_crt->font / 2) + 1;
     edit_crt->text = gui_memin_malloc(temp); //为edit申请字符串存储空间
-    if(edit_crt->text == NULL)		//申请失败
-    {
+    if(edit_crt->text == NULL) {	//申请失败
         edit_delete(edit_crt);
         return NULL;
     }
@@ -61,9 +64,10 @@ void edit_draw_cursor(_edit_obj *editx, u16 color)
     u8 i;
     x = edit_get_cursorxpos(editx); //光标的X坐标
     y = editx->top + 3;
-    for(i = 0; i < editx->font; i++)
-    {
-        if(i > (editx->top + editx->height - 3 - y))break; //剩余部分不需要显示
+    for(i = 0; i < editx->font; i++) {
+        if(i > (editx->top + editx->height - 3 - y)) {
+            break;    //剩余部分不需要显示
+        }
         gui_phy.draw_point(x, y + i, color);
         gui_phy.draw_point(x + 1, y + i, color);
     }
@@ -75,31 +79,29 @@ void edit_show_cursor(_edit_obj *editx, u8 sta)
 {
     u8 txt[3];
     u16 color;
-    if((editx->type & 0x02) == 0) //不用显示光标
-    {
-        if((editx->sta & 0x02) == 0)sta = 0; //之前是有显示光标的,先清除光标
-        else return;
+    if((editx->type & 0x02) == 0) { //不用显示光标
+        if((editx->sta & 0x02) == 0) {
+            sta = 0;    //之前是有显示光标的,先清除光标
+        } else {
+            return;
+        }
     }
-    if(sta == 0)
-    {
+    if(sta == 0) {
         color = editx->textbkcolor; //不需要显示,用背景色
         editx->sta &= ~(1 << 1); //设置状态为未显示
-    }
-    else
-    {
+    } else {
         color = editx->textcolor; //需要显示,用文字色
         editx->sta |= 1 << 1; //设置状态为显示
     }
     edit_draw_cursor(editx, color); //显示光标
-    if(sta == 0) //不要显示光标
-    {
+    if(sta == 0) { //不要显示光标
         txt[0] = editx->text[editx->cursorpos];
-        if(txt[0] > 0X80)
-        {
+        if(txt[0] > 0X80) {
             txt[1] = editx->text[editx->cursorpos + 1];
             txt[2] = '\0';
+        } else {
+            txt[1] = '\0';
         }
-        else txt[1] = '\0';
         gui_show_ptstr(edit_get_cursorxpos(editx), editx->top + 3, editx->left + editx->width - 3, editx->top + editx->height - 3, 0, editx->textcolor, editx->font, txt, 0); //-4是因为边框占了3个像素,另外空一个像素
     }
 
@@ -108,11 +110,13 @@ void edit_show_cursor(_edit_obj *editx, u8 sta)
 //editx:编辑框
 void edit_cursor_flash(_edit_obj *editx)
 {
-    if(gui_disabs(editx->edit_timer_old, GUI_TIMER_10MS) >= 50) //超过ms了.
-    {
+    if(gui_disabs(editx->edit_timer_old, GUI_TIMER_10MS) >= 50) { //超过ms了.
         editx->edit_timer_old = GUI_TIMER_10MS;
-        if(editx->sta & 0x02)edit_show_cursor(editx, 0); //之前是显示出来了的
-        else edit_show_cursor(editx, 1); //之前没有显示出来
+        if(editx->sta & 0x02) {
+            edit_show_cursor(editx, 0);    //之前是显示出来了的
+        } else {
+            edit_show_cursor(editx, 1);    //之前没有显示出来
+        }
     }
 }
 //显示文字串
@@ -135,43 +139,39 @@ void edit_add_text(_edit_obj *editx, u8 *str)
     u16 temp;
     u16 temp2;
     u8 *laststr = '\0';
-    if(*str != NULL) //有内容
-    {
+    if(*str != NULL) { //有内容
         tempstr = editx->text + editx->cursorpos;
-        if(*str != 0x08) //不是退格
-        {
+        if(*str != 0x08) { //不是退格
             temp = strlen((const char *)str) + strlen((const char *)editx->text); //得到他们相加后的长度
             temp2 = (editx->width - 6) / (editx->font / 2); //得到编辑框所支持的最大长度
-            if(temp2 < temp)
-            {
-                if(editx->type & 0x01) //自动清除型edit,超过范围直接清空
-                {
+            if(temp2 < temp) {
+                if(editx->type & 0x01) { //自动清除型edit,超过范围直接清空
                     editx->cursorpos = 0; //光标回0
                     tempstr = '\0';
+                } else {
+                    return;    //太长了.直接不执行操作
                 }
-                else return; //太长了.直接不执行操作
             }
         }
-        if(tempstr != '\0') //不是结束符
-        {
+        if(tempstr != '\0') { //不是结束符
             temp = strlen((const char *)tempstr); //得到tempstr的长度
             laststr = gui_memin_malloc(temp + 1); //申请内存
-            if(laststr == NULL)return; //申请失败,直接退出.
+            if(laststr == NULL) {
+                return;    //申请失败,直接退出.
+            }
             laststr[0] = '\0'; //结束符
             strcpy((char *)laststr, (const char *)tempstr); //复制tempstr的内容到laststr
         }
-        if(*str == 0x08) //退格
-        {
-            if(editx->cursorpos > 0) //可以退格
-            {
+        if(*str == 0x08) { //退格
+            if(editx->cursorpos > 0) { //可以退格
                 editx->cursorpos--;
-                if(editx->text[editx->cursorpos] > 0x80)editx->cursorpos--; //是汉字,要退2格
+                if(editx->text[editx->cursorpos] > 0x80) {
+                    editx->cursorpos--;    //是汉字,要退2格
+                }
                 editx->text[editx->cursorpos] = '\0'; //添加结束符
                 strcat((char *)editx->text, (const char *)laststr); //再将他们拼起来
             }
-        }
-        else if(*str >= ' ') //是字符串
-        {
+        } else if(*str >= ' ') { //是字符串
             editx->text[editx->cursorpos] = '\0'; //添加结束符
             strcat((char *)editx->text, (const char *)str); //凑起来
             editx->cursorpos += strlen((const char *)str); //光标偏移
@@ -186,7 +186,9 @@ void edit_add_text(_edit_obj *editx, u8 *str)
 void edit_draw(_edit_obj *editx)
 {
     u8 sta;
-    if(editx == NULL)return; //无效,直接退出
+    if(editx == NULL) {
+        return;    //无效,直接退出
+    }
     sta = editx->sta & 0x03;
     gui_draw_vline(editx->left, editx->top, editx->height, EDIT_RIM_LTOC);			//左外线
     gui_draw_hline(editx->left, editx->top, editx->width, EDIT_RIM_LTOC);			//上外线
@@ -198,11 +200,8 @@ void edit_draw(_edit_obj *editx)
     gui_draw_hline(editx->left + 1, editx->top + editx->height - 2, editx->width - 2, EDIT_RIM_RBIC);	//下内线
     edit_draw_text(editx);
 
-    if(sta & 0x80) //编辑框选中有效
-    {
-    }
-    else
-    {
+    if(sta & 0x80) { //编辑框选中有效
+    } else {
     }
 }
 
@@ -214,17 +213,21 @@ void edit_cursor_set(_edit_obj *editx, u16 x)
 {
     u16 newpos;
     u16 maxpos = strlen((const char *)editx->text);
-    if(x > editx->left + 3)
-    {
+    if(x > editx->left + 3) {
         x -= editx->left + 3;
         newpos = x / (editx->font / 2);
-        if((x % (editx->font / 2)) > editx->font / 2)newpos += 1; //大于font/2,则认为在下一个位置
+        if((x % (editx->font / 2)) > editx->font / 2) {
+            newpos += 1;    //大于font/2,则认为在下一个位置
+        }
         edit_show_cursor(editx, 0);		//清除前一次光标的位置
-        if(newpos > maxpos)newpos = maxpos;	//不能超过text的长度
-        if(newpos > 0)
-        {
+        if(newpos > maxpos) {
+            newpos = maxpos;    //不能超过text的长度
+        }
+        if(newpos > 0) {
             maxpos = gui_string_forwardgbk_count(editx->text, newpos - 1); //得到之前的汉字内码个数.
-            if((maxpos % 2) != 0)newpos++; //是在汉字中间,需要跳过一个字节
+            if((maxpos % 2) != 0) {
+                newpos++;    //是在汉字中间,需要跳过一个字节
+            }
         }
         editx->cursorpos = newpos;
         edit_show_cursor(editx, 1); //重新显示新的光标
@@ -238,12 +241,10 @@ void edit_cursor_set(_edit_obj *editx, u16 x)
 u8 edit_check(_edit_obj *editx, void *in_key)
 {
     _in_obj *key = (_in_obj *)in_key;
-    switch(key->intype)
-    {
+    switch(key->intype) {
     case IN_TYPE_TOUCH:	//触摸屏按下了
         edit_cursor_flash(editx);
-        if(editx->top < key->y && key->y < (editx->top + editx->height) && (editx->left < key->x) && key->x < (editx->left + editx->width)) //在edit框内部
-        {
+        if(editx->top < key->y && key->y < (editx->top + editx->height) && (editx->left < key->x) && key->x < (editx->left + editx->width)) { //在edit框内部
             edit_cursor_set(editx, key->x); //得到当前光标的x坐标
 
         }
@@ -266,7 +267,9 @@ void edit_test(u16 x, u16 y, u16 width, u16 height, u8 type, u8 sta, u8 *text)
 {
     _edit_obj *tedit;
     tedit = edit_creat(x, y, width, height, 0, type, 16); //创建按钮
-    if(tedit == NULL)return; //创建失败.
+    if(tedit == NULL) {
+        return;    //创建失败.
+    }
     tedit->sta = sta;
     strcpy((char *)tedit->text, (const char *)text);
     edit_draw(tedit);//画按钮

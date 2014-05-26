@@ -3,8 +3,7 @@
 #include "sys.h"
 
 //时间结构体
-typedef struct
-{
+typedef struct {
     vu8 hour;
     vu8 min;
     vu8 sec;

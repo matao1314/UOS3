@@ -24,8 +24,7 @@
 
 
 //memo结构体定义
-__packed typedef struct
-{
+__packed typedef struct {
     u16 top; 				  		//memo顶端坐标
     u16 left;                       //memo左端坐标
     u16 width; 				  		//memo宽度(包含滚动条的宽度)

@@ -18,10 +18,16 @@
 _scrollbar_obj *scrollbar_creat(u16 left, u16 top, u16 width, u16 height, u8 type)
 {
     _scrollbar_obj *scrollbar_crt;
-    if((type & 0x80) == SCROLLBAR_DIR_HOR && (width < 2 * SCROLLBAR_PART_LEN || height < SCROLLBAR_MIN_THICK))return NULL; //尺寸不能太小
-    if((type & 0x80) == SCROLLBAR_DIR_VER && (width < SCROLLBAR_MIN_THICK || height < 2 * SCROLLBAR_PART_LEN))return NULL; //尺寸不能太小
+    if((type & 0x80) == SCROLLBAR_DIR_HOR && (width < 2 * SCROLLBAR_PART_LEN || height < SCROLLBAR_MIN_THICK)) {
+        return NULL;    //尺寸不能太小
+    }
+    if((type & 0x80) == SCROLLBAR_DIR_VER && (width < SCROLLBAR_MIN_THICK || height < 2 * SCROLLBAR_PART_LEN)) {
+        return NULL;    //尺寸不能太小
+    }
     scrollbar_crt = (_scrollbar_obj *)gui_memin_malloc(sizeof(_scrollbar_obj)); //分配内存
-    if(scrollbar_crt == NULL)return NULL; //内存分配不够.
+    if(scrollbar_crt == NULL) {
+        return NULL;    //内存分配不够.
+    }
     gui_memset((u8 *)scrollbar_crt, 0, sizeof(_scrollbar_obj)); //将scrollbar_crt的值全部设置为0
     scrollbar_crt->top = top;
     scrollbar_crt->left = left;
@@ -59,15 +65,19 @@ u8 scrollbar_check(_scrollbar_obj *scbx, void *in_key)
     u32 temp, temp1;
     u16 maxtopitem;//最大的顶部条目
     u8  scbplen;
-    if((scbx->type & 0X03) == SCROLLBAR_TYPE_NBT)scbplen = 0; //无端按钮的情况
-    else scbplen = SCROLLBAR_PART_LEN;  		   	//两端有按钮
-    if(scbx->totalitems >= scbx->itemsperpage)maxtopitem = scbx->totalitems - scbx->itemsperpage;
-    else maxtopitem = 0;
-    switch(key->intype)
-    {
+    if((scbx->type & 0X03) == SCROLLBAR_TYPE_NBT) {
+        scbplen = 0;    //无端按钮的情况
+    } else {
+        scbplen = SCROLLBAR_PART_LEN;    //两端有按钮
+    }
+    if(scbx->totalitems >= scbx->itemsperpage) {
+        maxtopitem = scbx->totalitems - scbx->itemsperpage;
+    } else {
+        maxtopitem = 0;
+    }
+    switch(key->intype) {
     case IN_TYPE_TOUCH:	//触摸屏按下了
-        if((scbx->type & 0x80) == SCROLLBAR_DIR_HOR) //水平滚动条
-        {
+        if((scbx->type & 0x80) == SCROLLBAR_DIR_HOR) { //水平滚动条
             temp = key->x;								//当前x坐标
             temp1 = scbx->left + scbplen + scbx->scbbarlen / 2;	//滑动条起始位置
 
@@ -79,9 +89,7 @@ u8 scrollbar_check(_scrollbar_obj *scbx, void *in_key)
             b1yoff = 0;									//第一个按钮的y方向偏移
             b2xoff = scbx->width - scbplen;					//第二个按钮的x方向偏移
             b2yoff = 0;	 						  		//第二个按钮的y方向偏移
-        }
-        else
-        {
+        } else {
             temp = key->y; //当前y坐标
             temp1 = scbx->top + scbplen + scbx->scbbarlen / 2; //滑动条起始位置
 
@@ -94,15 +102,15 @@ u8 scrollbar_check(_scrollbar_obj *scbx, void *in_key)
             b2xoff = 0;							   		//第二个按钮的x方向偏移
             b2yoff = scbx->height - scbplen;				//第二个按钮的y方向偏移
         }
-        if((scbx->type & 0x80) == SCROLLBAR_DIR_HOR)signx = SCROLLBAR_SIGN_LEFT; //水平
-        else signx = SCROLLBAR_SIGN_UP; //水平
+        if((scbx->type & 0x80) == SCROLLBAR_DIR_HOR) {
+            signx = SCROLLBAR_SIGN_LEFT;    //水平
+        } else {
+            signx = SCROLLBAR_SIGN_UP;    //水平
+        }
         //在最左/上端按钮内部
-        if(y < key->y && key->y < (y + btnh) && x < key->x && key->x < (x + btnw))
-        {
-            if(scbx->topitem)//修改进度条的位置.
-            {
-                if((scbx->sta & SCROLLBAR_BTN_LTP) == 0) //原来不是SCROLLBAR_BTN_LTP被按下
-                {
+        if(y < key->y && key->y < (y + btnh) && x < key->x && key->x < (x + btnw)) {
+            if(scbx->topitem) { //修改进度条的位置.
+                if((scbx->sta & SCROLLBAR_BTN_LTP) == 0) { //原来不是SCROLLBAR_BTN_LTP被按下
                     scbx->sta |= SCROLLBAR_BTN_LTP; //按下
                     alphacolor = gui_alpha_blend565(scbx->btncolor, GUI_COLOR_WHITE, 16);
                     //画按钮
@@ -111,21 +119,19 @@ u8 scrollbar_check(_scrollbar_obj *scbx, void *in_key)
                 scbx->topitem--;
                 scrollbar_setpos(scbx);
             }
-        }
-        else if(scbx->sta & SCROLLBAR_BTN_LTP) //原来状态是按下的
-        {
+        } else if(scbx->sta & SCROLLBAR_BTN_LTP) { //原来状态是按下的
             scbx->sta &= ~SCROLLBAR_BTN_LTP;
             scrollbar_draw_btn(x, y, btnw, btnh, scbx->btncolor, scbx->rimcolor, SCROLLBAR_SIGN_RCOLOR, signx);
         }
-        if((scbx->type & 0x80) == SCROLLBAR_DIR_HOR)signx = SCROLLBAR_SIGN_RIGHT; //水平
-        else signx = SCROLLBAR_SIGN_DOWN; //水平
+        if((scbx->type & 0x80) == SCROLLBAR_DIR_HOR) {
+            signx = SCROLLBAR_SIGN_RIGHT;    //水平
+        } else {
+            signx = SCROLLBAR_SIGN_DOWN;    //水平
+        }
         //在最右/下端按钮内部
-        if((y + b2yoff) < key->y && key->y < (y + scbx->height) && (x + b2xoff) < key->x && key->x < (x + scbx->width))
-        {
-            if(maxtopitem && scbx->topitem < maxtopitem) //修改进度条的位置.
-            {
-                if((scbx->sta & SCROLLBAR_BTN_RBP) == 0) //原来不是SCROLLBAR_BTN_RBP被按下
-                {
+        if((y + b2yoff) < key->y && key->y < (y + scbx->height) && (x + b2xoff) < key->x && key->x < (x + scbx->width)) {
+            if(maxtopitem && scbx->topitem < maxtopitem) { //修改进度条的位置.
+                if((scbx->sta & SCROLLBAR_BTN_RBP) == 0) { //原来不是SCROLLBAR_BTN_RBP被按下
                     scbx->sta |= SCROLLBAR_BTN_RBP; //按下
                     alphacolor = gui_alpha_blend565(scbx->btncolor, GUI_COLOR_WHITE, 16);
                     //画按钮
@@ -134,27 +140,31 @@ u8 scrollbar_check(_scrollbar_obj *scbx, void *in_key)
                 scbx->topitem++;
                 scrollbar_setpos(scbx);
             }
-        }
-        else if(scbx->sta & SCROLLBAR_BTN_RBP) //原来状态是按下的
-        {
+        } else if(scbx->sta & SCROLLBAR_BTN_RBP) { //原来状态是按下的
             scbx->sta &= ~SCROLLBAR_BTN_RBP;
             scrollbar_draw_btn(x + b2xoff, y + b2yoff, btnw, btnh, scbx->btncolor, scbx->rimcolor, SCROLLBAR_SIGN_RCOLOR, signx);
         }
         //在中间
-        if((y + b1yoff) < key->y && key->y < (y + scbx->height - b1yoff) && (x + b1xoff) < key->x && key->x < (x + scbx->width - b1xoff))
-        {
-            if((scbx->sta & SCROLLBAR_BTN_MID) == 0)scbx->sta = SCROLLBAR_BTN_MID; //原来不是SCROLLBAR_BTN_MID被按下
-            if(temp >= temp1)temp -= temp1;
-            else temp = 0;
+        if((y + b1yoff) < key->y && key->y < (y + scbx->height - b1yoff) && (x + b1xoff) < key->x && key->x < (x + scbx->width - b1xoff)) {
+            if((scbx->sta & SCROLLBAR_BTN_MID) == 0) {
+                scbx->sta = SCROLLBAR_BTN_MID;    //原来不是SCROLLBAR_BTN_MID被按下
+            }
+            if(temp >= temp1) {
+                temp -= temp1;
+            } else {
+                temp = 0;
+            }
             temp = (temp * maxtopitem) / (b2xoff + b2yoff - scbplen - scbx->scbbarlen);
-            if(temp > maxtopitem)temp = maxtopitem;
-            if(scbx->topitem != temp) //得到当前坐标
-            {
+            if(temp > maxtopitem) {
+                temp = maxtopitem;
+            }
+            if(scbx->topitem != temp) { //得到当前坐标
                 scbx->topitem = temp;
                 scrollbar_setpos(scbx);
             }
+        } else if(scbx->sta & SCROLLBAR_BTN_MID) {
+            scbx->sta &= ~SCROLLBAR_BTN_MID;    //原来状态是按下的
         }
-        else if(scbx->sta & SCROLLBAR_BTN_MID)scbx->sta &= ~SCROLLBAR_BTN_MID; //原来状态是按下的
         break;
     case IN_TYPE_KEY:	//按键数据
         break;
@@ -170,8 +180,7 @@ u8 scrollbar_check(_scrollbar_obj *scbx, void *in_key)
 
 
 //6个 8*8的两个标志图案
-const u8 scrollsign[6][8] =
-{
+const u8 scrollsign[6][8] = {
     {0x00, 0x00, 0x10, 0x38, 0x7C, 0xFE, 0x00, 0x00},		//上图标
     {0x00, 0x00, 0xFE, 0x7C, 0x38, 0x10, 0x00, 0x00},		//下图标
     {0x04, 0x0C, 0x1C, 0x3C, 0x1C, 0x0C, 0x04, 0x00}, 		//左图标
@@ -190,12 +199,12 @@ void scrollbar_draw_sign(u16 x, u16 y, u16 signcolor, u8 signx)
     u8 *signbuf;
     u8 temp;
     signbuf = (u8 *)scrollsign[signx]; //得到图标像素阵列
-    for(i = 0; i < 8; i++)
-    {
+    for(i = 0; i < 8; i++) {
         temp = signbuf[i];
-        for(j = 0; j < 8; j++)
-        {
-            if(temp & 0x80)gui_phy.draw_point(x + j, y + i, signcolor);
+        for(j = 0; j < 8; j++) {
+            if(temp & 0x80) {
+                gui_phy.draw_point(x + j, y + i, signcolor);
+            }
             temp <<= 1;
         }
     }
@@ -210,8 +219,7 @@ void scrollbar_draw_btn(u16 x, u16 y, u16 width, u16 height, u16 bkcolor, u16 ri
 {
     gui_fill_rectangle(x, y, width, height, bkcolor); //填充内部颜色
     gui_draw_rectangle(x, y, width, height, rimcolor); //画外边框
-    if(width >= 8 && height >= 8) //足够画图标
-    {
+    if(width >= 8 && height >= 8) { //足够画图标
         scrollbar_draw_sign(x + width / 2 - 4, y + height / 2 - 4, signcolor, signx);
     }
 }
@@ -224,18 +232,18 @@ void scrollbar_setpos(_scrollbar_obj *scbx)
     u16 x, y, xlen, ylen;
     u8 scbtype;
     u8 scbplen;
-    if((scbx->type & 0X03) == SCROLLBAR_TYPE_NBT)scbplen = 0; //两端没有按钮
-    else scbplen = SCROLLBAR_PART_LEN;			//两端有按钮
-    if((scbx->type & 0x80) == SCROLLBAR_DIR_VER) //垂直滚动条
-    {
+    if((scbx->type & 0X03) == SCROLLBAR_TYPE_NBT) {
+        scbplen = 0;    //两端没有按钮
+    } else {
+        scbplen = SCROLLBAR_PART_LEN;    //两端有按钮
+    }
+    if((scbx->type & 0x80) == SCROLLBAR_DIR_VER) { //垂直滚动条
         scblen = scbx->height - 2 * scbplen - scbx->scbbarlen; //得到滚动条滚动空间的长度
         x = scbx->left + 1;
         y = scbx->top + scbplen + 1;
         xlen = scbx->width - 2;
         ylen = scblen + scbx->scbbarlen - 2;
-    }
-    else   //水平滚动条
-    {
+    } else { //水平滚动条
         scblen = scbx->width - 2 * scbplen - scbx->scbbarlen;
         x = scbx->left + scbplen + 1;
         y = scbx->top + 1;
@@ -244,29 +252,21 @@ void scrollbar_setpos(_scrollbar_obj *scbx)
     }
     gui_fill_rectangle(x, y, xlen, ylen, scbx->inbkcolor);  	//清空上次的位置
 
-    if(scbx->totalitems <= scbx->itemsperpage) //总条目不够一页显示的
-    {
+    if(scbx->totalitems <= scbx->itemsperpage) { //总条目不够一页显示的
         scbpos = scblen;
-    }
-    else if(scbx->topitem >= (scbx->totalitems - scbx->itemsperpage)) //当前选择项大于等于最后一页的第一项
-    {
+    } else if(scbx->topitem >= (scbx->totalitems - scbx->itemsperpage)) { //当前选择项大于等于最后一页的第一项
         scbx->topitem = scbx->totalitems - scbx->itemsperpage; //范围限定在最后一页第一项
         scbpos = scblen;
-    }
-    else	  //不是最后一页
-    {
+    } else { //不是最后一页
         scbpos = (scbx->topitem * scblen) / (scbx->totalitems - scbx->itemsperpage); //计算当前滚动条的位置
     }
-    if((scbx->type & 0x80) == SCROLLBAR_DIR_VER) //垂直滚动条
-    {
+    if((scbx->type & 0x80) == SCROLLBAR_DIR_VER) { //垂直滚动条
         x = scbx->left;
         y = scbx->top + scbplen + scbpos;
         xlen = scbx->width;
         ylen = scbx->scbbarlen;
         scbtype = SCROLLBAR_SIGN_HOR;
-    }
-    else //水平滚动条
-    {
+    } else { //水平滚动条
         x = scbx->left + scbplen + scbpos;
         y = scbx->top;
         xlen = scbx->scbbarlen;
@@ -281,31 +281,33 @@ void scrollbar_setpos(_scrollbar_obj *scbx)
 void scrollbar_draw_scrollbar(_scrollbar_obj *scbx)
 {
     u32 scbactlen = 0; //滚动条可以滚动的空间长度
-    if(scbx == NULL)return; //无效,直接退出
+    if(scbx == NULL) {
+        return;    //无效,直接退出
+    }
     gui_fill_rectangle(scbx->left, scbx->top, scbx->width, scbx->height, scbx->inbkcolor);
     gui_draw_rectangle(scbx->left, scbx->top, scbx->width, scbx->height, scbx->rimcolor);
-    if((scbx->type & 0X03) == 0) //标准滚动条
-    {
-        if((scbx->type & 0x80) == 0) //水平滚动条
-        {
+    if((scbx->type & 0X03) == 0) { //标准滚动条
+        if((scbx->type & 0x80) == 0) { //水平滚动条
             scrollbar_draw_btn(scbx->left, scbx->top, SCROLLBAR_PART_LEN, scbx->height, scbx->btncolor, scbx->rimcolor, SCROLLBAR_SIGN_RCOLOR, SCROLLBAR_SIGN_LEFT);
             scrollbar_draw_btn(scbx->left + scbx->width - SCROLLBAR_PART_LEN, scbx->top, SCROLLBAR_PART_LEN, scbx->height, scbx->btncolor, scbx->rimcolor, SCROLLBAR_SIGN_RCOLOR, SCROLLBAR_SIGN_RIGHT);
             scbactlen = scbx->width - 2 * SCROLLBAR_PART_LEN; //可供 滚动条滚动的空间范围
-        }
-        else  //垂直滚动条
-        {
+        } else { //垂直滚动条
             scrollbar_draw_btn(scbx->left, scbx->top, scbx->width, SCROLLBAR_PART_LEN, scbx->btncolor, scbx->rimcolor, SCROLLBAR_SIGN_RCOLOR, SCROLLBAR_SIGN_UP);
             scrollbar_draw_btn(scbx->left, scbx->top + scbx->height - SCROLLBAR_PART_LEN, scbx->width, SCROLLBAR_PART_LEN, scbx->btncolor, scbx->rimcolor, SCROLLBAR_SIGN_RCOLOR, SCROLLBAR_SIGN_DOWN);
             scbactlen = scbx->height - 2 * SCROLLBAR_PART_LEN; //可供 滚动条滚动的空间范围
         }
+    } else { //没有两端按钮的滚动条
+        if((scbx->type & 0x80) == 0) {
+            scbactlen = scbx->width;    //水平滚动条
+        } else {
+            scbactlen = scbx->height;    //垂直滚动条
+        }
     }
-    else //没有两端按钮的滚动条
-    {
-        if((scbx->type & 0x80) == 0)scbactlen = scbx->width; //水平滚动条
-        else scbactlen = scbx->height; //垂直滚动条
+    if(scbx->itemsperpage > scbx->totalitems) {
+        scbx->scbbarlen = scbactlen;
+    } else {
+        scbx->scbbarlen = (scbactlen * scbx->itemsperpage) / scbx->totalitems;    //得到滚动条的长度
     }
-    if(scbx->itemsperpage > scbx->totalitems)scbx->scbbarlen = scbactlen;
-    else scbx->scbbarlen = (scbactlen * scbx->itemsperpage) / scbx->totalitems; //得到滚动条的长度
     scrollbar_setpos(scbx);
 }
 
@@ -323,7 +325,9 @@ void test_scb(u16 x, u16 y, u16 width, u16 height, u8 type, u16 icur, u16 inbkco
 {
     _scrollbar_obj *tscb;
     tscb = scrollbar_creat(y, x, width, height, type); //创建滚动条
-    if(tscb == NULL)return; //创建失败.
+    if(tscb == NULL) {
+        return;    //创建失败.
+    }
 
     tscb->totalitems = 50;
     tscb->itemsperpage = 8;

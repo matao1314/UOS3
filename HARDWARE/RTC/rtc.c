@@ -24,20 +24,20 @@ u8 RTC_Init(void)
 {
     //检查是不是第一次配置时钟
     u8 temp = 0;
-    if(BKP->DR1 != 0X5050) //第一次配置
-    {
+    if(BKP->DR1 != 0X5050) { //第一次配置
         RCC->APB1ENR |= 1 << 28; //使能电源时钟
         RCC->APB1ENR |= 1 << 27; //使能备份时钟
         PWR->CR |= 1 << 8;       //取消备份区写保护
         RCC->BDCR |= 1 << 16;    //备份区域软复位
         RCC->BDCR &= ~(1 << 16); //备份区域软复位结束
         RCC->BDCR |= 1 << 0;     //开启外部低速振荡器
-        while((!(RCC->BDCR & 0X02)) && temp < 250) //等待外部时钟就绪
-        {
+        while((!(RCC->BDCR & 0X02)) && temp < 250) { //等待外部时钟就绪
             temp++;
             delay_ms(10);
         }
-        if(temp >= 250)return 1; //初始化时钟失败,晶振有问题
+        if(temp >= 250) {
+            return 1;    //初始化时钟失败,晶振有问题
+        }
 
         RCC->BDCR |= 1 << 8; //LSI作为RTC时钟
         RCC->BDCR |= 1 << 15; //RTC时钟使能
@@ -55,9 +55,7 @@ u8 RTC_Init(void)
         while(!(RTC->CRL & (1 << 5))); //等待RTC寄存器操作完成
         BKP->DR1 = 0X5050;
         printf("FIRST TIME\n");
-    }
-    else //系统继续计时
-    {
+    } else { //系统继续计时
         while(!(RTC->CRL & (1 << 3))); //等待RTC寄存器同步
         RTC->CRH |= 0X01;  		 //允许秒中断
         while(!(RTC->CRL & (1 << 5))); //等待RTC寄存器操作完成
@@ -71,13 +69,11 @@ u8 RTC_Init(void)
 //每秒触发一次
 void RTC_IRQHandler(void)
 {
-    if(RTC->CRL & 0x0001) //秒钟中断
-    {
+    if(RTC->CRL & 0x0001) { //秒钟中断
         RTC_Get();//更新时间
         //printf("sec:%d\r\n",calendar.sec);
     }
-    if(RTC->CRL & 0x0002) //闹钟中断
-    {
+    if(RTC->CRL & 0x0002) { //闹钟中断
         RTC->CRL &= ~(0x0002);		//清闹钟中断
         //printf("Alarm!\n");
     }
@@ -92,16 +88,19 @@ void RTC_IRQHandler(void)
 //返回值:该年份是不是闰年.1,是.0,不是
 u8 Is_Leap_Year(u16 year)
 {
-    if(year % 4 == 0) //必须能被4整除
-    {
-        if(year % 100 == 0)
-        {
-            if(year % 400 == 0)return 1; //如果以00结尾,还要能被400整除
-            else return 0;
+    if(year % 4 == 0) { //必须能被4整除
+        if(year % 100 == 0) {
+            if(year % 400 == 0) {
+                return 1;    //如果以00结尾,还要能被400整除
+            } else {
+                return 0;
+            }
+        } else {
+            return 1;
         }
-        else return 1;
+    } else {
+        return 0;
     }
-    else return 0;
 }
 //设置时钟
 //把输入的时钟转换为秒钟
@@ -118,17 +117,22 @@ u8 RTC_Set(u16 syear, u8 smon, u8 sday, u8 hour, u8 min, u8 sec)
 {
     u16 t;
     u32 seccount = 0;
-    if(syear < 1970 || syear > 2099)return 1;
-    for(t = 1970; t < syear; t++)	//把所有年份的秒钟相加
-    {
-        if(Is_Leap_Year(t))seccount += 31622400; //闰年的秒钟数
-        else seccount += 31536000;			 //平年的秒钟数
+    if(syear < 1970 || syear > 2099) {
+        return 1;
+    }
+    for(t = 1970; t < syear; t++) {	//把所有年份的秒钟相加
+        if(Is_Leap_Year(t)) {
+            seccount += 31622400;    //闰年的秒钟数
+        } else {
+            seccount += 31536000;    //平年的秒钟数
+        }
     }
     smon -= 1;
-    for(t = 0; t < smon; t++)	 //把前面月份的秒钟数相加
-    {
+    for(t = 0; t < smon; t++) { //把前面月份的秒钟数相加
         seccount += (u32)mon_table[t] * 86400; //月份秒钟数相加
-        if(Is_Leap_Year(syear) && t == 1)seccount += 86400; //闰年2月份增加一天的秒钟数
+        if(Is_Leap_Year(syear) && t == 1) {
+            seccount += 86400;    //闰年2月份增加一天的秒钟数
+        }
     }
     seccount += (u32)(sday - 1) * 86400; //把前面日期的秒钟数相加
     seccount += (u32)hour * 3600; //小时秒钟数
@@ -161,37 +165,37 @@ u8 RTC_Get(void)
     timecount += RTC->CNTL;
 
     temp = timecount / 86400; //得到天数(秒钟数对应的)
-    if(daycnt != temp) //超过一天了
-    {
+    if(daycnt != temp) { //超过一天了
         daycnt = temp;
         temp1 = 1970;	//从1970年开始
-        while(temp >= 365)
-        {
-            if(Is_Leap_Year(temp1))//是闰年
-            {
-                if(temp >= 366)temp -= 366; //闰年的秒钟数
-                else
-                {
+        while(temp >= 365) {
+            if(Is_Leap_Year(temp1)) { //是闰年
+                if(temp >= 366) {
+                    temp -= 366;    //闰年的秒钟数
+                } else {
                     temp1++;
                     break;
                 }
+            } else {
+                temp -= 365;    //平年
             }
-            else temp -= 365;	 //平年
             temp1++;
         }
         calendar.w_year = temp1; //得到年份
         temp1 = 0;
-        while(temp >= 28) //超过了一个月
-        {
-            if(Is_Leap_Year(calendar.w_year) && temp1 == 1) //当年是不是闰年/2月份
-            {
-                if(temp >= 29)temp -= 29; //闰年的秒钟数
-                else break;
-            }
-            else
-            {
-                if(temp >= mon_table[temp1])temp -= mon_table[temp1]; //平年
-                else break;
+        while(temp >= 28) { //超过了一个月
+            if(Is_Leap_Year(calendar.w_year) && temp1 == 1) { //当年是不是闰年/2月份
+                if(temp >= 29) {
+                    temp -= 29;    //闰年的秒钟数
+                } else {
+                    break;
+                }
+            } else {
+                if(temp >= mon_table[temp1]) {
+                    temp -= mon_table[temp1];    //平年
+                } else {
+                    break;
+                }
             }
             temp1++;
         }
@@ -217,11 +221,15 @@ u8 RTC_Get_Week(u16 year, u8 month, u8 day)
     yearH = year / 100;
     yearL = year % 100;
     // 如果为21世纪,年份数加100
-    if (yearH > 19)yearL += 100;
+    if (yearH > 19) {
+        yearL += 100;
+    }
     // 所过闰年数只算1900年之后的
     temp2 = yearL + yearL / 4;
     temp2 = temp2 % 7;
     temp2 = temp2 + day + table_week[month - 1];
-    if (yearL % 4 == 0 && month < 3)temp2--;
+    if (yearL % 4 == 0 && month < 3) {
+        temp2--;
+    }
     return(temp2 % 7);
 }

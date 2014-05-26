@@ -9,8 +9,7 @@ _m_mp3dev  *mp3dev = NULL;
 const u8 *FLAC_PATCH_PATH = "0:/SYSTEM/APP/MP3/FLAC.BIN";		//FLAC播放的PATCH的存放位置
 const u8 *SPEC_PATCH_PATH = "0:/SYSTEM/APP/MP3/SPCALZ.BIN";		//频谱分析的PATCH的存放位置
 const u8 *MP3_DEMO_PIC = "0:/SYSTEM/APP/MP3/Demo.bmp";			//demo图片路径
-const u8 *MP3_BTN_PIC_TBL[2][5] =  								//5个图片按钮的路径
-{
+const u8 *MP3_BTN_PIC_TBL[2][5] = {								//5个图片按钮的路径
     {
         "0:/SYSTEM/APP/MP3/ListR.bmp",
         "0:/SYSTEM/APP/MP3/PrevR.bmp",
@@ -44,62 +43,71 @@ void music_task(void *pdata)
     u8 *patchbuf = 0;
     u16 i = 0;
     u8 *pname = 0;
-  	//os 
+    //os
     CPU_TS ts;
     OS_ERR err;
     OS_MSG_SIZE msg_size;
     //VS_HD_Reset();
     //VS_Soft_Reset();
     OSQCreate(&MusicQ, "MusicQuene", 1, &err);
-    while(1)
-    {
-			(CPU_INT32U)OSQPend((OS_Q *)&MusicQ,
-												 (OS_TICK ) 0,
-												 (OS_OPT )OS_OPT_PEND_BLOCKING,
-												 (OS_MSG_SIZE *)&msg_size,
-												 (CPU_TS *)&ts,
-												 (OS_ERR *)&err); /* Process message received */
-			  mp3dev->curindex = msg_size-1;//传出消息队列中的当前选中的歌曲index
+    while(1) {
+        (CPU_INT32U)OSQPend((OS_Q *)&MusicQ,
+                            (OS_TICK ) 0,
+                            (OS_OPT )OS_OPT_PEND_BLOCKING,
+                            (OS_MSG_SIZE *)&msg_size,
+                            (CPU_TS *)&ts,
+                            (OS_ERR *)&err); /* Process message received */
+        mp3dev->curindex = msg_size - 1; //传出消息队列中的当前选中的歌曲index
         rval = 0;
-        databuf = (u8 *)mymalloc(SRAMIN,READ_BLOCK_SIZE);		//开辟512字节的内存区域
-        if(databuf == NULL)rval = 1 ;				//内存申请失败.
+        databuf = (u8 *)mymalloc(SRAMIN, READ_BLOCK_SIZE);		//开辟512字节的内存区域
+        if(databuf == NULL) {
+            rval = 1 ;    //内存申请失败.
+        }
         //为长文件名申请缓存区
         mp3info.lfsize = _MAX_LFN * 2 + 1;
         mp3info.lfname = gui_memin_malloc(mp3info.lfsize);
-        if(mp3info.lfname == NULL)rval = 1; //申请内存失败
-        else gui_memset((u8 *)mp3info.lfname, 0, mp3info.lfsize);
-        if(rval == 0)rval = f_opendir(&mp3dir, (const TCHAR *)mp3dev->path); //打开选中的目录
-        while(rval == 0)
-        {
+        if(mp3info.lfname == NULL) {
+            rval = 1;    //申请内存失败
+        } else {
+            gui_memset((u8 *)mp3info.lfname, 0, mp3info.lfsize);
+        }
+        if(rval == 0) {
+            rval = f_opendir(&mp3dir, (const TCHAR *)mp3dev->path);    //打开选中的目录
+        }
+        while(rval == 0) {
             dir_sdi(&mp3dir, mp3dev->mfindextbl[mp3dev->curindex]);
             rval = f_readdir(&mp3dir, &mp3info); //读取文件信息
-            if(rval)break;//打开成功
+            if(rval) {
+                break;    //打开成功
+            }
             mp3dev->name = (u8 *)(*mp3info.lfname ? mp3info.lfname : mp3info.fname);
             pname = gui_memin_malloc(strlen((const char *)mp3dev->name) + strlen((const char *)mp3dev->path) + 2); //申请内存
-            if(pname == NULL)break; //申请失败
+            if(pname == NULL) {
+                break;    //申请失败
+            }
             pname = gui_path_name(pname, mp3dev->path, mp3dev->name);	//文件名加入路径
-		printf("pname = %s\r\n",pname);
+            printf("pname = %s\r\n", pname);
             //VS_Restart_Play();  	//重启播放 VS1003与VS1053的寄存器有差别
             VS_Set_All();        	//设置音量等信息
             VS_Reset_DecodeTime();	//复位解码时间
             res = f_typetell(pname);
             ///////////////////////////////////////////////////////////////////////////////////
-            if(res == 0x4c) //flac
-            {
+            if(res == 0x4c) { //flac
                 res = f_open(mp3dev->fmp3, (const TCHAR *)FLAC_PATCH_PATH, FA_READ); //打开文件
                 mp3dev->sta |= 1 << 4; //标记为flac文件
-            }
-            else
-            {
+            } else {
                 res = f_open(mp3dev->fmp3, (const TCHAR *)SPEC_PATCH_PATH, FA_READ); //打开文件
                 mp3dev->sta &= ~(1 << 4); //标记为普通文件
             }
-            if(res)break;//打开flac patch错误
+            if(res) {
+                break;    //打开flac patch错误
+            }
             patchbuf = (u8 *)mymalloc(SRAMIN, mp3dev->fmp3->fsize);	//开辟fsize字节的内存区域
-            if(patchbuf == NULL)break; //申请内存失败
+            if(patchbuf == NULL) {
+                break;    //申请内存失败
+            }
             res = f_read(mp3dev->fmp3, patchbuf, mp3dev->fmp3->fsize, (UINT *)&br);	//一次读取整个文件
-            if(res == 0)
-            {
+            if(res == 0) {
                 VS_Load_Patch((u16 *)patchbuf, mp3dev->fmp3->fsize / 2);
             }
             myfree(SRAMIN, patchbuf);
@@ -109,56 +117,56 @@ void music_task(void *pdata)
             res = f_open(mp3dev->fmp3, (const TCHAR *)pname, FA_READ); //打开文件
             gui_memin_free(pname);
             pname = NULL;
-            if(res == 0) //打开成功.
-            {
+            if(res == 0) { //打开成功.
                 VS_SPI_SpeedHigh();	//高速
                 mp3dev->sta |= 1 << 7;	//标记开始解码MP3
                 mp3dev->sta |= 1 << 6;	//标记执行了一次歌曲的切换
-                while(1)
-                {
+                while(1) {
                     res = f_read(mp3dev->fmp3, databuf, READ_BLOCK_SIZE, (UINT *)&br);	//读出readlen个字节
-										printf("br = %d  res= %d\r\n",br,res);
+                    printf("br = %d  res= %d\r\n", br, res);
                     i = 0;
-                    do//主播放循环
-                    {
-                        if(VS_Send_MusicData(databuf + i) == 0) //给VS10XX发送音频数据
-                        {
+                    do { //主播放循环
+                        if(VS_Send_MusicData(databuf + i) == 0) { //给VS10XX发送音频数据
                             i += 32;
-                        }
-                        else
-                        {
+                        } else {
                             delay_ms(10);//允许调度
-                            while(mp3dev->sta & (1 << 5)) //如果请求暂停了
-                            {
+                            while(mp3dev->sta & (1 << 5)) { //如果请求暂停了
                                 delay_ms(10);//允许调度,同时等待非暂停
-                                if((mp3dev->sta & 0x01) == 0)break; //请求终止
+                                if((mp3dev->sta & 0x01) == 0) {
+                                    break;    //请求终止
+                                }
                             }
-                            if((mp3dev->sta & 0x01) == 0)break; //请求终止
-                        }	
-										printf("i = %i \r\n",i);
-                    }
-                    while(i < READ_BLOCK_SIZE); //循环发送4096个字节
-                    if(br != READ_BLOCK_SIZE || res != 0)
-                    {
+                            if((mp3dev->sta & 0x01) == 0) {
+                                break;    //请求终止
+                            }
+                        }
+                        printf("i = %i \r\n", i);
+                    } while(i < READ_BLOCK_SIZE); //循环发送4096个字节
+                    if(br != READ_BLOCK_SIZE || res != 0) {
                         break;//读完了.
                     }
 
-                    if((mp3dev->sta & 0x01) == 0)break; //请求终止
+                    if((mp3dev->sta & 0x01) == 0) {
+                        break;    //请求终止
+                    }
                 }
                 f_close(mp3dev->fmp3);
             }
-            if(mp3dev->sta & 0x01) //允许播放的条件下,循环播放
-            {
-                if(mp3dev->curindex < (mp3dev->mfilenum - 1))mp3dev->curindex++;
-                else mp3dev->curindex = 0;
+            if(mp3dev->sta & 0x01) { //允许播放的条件下,循环播放
+                if(mp3dev->curindex < (mp3dev->mfilenum - 1)) {
+                    mp3dev->curindex++;
+                } else {
+                    mp3dev->curindex = 0;
+                }
                 /*if(systemset.mp3mode==0)//顺序播放
                 {
                 }else if(systemset.mp3mode==1)//随机播放
                 {
                 	mp3dev->curindex=app_get_rand(mp3dev->mfilenum);//得到下一首歌曲的索引
                 }else mp3dev->curindex=mp3dev->curindex;//单曲循环	*/
+            } else {
+                break;
             }
-            else break;
         }
         gui_memin_free(pname);
         gui_memin_free(mp3info.lfname);
@@ -173,14 +181,13 @@ void music_task(void *pdata)
 void mp3_stop(_m_mp3dev *mp3devx)
 {
     mp3devx->sta &= ~(1 << 0);		//请求终止播放
-	  delay_ms(10);//允许调度
+    delay_ms(10);//允许调度
     while(mp3devx->sta & 0X80);  //等待播放停止
     mp3devx->sta |= 1 << 0;			//允许播放
 }
 
 //音乐列表
-const u8 *MUSIC_LIST[GUI_LANGUAGE_NUM] =
-{
+const u8 *MUSIC_LIST[GUI_LANGUAGE_NUM] = {
     "音乐列表", "音樂列表", "MUSIC LIST",
 };
 
@@ -198,38 +205,41 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
     _btn_obj *qbtn;		//退出按钮控件
     _filelistbox_obj *flistbox;
     _filelistbox_list *filelistx; 	//文件
- 
-  	OS_ERR err;
+
+    OS_ERR err;
     app_filebrower((u8 *)MUSIC_LIST[gui_phy.language], 0X07);	//选择目标文件,并得到目标数量
     flistbox = filelistbox_creat(0, 20, 240, 280, 1, 12);		//创建一个filelistbox
-    if(flistbox == NULL)rval = 1;							//申请内存失败.
-    else if(mp3devx->path == NULL)
-    {
+    if(flistbox == NULL) {
+        rval = 1;    //申请内存失败.
+    } else if(mp3devx->path == NULL) {
         flistbox->fliter = FLBOX_FLT_MUSIC;	//查找音乐文件
         filelistbox_addlist(flistbox, (u8 *)APP_DISK_NAME_TBL[0][gui_phy.language], 0);		//磁盘0
         filelistbox_draw_listbox(flistbox);
-    }
-    else
-    {
+    } else {
         flistbox->fliter = FLBOX_FLT_MUSIC;		//查找音乐文件
         flistbox->path = (u8 *)gui_memin_malloc(strlen((const char *)mp3devx->path) + 1); //为路径申请内存
         strcpy((char *)flistbox->path, (char *)mp3devx->path); //复制路径
         filelistbox_scan_filelist(flistbox);	//重新扫描列表
         flistbox->selindex = flistbox->foldercnt + mp3devx->curindex; //选中条目为当前正在播放的条目
-        if(flistbox->scbv->totalitems > flistbox->scbv->itemsperpage)flistbox->scbv->topitem = flistbox->selindex;
+        if(flistbox->scbv->totalitems > flistbox->scbv->itemsperpage) {
+            flistbox->scbv->topitem = flistbox->selindex;
+        }
         filelistbox_draw_listbox(flistbox);		//重画
     }
     //为长文件名申请缓存区
     mp3info.lfsize = _MAX_LFN * 2 + 1;
     mp3info.lfname = gui_memin_malloc(mp3info.lfsize);
-    if(mp3info.lfname == NULL)rval = 1; //申请内存失败
-    else gui_memset((u8 *)mp3info.lfname, 0, mp3info.lfsize);
+    if(mp3info.lfname == NULL) {
+        rval = 1;    //申请内存失败
+    } else {
+        gui_memset((u8 *)mp3info.lfname, 0, mp3info.lfsize);
+    }
 
     rbtn = btn_creat(199, 300, 40, 19, 0, 0x03);	//创建返回文字按钮
     qbtn = btn_creat(0, 300, 40, 19, 0, 0x03);		//创建退出文字按钮
-    if(rbtn == NULL || qbtn == NULL)rval = 1;	//没有足够内存够分配
-    else
-    {
+    if(rbtn == NULL || qbtn == NULL) {
+        rval = 1;    //没有足够内存够分配
+    } else {
         rbtn->caption = (u8 *)GUI_BACK_CAPTION_TBL[gui_phy.language];	//返回
         rbtn->font = 16;			//字体
         rbtn->bcfdcolor = WHITE;	//按下时的颜色
@@ -242,56 +252,49 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
         qbtn->bcfucolor = WHITE;	//松开时的颜色
         btn_draw(qbtn);//画按钮
     }
-    while(rval == 0)
-    {
+    while(rval == 0) {
         tp_dev.scan(0);
         in_obj.get_key(&tp_dev, IN_TYPE_TOUCH);	//得到按键键值
         delay_ms(5);		//延时一个时钟节拍
         filelistbox_check(flistbox, &in_obj);	//扫描文件
         res = btn_check(rbtn, &in_obj);
-        if(res)
-        {
-            if(((rbtn->sta & 0X80) == 0)) //按钮状态改变了
-            {
-                if(flistbox->dbclick != 0X81)
-                {
+        if(res) {
+            if(((rbtn->sta & 0X80) == 0)) { //按钮状态改变了
+                if(flistbox->dbclick != 0X81) {
                     filelistx = filelist_search(flistbox->list, flistbox->selindex); //得到此时选中的list的信息
-                    if(filelistx->type == FICO_DISK) //已经不能再往上了
-                    {
+                    if(filelistx->type == FICO_DISK) { //已经不能再往上了
                         break;
+                    } else {
+                        filelistbox_back(flistbox);    //退回上一层目录
                     }
-                    else filelistbox_back(flistbox); //退回上一层目录
                 }
             }
         }
         res = btn_check(qbtn, &in_obj);
-        if(res)
-        {
-            if(((qbtn->sta & 0X80) == 0)) //按钮状态改变了
-            {
+        if(res) {
+            if(((qbtn->sta & 0X80) == 0)) { //按钮状态改变了
                 break;//退出
             }
         }
-        if(flistbox->dbclick == 0X81) //双击文件了
-        {
+        if(flistbox->dbclick == 0X81) { //双击文件了
             mp3_stop(mp3devx);
             gui_memin_free(mp3devx->path);		//释放内存
             gui_memin_free(mp3devx->mfindextbl);	//释放内存
             mp3devx->path = (u8 *)gui_memin_malloc(strlen((const char *)flistbox->path) + 1); //为新的路径申请内存
-            if(mp3devx->path == NULL)
-            {
+            if(mp3devx->path == NULL) {
                 rval = 1;
                 break;
             }
             mp3devx->path[0] = '\0'; //在最开始加入结束符.
             strcpy((char *)mp3devx->path, (char *)flistbox->path);
             mp3devx->mfindextbl = (u16 *)gui_memin_malloc(flistbox->filecnt * 2); //为新的tbl申请内存
-            if(mp3devx->mfindextbl == NULL)
-            {
+            if(mp3devx->mfindextbl == NULL) {
                 rval = 1;
                 break;
             }
-            for(i = 0; i < flistbox->filecnt; i++)mp3devx->mfindextbl[i] = flistbox->findextbl[i]; //复制
+            for(i = 0; i < flistbox->filecnt; i++) {
+                mp3devx->mfindextbl[i] = flistbox->findextbl[i];    //复制
+            }
 
             mp3devx->mfilenum = flistbox->filecnt;		//记录文件个数
             //printf("flistbox->selindex =%d - flistbox->foldercnt = %d\r\n", flistbox->selindex , flistbox->foldercnt);
@@ -308,8 +311,7 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
     btn_delete(qbtn);				//删除按钮
     btn_delete(rbtn);				//删除按钮
     gui_memin_free(mp3info.lfname);
-    if(rval)
-    {
+    if(rval) {
         gui_memin_free(mp3devx->path);		 //释放内存
         gui_memin_free(mp3devx->mfindextbl); //释放内存
         gui_memin_free(mp3devx);
@@ -333,8 +335,7 @@ void mp3_load_ui(void)
     gui_show_string("00:00/00:00", 21, 133, 66, 12, 12, MP3_INFO_COLOR);		//显示时间
 
     gui_fill_colorblock(20, 105, 200, 6, (u16 *)MP3_SPEC_BASE_CTBL, 0);		//纵向填充
-    for(i = 3; i < 200; i += 4)
-    {
+    for(i = 3; i < 200; i += 4) {
         gui_draw_vline(20 + i, 105, 6, MP3_MAIN_BKCOLOR); //填充间隔线
     }
 }
@@ -343,13 +344,10 @@ void mp3_show_vol(u8 pctx)
 {
     gui_phy.back_color = MP3_MAIN_BKCOLOR; //设置背景色为底色
     gui_fill_rectangle(120, 178, 24, 12, MP3_MAIN_BKCOLOR); //填充背景色
-    if(pctx == 100)
-    {
+    if(pctx == 100) {
         gui_show_num(120, 178, 3, MP3_INFO_COLOR, 12, pctx, 0x80); //显示音量百分比
         gui_show_ptchar(120 + 18, 178, 120 + 18 + 6, 178 + 12, 0, MP3_INFO_COLOR, 12, '%', 0);	//显示百分号
-    }
-    else
-    {
+    } else {
         gui_show_num(120, 178, 2, MP3_INFO_COLOR, 12, pctx, 0x80); //显示音量百分比
         gui_show_ptchar(120 + 12, 178, 120 + 12 + 6, 178 + 12, 0, MP3_INFO_COLOR, 12, '%', 0);	//显示百分号
     }
@@ -361,7 +359,9 @@ void mp3_time_show(u16 sx, u16 sy, u16 sec)
 {
     u16 min;
     min = sec / 60; //得到分钟数
-    if(min > 99)min = 99;
+    if(min > 99) {
+        min = 99;
+    }
     sec = sec % 60; //得到秒钟数
 
     gui_phy.back_color = MP3_MAIN_BKCOLOR; //设置背景色为底色
@@ -387,30 +387,34 @@ void mp3_specalz_show(_m_mp3dev *mp3devx, u16 *pdt)
 {
     u8 i = 0;
     u8 temp;
-    for(i = 0; i < FFT_BANDS; i++)	//显示各个频谱
-    {
+    for(i = 0; i < FFT_BANDS; i++) {	//显示各个频谱
         temp = (pdt[i] & 0X3F) * 2;	//得到curval值,并乘2倍
-        if(mp3devx->fft_curval_tbl[i] < temp) //当前值小于temp了
-        {
+        if(mp3devx->fft_curval_tbl[i] < temp) { //当前值小于temp了
             mp3devx->fft_curval_tbl[i] = temp;
+        } else {
+            if(mp3devx->fft_curval_tbl[i] > 1) {
+                mp3devx->fft_curval_tbl[i] -= 2;
+            } else {
+                mp3devx->fft_curval_tbl[i] = 0;
+            }
         }
-        else
-        {
-            if(mp3devx->fft_curval_tbl[i] > 1)mp3devx->fft_curval_tbl[i] -= 2;
-            else mp3devx->fft_curval_tbl[i] = 0;
-        }
-        if(mp3devx->fft_curval_tbl[i] > mp3devx->fft_topval_tbl[i]) //更新峰值
-        {
+        if(mp3devx->fft_curval_tbl[i] > mp3devx->fft_topval_tbl[i]) { //更新峰值
             mp3devx->fft_topval_tbl[i] = mp3devx->fft_curval_tbl[i];
             mp3devx->fft_time_tbl[i] = 10; //重设峰值停顿时间
         }
-        if(mp3devx->fft_time_tbl[i])mp3devx->fft_time_tbl[i]--;
-        else
-        {
-            if(mp3devx->fft_topval_tbl[i])mp3devx->fft_topval_tbl[i]--;//峰值减小1
+        if(mp3devx->fft_time_tbl[i]) {
+            mp3devx->fft_time_tbl[i]--;
+        } else {
+            if(mp3devx->fft_topval_tbl[i]) {
+                mp3devx->fft_topval_tbl[i]--;    //峰值减小1
+            }
         }
-        if(mp3devx->fft_curval_tbl[i] > 63)mp3devx->fft_curval_tbl[i] = 63;
-        if(mp3devx->fft_topval_tbl[i] > 63)mp3devx->fft_topval_tbl[i] = 63;
+        if(mp3devx->fft_curval_tbl[i] > 63) {
+            mp3devx->fft_curval_tbl[i] = 63;
+        }
+        if(mp3devx->fft_topval_tbl[i] > 63) {
+            mp3devx->fft_topval_tbl[i] = 63;
+        }
         fft_show_oneband(20 + 2 + i * 14, 105 - 64, 12, 63, mp3devx->fft_curval_tbl[i], mp3devx->fft_topval_tbl[i]); //显示柱子
     }
 }
@@ -425,8 +429,7 @@ void mp3_info_upd(_m_mp3dev *mp3devx, _progressbar_obj *mp3prgbx, _progressbar_o
 {
     u16 temp;
     u8 i;
-    if(mp3devx->sta & (1 << 6)) //执行了一次歌曲切换,更新歌曲名字和当前播放曲目索引,mp3prgb长度等信息
-    {
+    if(mp3devx->sta & (1 << 6)) { //执行了一次歌曲切换,更新歌曲名字和当前播放曲目索引,mp3prgb长度等信息
         mp3devx->sta &= ~(1 << 6); //清空标志位
         gui_fill_rectangle(0, 20 + 4, 240, 14, MP3_MAIN_BKCOLOR); //上下各多清空一点,清空之前的显示
         gui_show_ptstrwhiterim(5, 20 + 5, 239 - 5, 319, 0, 0X0000, 0XFFFF, 12, mp3devx->name);	//显示新的名字
@@ -449,8 +452,7 @@ void mp3_info_upd(_m_mp3dev *mp3devx, _progressbar_obj *mp3prgbx, _progressbar_o
         mp3prgbx->totallen = mp3devx->fmp3->fsize;	//更新总长度
         mp3prgbx->curpos = 0;
         //清空频谱数据
-        for(i = 0; i < FFT_BANDS; i++)
-        {
+        for(i = 0; i < FFT_BANDS; i++) {
             mp3devx->fft_topval_tbl[i] = 0;
             mp3devx->fft_curval_tbl[i] = 0;
             mp3devx->fft_time_tbl[i] = 0;
@@ -458,25 +460,23 @@ void mp3_info_upd(_m_mp3dev *mp3devx, _progressbar_obj *mp3prgbx, _progressbar_o
         }
         VS_Set_Bands((u16 *)VS_NEW_BANDS_FREQ_TBL, 14); //重设频率
     }
-    if(mp3devx->namelen > 240 - 10) //大于屏幕长度
-    {
+    if(mp3devx->namelen > 240 - 10) { //大于屏幕长度
         gui_fill_rectangle(0, 20 + 4, 240, 14, MP3_MAIN_BKCOLOR); //上下各多清空一点,清空之前的显示
         gui_show_ptstrwhiterim(5, 20 + 5, 239 - 5, 319, mp3devx->curnamepos, 0X0000, 0XFFFF, 12, mp3devx->name);	//显示新的名字
         mp3devx->curnamepos++;
-        if(mp3devx->curnamepos + 240 - 10 > mp3devx->namelen + 110)mp3devx->curnamepos = 0; //循环显示
+        if(mp3devx->curnamepos + 240 - 10 > mp3devx->namelen + 110) {
+            mp3devx->curnamepos = 0;    //循环显示
+        }
     }
-    if(mp3devx->sta & (1 << 7)) //MP3正在播放
-    {
+    if(mp3devx->sta & (1 << 7)) { //MP3正在播放
         mp3prgbx->curpos = f_tell(mp3devx->fmp3); //得到当前的播放位置
         progressbar_draw_progressbar(mp3prgbx);//更新进度条位置
         temp = VS_Get_DecodeTime();
-        if(temp != mp3devx->playtime)
-        {		
+        if(temp != mp3devx->playtime) {
             mp3devx->playtime = temp;
             mp3_time_show(21, 133, mp3devx->playtime); //显示播放时间
             temp = VS_Get_HeadInfo(); //得到码率
-            if(mp3devx->kbps != temp)
-            {
+            if(mp3devx->kbps != temp) {
                 mp3devx->kbps = temp;
                 gui_phy.back_color = MP3_MAIN_BKCOLOR; //设置背景色为底色
                 gui_show_num(178, 133, 3, MP3_INFO_COLOR, 12, mp3devx->kbps, 0x80); //非叠加显示码率
@@ -499,49 +499,50 @@ u8 mp3_play(void)
 
     _progressbar_obj *mp3prgb, *volprgb;
     _btn_obj *tbtn[5];
-    if(mp3dev == NULL) //第一次打开,申请必要的内存
-    {
+    if(mp3dev == NULL) { //第一次打开,申请必要的内存
         mp3dev = (_m_mp3dev *)gui_memin_malloc(sizeof(_m_mp3dev));
-        if(mp3dev == NULL)return 1;							//申请内存失败
+        if(mp3dev == NULL) {
+            return 1;    //申请内存失败
+        }
         gui_memset((u8 *)mp3dev, 0, sizeof(_m_mp3dev));			//清零
         mp3dev->fmp3 = (FIL *)mymalloc(SRAMIN, sizeof(FIL));	//开辟FIL字节的内存区域
-        if(mp3dev->fmp3 == NULL)								//内存申请失败.
-        {
+        if(mp3dev->fmp3 == NULL) {							//内存申请失败.
             gui_memin_free(mp3dev);	 						//释放之前申请到的内存
             return 1;
         }
         gui_memset((u8 *)mp3dev->fmp3, 0, sizeof(FIL));			//清零
     }
-    if((mp3dev->sta & 0x80) == 0)	//当前没有播放MP3
-    {
+    if((mp3dev->sta & 0x80) == 0) {	//当前没有播放MP3
         VS_HD_Reset();
         VS_Soft_Reset();		//复位
         mp3_filelist(mp3dev);
-        if((mp3dev->sta & 0x80) == 0)
-        {
+        if((mp3dev->sta & 0x80) == 0) {
             return 0;//还是没有MP3在播放,则退出程序
         }
+    } else {
+        mp3dev->sta |= 1 << 6;    //模拟一次切歌,让歌曲名字等信息显示出来
     }
-    else mp3dev->sta |= 1 << 6; //模拟一次切歌,让歌曲名字等信息显示出来
     /////////////////////////////////////////////////////////////////////////////////
     mp3prgb = progressbar_creat(20, 120, 200, 10, 0X20);		//mp3播放进度条
-    if(mp3prgb == NULL)rval = 1;
+    if(mp3prgb == NULL) {
+        rval = 1;
+    }
     volprgb = progressbar_creat(120, 150 + 15, 100, 6, 0X20);	//声音大小进度条
-    if(volprgb == NULL)rval = 1;
+    if(volprgb == NULL) {
+        rval = 1;
+    }
     volprgb->totallen = 150;	//更新总长度,音频从100~250.偏移为100.
-    if(vsset.mvol >= 100 && vsset.mvol <= 250)volprgb->curpos = vsset.mvol - 100;
-    else//错误的数据
-    {
+    if(vsset.mvol >= 100 && vsset.mvol <= 250) {
+        volprgb->curpos = vsset.mvol - 100;
+    } else { //错误的数据
         vsset.mvol = 0;
         volprgb->curpos = 0;
     }
     lastvolpos = volprgb->curpos; //设定最近的位置
 
-    for(i = 0; i < 5; i++) //循环创建5个按钮
-    {
+    for(i = 0; i < 5; i++) { //循环创建5个按钮
         tbtn[i] = btn_creat(0 + i * 48, 271, 48, 48, 0, 1); //创建图片按钮
-        if(tbtn[i] == NULL)
-        {
+        if(tbtn[i] == NULL) {
             rval = 1;    //创建失败.
             break;
         }
@@ -549,8 +550,7 @@ u8 mp3_play(void)
         tbtn[i]->picbtnpathd = (u8 *)MP3_BTN_PIC_TBL[1][i];
         tbtn[i]->sta = 0;
     }
-    if(rval == 0) //没有错误
-    {
+    if(rval == 0) { //没有错误
         mp3prgb->inbkcolora = 0x738E;			//默认色
         mp3prgb->inbkcolorb = MP3_INFO_COLOR;	//默认色
         mp3prgb->infcolora = 0X75D;			//默认色
@@ -561,40 +561,40 @@ u8 mp3_play(void)
         volprgb->infcolorb = 0X596;			//默认色
         mp3_load_ui();//加载主界面
         mp3_show_vol((volprgb->curpos * 100) / volprgb->totallen);	//显示音量百分比
-        for(i = 0; i < 5; i++)btn_draw(tbtn[i]);		//画按钮
+        for(i = 0; i < 5; i++) {
+            btn_draw(tbtn[i]);    //画按钮
+        }
         tbtn[2]->picbtnpathu = (u8 *)MP3_PLAYR_PIC; //按下一次之后变为播放松开状态
         progressbar_draw_progressbar(mp3prgb);	//画进度条
         progressbar_draw_progressbar(volprgb);	//画进度条
         tcnt = 0;
-        while(rval == 0)
-        {
+        while(rval == 0) {
             tcnt++;//计时增加.
             tp_dev.scan(0);
             in_obj.get_key(&tp_dev, IN_TYPE_TOUCH);	//得到按键键值
             delay_ms(10);		//延时一个时钟节拍
-            for(i = 0; i < 5; i++)
-            {
+            for(i = 0; i < 5; i++) {
                 res = btn_check(tbtn[i], &in_obj);
-                if((res && ((tbtn[i]->sta & (1 << 7)) == 0) && (tbtn[i]->sta & (1 << 6)))) //有按键按下且松开,并且TP松开了或者TPAD返回
-                {
-                    switch(i)
-                    {
+                if((res && ((tbtn[i]->sta & (1 << 7)) == 0) && (tbtn[i]->sta & (1 << 6)))) { //有按键按下且松开,并且TP松开了或者TPAD返回
+                    switch(i) {
                     case 0://file list
                         mp3_filelist(mp3dev);
                         mp3dev->sta |= 1 << 6; //模拟一次切歌,让歌曲名字等信息显示出来
                         //////////////////////////////////////////////////////////////////
                         mp3_load_ui();//重新加载主界面
-                        if(mp3dev->sta & (1 << 5)) //是暂停
-                        {
+                        if(mp3dev->sta & (1 << 5)) { //是暂停
                             tbtn[2]->picbtnpathu = (u8 *)MP3_PLAYR_PIC;
-                        }
-                        else tbtn[2]->picbtnpathu = (u8 *)MP3_PAUSER_PIC;
-                        for(i = 0; i < 5; i++)btn_draw(tbtn[i]);		//画按钮
-                        if(mp3dev->sta & (1 << 5)) //是暂停
-                        {
+                        } else {
                             tbtn[2]->picbtnpathu = (u8 *)MP3_PAUSER_PIC;
                         }
-                        else tbtn[2]->picbtnpathu = (u8 *)MP3_PLAYR_PIC;
+                        for(i = 0; i < 5; i++) {
+                            btn_draw(tbtn[i]);    //画按钮
+                        }
+                        if(mp3dev->sta & (1 << 5)) { //是暂停
+                            tbtn[2]->picbtnpathu = (u8 *)MP3_PAUSER_PIC;
+                        } else {
+                            tbtn[2]->picbtnpathu = (u8 *)MP3_PLAYR_PIC;
+                        }
                         progressbar_draw_progressbar(mp3prgb);	//画进度条
                         progressbar_draw_progressbar(volprgb);	//画进弱
                         //							if(system_task_return)//刚刚退出文件浏览
@@ -606,64 +606,61 @@ u8 mp3_play(void)
                     case 1://上一曲或者下一曲
                     case 3:
                         mp3_stop(mp3dev);
-												if(i == 1) //上一曲
-												{
-														if(mp3dev->curindex)mp3dev->curindex--;
-														else mp3dev->curindex = mp3dev->mfilenum - 1;
-												}
-												else
-												{
-														if(mp3dev->curindex < (mp3dev->mfilenum - 1))mp3dev->curindex++;
-														else mp3dev->curindex = 0;
-												}
+                        if(i == 1) { //上一曲
+                            if(mp3dev->curindex) {
+                                mp3dev->curindex--;
+                            } else {
+                                mp3dev->curindex = mp3dev->mfilenum - 1;
+                            }
+                        } else {
+                            if(mp3dev->curindex < (mp3dev->mfilenum - 1)) {
+                                mp3dev->curindex++;
+                            } else {
+                                mp3dev->curindex = 0;
+                            }
+                        }
 
 #if 0
-                        if(systemset.mp3mode == 1) //随机播放
-                        {
+                        if(systemset.mp3mode == 1) { //随机播放
                             mp3dev->curindex = app_get_rand(mp3dev->mfilenum); //得到下一首歌曲的索引
-                        }
-                        else
-                        {
-                            if(i == 1) //上一曲
-                            {
-                                if(mp3dev->curindex)mp3dev->curindex--;
-                                else mp3dev->curindex = mp3dev->mfilenum - 1;
-                            }
-                            else
-                            {
-                                if(mp3dev->curindex < (mp3dev->mfilenum - 1))mp3dev->curindex++;
-                                else mp3dev->curindex = 0;
+                        } else {
+                            if(i == 1) { //上一曲
+                                if(mp3dev->curindex) {
+                                    mp3dev->curindex--;
+                                } else {
+                                    mp3dev->curindex = mp3dev->mfilenum - 1;
+                                }
+                            } else {
+                                if(mp3dev->curindex < (mp3dev->mfilenum - 1)) {
+                                    mp3dev->curindex++;
+                                } else {
+                                    mp3dev->curindex = 0;
+                                }
                             }
                         }
 #endif
                         OSQPost ((OS_Q *)&MusicQ,
                                  (void *)1,
-                                 (OS_MSG_SIZE)(mp3dev->curindex+1),
+                                 (OS_MSG_SIZE)(mp3dev->curindex + 1),
                                  (OS_OPT )OS_OPT_POST_FIFO,
                                  (OS_ERR *)&err);
                         break;
                     case 2://播放/暂停
-                        if(mp3dev->sta & (1 << 5)) //是暂停
-                        {
+                        if(mp3dev->sta & (1 << 5)) { //是暂停
                             mp3dev->sta &= ~(1 << 5); //取消暂停
                             tbtn[2]->picbtnpathd = (u8 *)MP3_PAUSEP_PIC;
                             tbtn[2]->picbtnpathu = (u8 *)MP3_PLAYR_PIC;
-                        }
-                        else //暂停状态
-                        {
+                        } else { //暂停状态
                             mp3dev->sta |= 1 << 5; //标记暂停
                             tbtn[2]->picbtnpathd = (u8 *)MP3_PLAYP_PIC;
                             tbtn[2]->picbtnpathu = (u8 *)MP3_PAUSER_PIC;
                         }
                         break;
                     case 4://停止播放/返回
-                        if(mp3dev->sta & (1 << 5)) //暂停状态下按了返回
-                        {
+                        if(mp3dev->sta & (1 << 5)) { //暂停状态下按了返回
                             rval = 3; //退出播放,MP3停止播放
                             mp3_stop(mp3dev);//停止播放
-                        }
-                        else //暂停状态下按返回,那就关闭MP3播放功能.
-                        {
+                        } else { //暂停状态下按返回,那就关闭MP3播放功能.
                             rval = 2; //退出播放界面,MP3继续播放
                         }
                         break;
@@ -672,34 +669,37 @@ u8 mp3_play(void)
                 }
             }
             res = progressbar_check(volprgb, &in_obj); //检查音量进度条
-            if(res && lastvolpos != volprgb->curpos) //被按下了,且位置变化了.执行音量调整
-            {
+            if(res && lastvolpos != volprgb->curpos) { //被按下了,且位置变化了.执行音量调整
                 lastvolpos = volprgb->curpos;
-                if(volprgb->curpos)vsset.mvol = 100 + volprgb->curpos; //设置音量
-                else vsset.mvol = 0;
+                if(volprgb->curpos) {
+                    vsset.mvol = 100 + volprgb->curpos;    //设置音量
+                } else {
+                    vsset.mvol = 0;
+                }
                 VS_Set_Vol(vsset.mvol);//设置音量
                 mp3_show_vol((volprgb->curpos * 100) / volprgb->totallen);	//显示音量百分比
             }
             res = progressbar_check(mp3prgb, &in_obj);
-            if(res && ((mp3prgb->sta && PRGB_BTN_DOWN) == 0)) //被按下了,并且松开了,执行快进快退
-            {
+            if(res && ((mp3prgb->sta && PRGB_BTN_DOWN) == 0)) { //被按下了,并且松开了,执行快进快退
                 f_lseek(mp3dev->fmp3, mp3prgb->curpos); //快速定位
             }
-						//if((tcnt%20)==0)mp3_info_upd(mp3dev,mp3prgb,volprgb);//更新显示信息,每100ms执行一次
+            //if((tcnt%20)==0)mp3_info_upd(mp3dev,mp3prgb,volprgb);//更新显示信息,每100ms执行一次
 
-            if(((mp3dev->sta & (1 << 4)) == 0)&&(tcnt%5)==0)		//不是flac,执行频谱显示
-            {
+            if(((mp3dev->sta & (1 << 4)) == 0) && (tcnt % 5) == 0) {	//不是flac,执行频谱显示
                 //res = VS_Get_Spec(specbuf);
-                if(res)mp3_specalz_show(mp3dev, specbuf);	//显示频谱
+                if(res) {
+                    mp3_specalz_show(mp3dev, specbuf);    //显示频谱
+                }
             }
-						
+
         }
     }
-    for(i = 0; i < 5; i++)btn_delete(tbtn[i]); //删除按钮
+    for(i = 0; i < 5; i++) {
+        btn_delete(tbtn[i]);    //删除按钮
+    }
     progressbar_delete(mp3prgb);
     progressbar_delete(volprgb);
-    if(rval == 3) //退出MP3播放.且不后台播放
-    {
+    if(rval == 3) { //退出MP3播放.且不后台播放
         gui_memin_free(mp3dev->path);		//释放内存
         gui_memin_free(mp3dev->mfindextbl);	//释放内存
         myfree(SRAMIN, mp3dev->fmp3);		//释放内存

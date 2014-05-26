@@ -4,8 +4,7 @@
 #include "usart.h"
 #include "os.h"
 //VS10XX默认设置参数
-_vs10xx_obj vsset =
-{
+_vs10xx_obj vsset = {
     220,	//音量:220
     6,		//低音上线 60Hz
     15,		//低音提升 15dB
@@ -92,18 +91,20 @@ void VS_Soft_Reset(void)
     while(VS_DQ == 0); //等待软件复位结束
     VS_SPI_ReadWriteByte(0Xff);//启动传输
     retry = 0;
-    while(VS_RD_Reg(SPI_MODE) != 0x0800) // 软件复位,新模式
-    {
+    while(VS_RD_Reg(SPI_MODE) != 0x0800) { // 软件复位,新模式
         VS_WR_Cmd(SPI_MODE, 0x0804); // 软件复位,新模式
         delay_ms(5);//等待至少1.35ms
-        if(retry++ > 100)break;
+        if(retry++ > 100) {
+            break;
+        }
     }
     while(VS_DQ == 0); //等待软件复位结束
     retry = 0;
-    while(VS_RD_Reg(SPI_CLOCKF) != 0X9800) //设置VS10XX的时钟,3倍频 ,1.5xADD
-    {
+    while(VS_RD_Reg(SPI_CLOCKF) != 0X9800) { //设置VS10XX的时钟,3倍频 ,1.5xADD
         VS_WR_Cmd(SPI_CLOCKF, 0X9800); //设置VS10XX的时钟,3倍频 ,1.5xADD
-        if(retry++ > 100)break;
+        if(retry++ > 100) {
+            break;
+        }
     }
     delay_ms(20);
 }
@@ -117,14 +118,16 @@ u8 VS_HD_Reset(void)
     VS_XDCS = 1; //取消数据传输
     VS_XCS = 1; //取消数据传输
     VS_RST = 1;
-    while(VS_DQ == 0 && retry < 200) //等待DREQ为高
-    {
+    while(VS_DQ == 0 && retry < 200) { //等待DREQ为高
         retry++;
         delay_us(50);
     }
     delay_ms(20);
-    if(retry >= 200)return 1;
-    else return 0;
+    if(retry >= 200) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 //正弦测试
 void VS_Sine_Test(void)
@@ -276,8 +279,7 @@ void VS_Set_Speed(u8 t)
 //FOR WMA HEAD0 :data speed HEAD1:0X574D
 //FOR MP3 HEAD0 :data speed HEAD1:ID
 //比特率预定值,阶层III
-const u16 bitrate[2][16] =
-{
+const u16 bitrate[2][16] = {
     {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0},
     {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0}
 };
@@ -290,8 +292,7 @@ u16 VS_Get_HeadInfo(void)
     HEAD0 = VS_RD_Reg(SPI_HDAT0);
     HEAD1 = VS_RD_Reg(SPI_HDAT1);
     //printf("(H0,H1):%x,%x\n",HEAD0,HEAD1);
-    switch(HEAD1)
-    {
+    switch(HEAD1) {
     case 0x7665://WAV格式
     case 0X4D54://MIDI格式
     case 0X4154://AAC_ADTS
@@ -299,19 +300,23 @@ u16 VS_Get_HeadInfo(void)
     case 0X4D34://AAC_MP4/M4A
     case 0X4F67://OGG
     case 0X574D://WMA格式
-    case 0X664C://FLAC格式
-    {
+    case 0X664C: { //FLAC格式
         ////printf("HEAD0:%d\n",HEAD0);
         HEAD1 = HEAD0 * 2 / 25; //相当于*8/100
-        if((HEAD1 % 10) > 5)return HEAD1 / 10 + 1; //对小数点第一位四舍五入
-        else return HEAD1 / 10;
+        if((HEAD1 % 10) > 5) {
+            return HEAD1 / 10 + 1;    //对小数点第一位四舍五入
+        } else {
+            return HEAD1 / 10;
+        }
     }
-    default://MP3格式,仅做了阶层III的表
-    {
+    default: { //MP3格式,仅做了阶层III的表
         HEAD1 >>= 3;
         HEAD1 = HEAD1 & 0x03;
-        if(HEAD1 == 3)HEAD1 = 1;
-        else HEAD1 = 0;
+        if(HEAD1 == 3) {
+            HEAD1 = 1;
+        } else {
+            HEAD1 = 0;
+        }
         return bitrate[HEAD1][HEAD0 >> 12];
     }
     }
@@ -335,16 +340,15 @@ u16 VS_Get_EndFillByte(void)
 u8 VS_Send_MusicData(u8 *buf)
 {
     u8 n;
-  	if(VS_DQ != 0) //送数据给VS10XX
-    {
+    if(VS_DQ != 0) { //送数据给VS10XX
         VS_XDCS = 0;
-        for(n = 0; n < 32; n++)
-        {
+        for(n = 0; n < 32; n++) {
             VS_SPI_ReadWriteByte(buf[n]);
         }
         VS_XDCS = 1;
+    } else {
+        return 1;
     }
-    else return 1;
     return 0;//成功发送了
 }
 //切歌
@@ -355,34 +359,38 @@ void VS_Restart_Play(void)
     u16 i;
     u8 n;
     u8 vsbuf[32];
-    for(n = 0; n < 32; n++)vsbuf[n] = 0; //清零
+    for(n = 0; n < 32; n++) {
+        vsbuf[n] = 0;    //清零
+    }
     temp = VS_RD_Reg(SPI_MODE);	//读取SPI_MODE的内容
     temp |= 1 << 3;					//设置SM_CANCEL位
     temp |= 1 << 2;					//设置SM_LAYER12位,允许播放MP1,MP2
     VS_WR_Cmd(SPI_MODE, temp);	//设置取消当前解码指令
-    for(i = 0; i < 2048;)			//发送2048个0,期间读取SM_CANCEL位.如果为0,则表示已经取消了当前解码
-    {
-        if(VS_Send_MusicData(vsbuf) == 0) //每发送32个字节后检测一次
-        {
+    for(i = 0; i < 2048;) {		//发送2048个0,期间读取SM_CANCEL位.如果为0,则表示已经取消了当前解码
+        if(VS_Send_MusicData(vsbuf) == 0) { //每发送32个字节后检测一次
             i += 32;						//发送了32个字节
             temp = VS_RD_Reg(SPI_MODE);	//读取SPI_MODE的内容
-            if((temp & (1 << 3)) == 0)break;	//成功取消了
+            if((temp & (1 << 3)) == 0) {
+                break;    //成功取消了
+            }
         }
     }
-    if(i < 2048) //SM_CANCEL正常
-    {
+    if(i < 2048) { //SM_CANCEL正常
         temp = VS_Get_EndFillByte() & 0xff; //读取填充字节
-        for(n = 0; n < 32; n++)vsbuf[n] = temp; //填充字节放入数组
-        for(i = 0; i < 2052;)
-        {
-            if(VS_Send_MusicData(vsbuf) == 0)i += 32; //填充
+        for(n = 0; n < 32; n++) {
+            vsbuf[n] = temp;    //填充字节放入数组
         }
+        for(i = 0; i < 2052;) {
+            if(VS_Send_MusicData(vsbuf) == 0) {
+                i += 32;    //填充
+            }
+        }
+    } else {
+        VS_Soft_Reset();    //SM_CANCEL不成功,坏情况,需要软复位
     }
-    else VS_Soft_Reset();  	//SM_CANCEL不成功,坏情况,需要软复位
     temp = VS_RD_Reg(SPI_HDAT0);
     temp += VS_RD_Reg(SPI_HDAT1);
-    if(temp)					//软复位,还是没有成功取消,放杀手锏,硬复位
-    {
+    if(temp) {				//软复位,还是没有成功取消,放杀手锏,硬复位
         VS_HD_Reset();		   	//硬复位
         VS_Soft_Reset();  		//软复位
     }
@@ -408,20 +416,17 @@ void VS_Load_Patch(u16 *patch, u16 len)
 {
     u16 i;
     u16 addr, n, val;
-    for(i = 0; i < len;)
-    {
+    for(i = 0; i < len;) {
         addr = patch[i++];
         n    = patch[i++];
-        if(n & 0x8000U) //RLE run, replicate n samples
-        {
+        if(n & 0x8000U) { //RLE run, replicate n samples
             n  &= 0x7FFF;
             val = patch[i++];
-            while(n--)VS_WR_Cmd(addr, val);
-        }
-        else  //copy run, copy n sample
-        {
-            while(n--)
-            {
+            while(n--) {
+                VS_WR_Cmd(addr, val);
+            }
+        } else { //copy run, copy n sample
+            while(n--) {
                 val = patch[i++];
                 VS_WR_Cmd(addr, val);
             }
@@ -443,8 +448,7 @@ u8 VS_Get_Spec(u16 *p)
     VS_WR_Cmd(SPI_WRAMADDR, SPEC_DATA_BASE + 2);
     bands = VS_RD_Reg(SPI_WRAM);					//获取频段数
     VS_WR_Cmd(SPI_WRAMADDR, SPEC_DATA_BASE + 4);
-    for (i = 0; i < bands; i++)
-    {
+    for (i = 0; i < bands; i++) {
         //读到的频谱数据分为2部分,有效位为12位.范围都是0~31
         //[5:0]:当前值
         //[11:6]:峰值
@@ -463,11 +467,12 @@ void VS_Set_Bands(u16 *buf, u8 bands)
     CPU_SR   cpu_sr = 0;
     OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)
     VS_WR_Cmd(SPI_WRAMADDR, SPEC_DATA_BASE + 0X58); //地址总是1868,对VS1053,SPEC_DATA_BASE是0X1810.所以加上0X58
-    for (i = 0; i < bands; i++)
-    {
+    for (i = 0; i < bands; i++) {
         VS_WR_Cmd(SPI_WRAM, buf[i]); //发送频率数据
     }
-    if(i < 15)VS_WR_Cmd(SPI_WRAM, 25000); //对VS1053这个最大值为15,填充25000,表示频谱表结束
+    if(i < 15) {
+        VS_WR_Cmd(SPI_WRAM, 25000);    //对VS1053这个最大值为15,填充25000,表示频谱表结束
+    }
     VS_WR_Cmd(SPI_WRAMADDR, SPEC_DATA_BASE + 1); //地址SPEC_DATA_BASE+1,为Samples Rates的起始地址
     VS_WR_Cmd(SPI_WRAM, 0);	//开始新频率
     OS_CRITICAL_EXIT();		//退出临界区(可以被中断打断)
@@ -492,9 +497,13 @@ void VS_Set_Bass(u8 bfreq, u8 bass, u8 tfreq, u8 treble)
 {
     u16 bass_set = 0; //暂存音调寄存器值
     signed char temp = 0;
-    if(treble == 0)temp = 0;	   		//变换
-    else if(treble > 8)temp = treble - 8;
-    else temp = treble - 9;
+    if(treble == 0) {
+        temp = 0;    //变换
+    } else if(treble > 8) {
+        temp = treble - 8;
+    } else {
+        temp = treble - 9;
+    }
     bass_set = temp & 0X0F;				//高音设定
     bass_set <<= 4;
     bass_set += tfreq & 0xf;			//高音下限频率
@@ -510,10 +519,16 @@ void VS_Set_Effect(u8 eft)
 {
     u16 temp;
     temp = VS_RD_Reg(SPI_MODE);	//读取SPI_MODE的内容
-    if(eft & 0X01)temp |= 1 << 4;		//设定LO
-    else temp &= ~(1 << 5);			//取消LO
-    if(eft & 0X02)temp |= 1 << 7;		//设定HO
-    else temp &= ~(1 << 7);			//取消HO
+    if(eft & 0X01) {
+        temp |= 1 << 4;    //设定LO
+    } else {
+        temp &= ~(1 << 5);    //取消LO
+    }
+    if(eft & 0X02) {
+        temp |= 1 << 7;    //设定HO
+    } else {
+        temp &= ~(1 << 7);    //取消HO
+    }
     VS_WR_Cmd(SPI_MODE, temp);	//设定模式
 }
 ///////////////////////////////////////////////////////////////////////////////

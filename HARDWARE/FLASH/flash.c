@@ -70,8 +70,11 @@ void DF_mm_to_buf(u8 buffer, unsigned int page)
 {
     SPI_Flash_Wait_Busy();//判断是否为忙
     SPI_FLASH_CS = 0; //使能器件
-    if(buffer == 1)   SPI1_ReadWriteByte(MM_PAGE_TO_B1_XFER);
-    else            SPI1_ReadWriteByte(MM_PAGE_TO_B2_XFER);
+    if(buffer == 1) {
+        SPI1_ReadWriteByte(MM_PAGE_TO_B1_XFER);
+    } else {
+        SPI1_ReadWriteByte(MM_PAGE_TO_B2_XFER);
+    }
     SPI1_ReadWriteByte((u8)(page >> 6));
     SPI1_ReadWriteByte((u8)(page << 2));
     SPI1_ReadWriteByte(0x00);
@@ -81,11 +84,13 @@ void DF_mm_to_buf(u8 buffer, unsigned int page)
 void DF_buf_to_mm(u8 buffer, u16 page)
 {
     SPI_Flash_Wait_Busy();//判断是否为忙
-    if(page < SPI_FLASH_PageNum)
-    {
+    if(page < SPI_FLASH_PageNum) {
         SPI_FLASH_CS = 0; //使能器件
-        if(buffer == 1)    SPI1_ReadWriteByte(B1_TO_MM_PAGE_PROG_WITH_ERASE);
-        else             SPI1_ReadWriteByte(B2_TO_MM_PAGE_PROG_WITH_ERASE);
+        if(buffer == 1) {
+            SPI1_ReadWriteByte(B1_TO_MM_PAGE_PROG_WITH_ERASE);
+        } else {
+            SPI1_ReadWriteByte(B2_TO_MM_PAGE_PROG_WITH_ERASE);
+        }
         SPI1_ReadWriteByte((u8)(page >> 6));
         SPI1_ReadWriteByte((u8)(page << 2));
         SPI1_ReadWriteByte(0x00);
@@ -107,17 +112,17 @@ void SPI_Flash_Write(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
     SPI1_ReadWriteByte(0x00);//14bit 无效数据+10bit地址数据
     SPI1_ReadWriteByte((u8)(offaddr >> 8)); //写入在该页的偏移地址
     SPI1_ReadWriteByte((u8)offaddr);
-    for (i = 0; i < NumByteToWrite;) //发送数据
-    {
+    for (i = 0; i < NumByteToWrite;) { //发送数据
         SPI1_ReadWriteByte(*pBuffer);//写入一个数据
         pBuffer++;
         i++;
-        if((i + offaddr) % SPI_FLASH_PageSize == 0)
-        {
+        if((i + offaddr) % SPI_FLASH_PageSize == 0) {
             SPI_FLASH_CS = 1;
             DF_buf_to_mm(1, paddr); //把BUF1的内容写入主存储器
             paddr++;
-            if(paddr >= SPI_FLASH_PageNum)return; //超出了AT45DB161的范围
+            if(paddr >= SPI_FLASH_PageNum) {
+                return;    //超出了AT45DB161的范围
+            }
             DF_mm_to_buf(1, paddr); //将开始页数据读出到buf1
             SPI_Flash_Wait_Busy();//判断是否为忙
             SPI_FLASH_CS = 0; //使能器件
@@ -147,16 +152,16 @@ void SPI_Flash_Read(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
     SPI1_ReadWriteByte((u8)(offaddr >> 8)); //写入在该页的偏移地址
     SPI1_ReadWriteByte((u8)offaddr);
     SPI1_ReadWriteByte(0x00); //等待
-    for (i = 0; i < NumByteToRead;) //读取NumByteToRead个数据
-    {
+    for (i = 0; i < NumByteToRead;) { //读取NumByteToRead个数据
         *pBuffer = SPI1_ReadWriteByte(0xff); //读取一个数据
         pBuffer++;
         i++;
-        if((i + offaddr) % SPI_FLASH_PageSize == 0)
-        {
+        if((i + offaddr) % SPI_FLASH_PageSize == 0) {
             SPI_FLASH_CS = 1;
             paddr++;
-            if(paddr >= SPI_FLASH_PageNum)   return; //超出了AT45DB161的范围
+            if(paddr >= SPI_FLASH_PageNum) {
+                return;    //超出了AT45DB161的范围
+            }
             DF_mm_to_buf(1, paddr); //将开始页数据读出到buf1
             SPI_Flash_Wait_Busy();//判断是否为忙
             SPI_FLASH_CS = 0; //使能器件

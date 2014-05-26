@@ -3,8 +3,7 @@
 
 
 //256色的图标集,16*16大小.
-const u8 icostbl[9][256] =
-{
+const u8 icostbl[9][256] = {
     {
         //磁盘图标 0
         0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF,
@@ -181,8 +180,7 @@ const u8 icostbl[9][256] =
 
 };
 //带ALPHA通道的图标.(文件夹图标)
-const u8 pathico[2][1024] =
-{
+const u8 pathico[2][1024] = {
     {
         //磁盘
         0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00,

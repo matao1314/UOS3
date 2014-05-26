@@ -8,34 +8,28 @@
 //#include "paint.h"
 
 //模式选择列表的窗体名字
-const u8 *APP_MODESEL_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *APP_MODESEL_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "模式选择", "模式選擇", "Mode Select",
 };
 //提示信息的窗体名字
-const u8 *APP_REMIND_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *APP_REMIND_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "提示信息", "提示信息", "Remind",
 };
 //提醒保存的窗体名字
-const u8 *APP_SAVE_CAPTION_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *APP_SAVE_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
     "是否保存编辑后的文件?", "是否保存編輯后的文件?", "Do you want to save?",
 };
 //创建文件失败,提示是否存在SD卡? ,200的宽度
-const u8 *APP_CREAT_ERR_MSG_TBL[GUI_LANGUAGE_NUM] =
-{
+const u8 *APP_CREAT_ERR_MSG_TBL[GUI_LANGUAGE_NUM] = {
     "创建文件失败,请检查SD卡!", "創建文件失敗,請檢查SD卡!", "Creat File Failed,Check SD Card!",
 };
 //磁盘名字表
-const u8 *APP_DISK_NAME_TBL[2][GUI_LANGUAGE_NUM] =
-{
+const u8 *APP_DISK_NAME_TBL[2][GUI_LANGUAGE_NUM] = {
     {"SD卡", "SD卡", "SD Card",},
     {"FLASH磁盘", "FLASH磁盤", "FLASH Disk",},
 };
 //app主要功能界面标题
-const u8 *APP_MFUNS_CAPTION_TBL[APP_FUNS_NUM][GUI_LANGUAGE_NUM] =
-{
+const u8 *APP_MFUNS_CAPTION_TBL[APP_FUNS_NUM][GUI_LANGUAGE_NUM] = {
     {"电子图书", "電子圖書", "EBOOK",},
     {"数码相框", "數碼相框", "PHOTOS",},
     {"音乐播放器", "音樂播放器", "MUSIC PLAYER",},
@@ -107,10 +101,8 @@ void app_read_bkcolor(u16 x, u16 y, u16 width, u16 height, u16 *ctbl)
 {
     u16 x0, y0, ccnt;
     ccnt = 0;
-    for(y0 = y; y0 < y + height; y0++)
-    {
-        for(x0 = x; x0 < x + width; x0++)
-        {
+    for(y0 = y; y0 < y + height; y0++) {
+        for(x0 = x; x0 < x + width; x0++) {
             ctbl[ccnt] = gui_phy.read_point(x0, y0); //读取颜色
             ccnt++;
         }
@@ -123,10 +115,8 @@ void app_recover_bkcolor(u16 x, u16 y, u16 width, u16 height, u16 *ctbl)
 {
     u16 x0, y0, ccnt;
     ccnt = 0;
-    for(y0 = y; y0 < y + height; y0++)
-    {
-        for(x0 = x; x0 < x + width; x0++)
-        {
+    for(y0 = y; y0 < y + height; y0++) {
+        for(x0 = x; x0 < x + width; x0++) {
             gui_phy.draw_point(x0, y0, ctbl[ccnt]); //读取颜色
             ccnt++;
         }
@@ -144,10 +134,18 @@ void app_gui_tcbar(u16 x, u16 y, u16 width, u16 height, u8 mode)
     u16 halfheight = height / 2;
     gui_fill_rectangle(x, y, width, halfheight, LIGHTBLUE);  			//填充底部颜色(浅蓝色)
     gui_fill_rectangle(x, y + halfheight, width, halfheight, GRAYBLUE); 	//填充底部颜色(灰蓝色)
-    if(mode & 0x01)gui_draw_hline(x, y, width, DARKBLUE);
-    if(mode & 0x02)gui_draw_hline(x, y + height - 1, width, DARKBLUE);
-    if(mode & 0x04)gui_draw_vline(x, y, height, DARKBLUE);
-    if(mode & 0x08)gui_draw_vline(x + width - 1, y, width, DARKBLUE);
+    if(mode & 0x01) {
+        gui_draw_hline(x, y, width, DARKBLUE);
+    }
+    if(mode & 0x02) {
+        gui_draw_hline(x, y + height - 1, width, DARKBLUE);
+    }
+    if(mode & 0x04) {
+        gui_draw_vline(x, y, height, DARKBLUE);
+    }
+    if(mode & 0x08) {
+        gui_draw_vline(x + width - 1, y, width, DARKBLUE);
+    }
 }
 //得到数字的位数
 //num:数字
@@ -159,34 +157,36 @@ u8 app_get_numlen(long long num, u8 dir)
 #define MAX_NUM_LENTH		10		//最大的数字长度
     u8 i = 0, j;
     u8 temp = 0;
-    if(dir == 0) //从高到底
-    {
+    if(dir == 0) { //从高到底
         i = MAX_NUM_LENTH - 1;
-        while(1)
-        {
+        while(1) {
             temp = (num / gui_pow(10, i)) % 10;
-            if(temp || i == 0)break;
+            if(temp || i == 0) {
+                break;
+            }
             i--;
         }
-    }
-    else	//从低到高
-    {
+    } else {	//从低到高
         j = 0;
-        while(1)
-        {
-            if(num % 10)
-            {
+        while(1) {
+            if(num % 10) {
                 i = app_get_numlen(num, 0);
                 return i;
             }
-            if(j == (MAX_NUM_LENTH - 1))break;
+            if(j == (MAX_NUM_LENTH - 1)) {
+                break;
+            }
             num /= 10;
             j++;
         }
     }
-    if(i)return i + 1;
-    else if(temp)return 1;
-    else return 0;
+    if(i) {
+        return i + 1;
+    } else if(temp) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 //显示单色图标
@@ -202,18 +202,18 @@ void app_show_mono_icos(u16 x, u16 y, u8 width, u8 height, u8 *icosbase, u16 col
     u8 t = 0;
     u16 x0 = x; //保留x的位置
     rsize = width / 8 + ((width % 8) ? 1 : 0); //每行的字节数
-    for(i = 0; i < rsize * height; i++)
-    {
+    for(i = 0; i < rsize * height; i++) {
         temp = icosbase[i];
-        for(j = 0; j < 8; j++)
-        {
-            if(temp & 0x80)gui_phy.draw_point(x, y, color);
-            else gui_phy.draw_point(x, y, bkcolor);
+        for(j = 0; j < 8; j++) {
+            if(temp & 0x80) {
+                gui_phy.draw_point(x, y, color);
+            } else {
+                gui_phy.draw_point(x, y, bkcolor);
+            }
             temp <<= 1;
             x++;
             t++;			//宽度计数器
-            if(t == width)
-            {
+            if(t == width) {
                 t = 0;
                 x = x0;
                 y++;
@@ -238,28 +238,28 @@ void app_show_float(u16 x, u16 y, long long num, u8 flen, u8 clen, u8 font, u16 
     u8 negative = 0;					//负数标记
     u16 maxlen = (u16)clen * (font / 2);	//清除的长度
     gui_fill_rectangle(x - maxlen, y, maxlen, font, bkcolor); //清除之前的痕迹
-    if(num < 0)
-    {
+    if(num < 0) {
         num = -num;
         negative = 1;
     }
     ilen = app_get_numlen(num, 0);	//得到总位数
     gui_phy.back_color = bkcolor;
-    if(flen)
-    {
+    if(flen) {
         gui_show_num(x - (font / 2)*flen, y, flen, color, font, num, 0X80); //显示小数部分
         gui_show_ptchar(x - (font / 2) * (flen + 1), y, GUI_LCD_W, GUI_LCD_H, 0, color, font, '.', 0); //显示小数点
         offpos = 2 + flen;
     }
-    if(ilen <= flen)ilen = 1;
-    else
-    {
+    if(ilen <= flen) {
+        ilen = 1;
+    } else {
         offpos = ilen + 1;
         ilen = ilen - flen;	//得到整数部分的长度.
     }
     num = num / gui_pow(10, flen); //得到整数部分
     gui_show_num(x - (font / 2)*offpos, y, ilen, color, font, num, 0X80);	//填充0显示
-    if(negative)gui_show_ptchar(x - (font / 2) * (offpos + 1), y, GUI_LCD_W, GUI_LCD_H, 0, color, font, '-', 0); //显示符号
+    if(negative) {
+        gui_show_ptchar(x - (font / 2) * (offpos + 1), y, GUI_LCD_W, GUI_LCD_H, 0, color, font, '-', 0);    //显示符号
+    }
 }
 
 //topname:浏览的时候要显示的名字
@@ -271,9 +271,15 @@ void app_show_float(u16 x, u16 y, long long num, u8 flen, u8 clen, u8 font, u16 
 //返回值:无
 void app_filebrower(u8 *topname, u8 mode)
 {
-    if(mode & 0X01)app_gui_tcbar(0, 0, 240, 20, 0x02);		//下分界线
-    if(mode & 0X02)app_gui_tcbar(0, 300, 240, 20, 0x01);		//上分界线
-    if(mode & 0X04)gui_show_strmid(0, 0, 240, 20, WHITE, 16, topname);
+    if(mode & 0X01) {
+        app_gui_tcbar(0, 0, 240, 20, 0x02);    //下分界线
+    }
+    if(mode & 0X02) {
+        app_gui_tcbar(0, 300, 240, 20, 0x01);    //上分界线
+    }
+    if(mode & 0X04) {
+        gui_show_strmid(0, 0, 240, 20, WHITE, 16, topname);
+    }
 }
 //在指定位置显示一个大字符
 //字符取模方法:逐行式,顺向(高位在前),阴码.C51格式.
@@ -290,52 +296,62 @@ void app_showbigchar(u8 *fontbase, u16 x, u16 y, u8 chr, u8 size, u16 color, u16
     u16 offset;
     u16 colortemp = POINT_COLOR;
     u16 x0 = x;
-    if(size == 60) //60字体
-    {
-        if(chr >= '0' && chr <= ':')offset = chr - '0';
-        else if(chr == '.')offset = 11;
-        else if(chr == 'C')offset = 12;
-        else if(chr == ' ')offset = 13;
-        else return;		//不能显示的字符
+    if(size == 60) { //60字体
+        if(chr >= '0' && chr <= ':') {
+            offset = chr - '0';
+        } else if(chr == '.') {
+            offset = 11;
+        } else if(chr == 'C') {
+            offset = 12;
+        } else if(chr == ' ') {
+            offset = 13;
+        } else {
+            return;    //不能显示的字符
+        }
         offset *= 240;		//偏移(每个字符点阵占用240字节)
-        for(n = 0; n < 240; n++)
-        {
+        for(n = 0; n < 240; n++) {
             temp = fontbase[offset + n];
-            for(t = 0; t < 8; t++)
-            {
-                if(temp & 0x80)gui_phy.draw_point(x, y, color);
-                else gui_phy.draw_point(x, y, bkcolor);
+            for(t = 0; t < 8; t++) {
+                if(temp & 0x80) {
+                    gui_phy.draw_point(x, y, color);
+                } else {
+                    gui_phy.draw_point(x, y, bkcolor);
+                }
                 temp <<= 1;
                 x++;
-                if(((n % 4) == 3) && t == 5)
-                {
+                if(((n % 4) == 3) && t == 5) {
                     x = x0;
                     y++;
                     break;
                 }
             }
         }
-    }
-    else 		//28字体
-    {
-        if(chr >= '0' && chr <= '9')offset = chr - '0';
-        else if(chr == '.')offset = 10;
-        else if(chr == '-')offset = 11;
-        else if(chr >= 'A' && chr <= 'F')offset = 12 + chr - 'A';
-        else if(chr == ' ')offset = 18;
-        else return;		//不能显示的字符
+    } else {	//28字体
+        if(chr >= '0' && chr <= '9') {
+            offset = chr - '0';
+        } else if(chr == '.') {
+            offset = 10;
+        } else if(chr == '-') {
+            offset = 11;
+        } else if(chr >= 'A' && chr <= 'F') {
+            offset = 12 + chr - 'A';
+        } else if(chr == ' ') {
+            offset = 18;
+        } else {
+            return;    //不能显示的字符
+        }
         offset *= 56;			//偏移(每个字符点阵占用56字节)
-        for(n = 0; n < 56; n++)
-        {
+        for(n = 0; n < 56; n++) {
             temp = fontbase[offset + n];
-            for(t = 0; t < 8; t++)
-            {
-                if(temp & 0x80)gui_phy.draw_point(x, y, color);
-                else gui_phy.draw_point(x, y, bkcolor);
+            for(t = 0; t < 8; t++) {
+                if(temp & 0x80) {
+                    gui_phy.draw_point(x, y, color);
+                } else {
+                    gui_phy.draw_point(x, y, bkcolor);
+                }
                 temp <<= 1;
                 x++;
-                if(((n % 2) == 1) && t == 5)
-                {
+                if(((n % 2) == 1) && t == 5) {
                     x = x0;
                     y++;
                     break;
@@ -353,8 +369,7 @@ void app_showbigchar(u8 *fontbase, u16 x, u16 y, u8 chr, u8 size, u16 color, u16
 //color,bkcolor:颜色和背景色
 void app_showbigstring(u8 *fontbase, u16 x, u16 y, const u8 *p, u8 size, u16 color, u16 bkcolor)
 {
-    while(*p != '\0')
-    {
+    while(*p != '\0') {
         app_showbigchar(fontbase, x, y, *p, size, color, bkcolor);
         x += size / 2;
         p++;
@@ -371,17 +386,15 @@ void app_showbignum(u8 *fontbase, u16 x, u16 y, u32 num, u8 len, u8 size, u16 co
 {
     u8 t, temp;
     u8 enshow = 0;
-    for(t = 0; t < len; t++)
-    {
+    for(t = 0; t < len; t++) {
         temp = (num / gui_pow(10, len - t - 1)) % 10;
-        if(enshow == 0 && t < (len - 1))
-        {
-            if(temp == 0)
-            {
+        if(enshow == 0 && t < (len - 1)) {
+            if(temp == 0) {
                 app_showbigchar(fontbase, x + (size / 2)*t, y, ' ', size, color, bkcolor);
                 continue;
+            } else {
+                enshow = 1;
             }
-            else enshow = 1;
 
         }
         app_showbigchar(fontbase, x + (size / 2)*t, y, temp + '0', size, color, bkcolor);
@@ -409,7 +422,9 @@ void app_show_nummid(u16 x, u16 y, u16 width, u16 height, u32 num, u8 len, u8 si
     u16 numlen;
     u8 xoff, yoff;
     numlen = (size / 2) * len; //数字长度
-    if(numlen > width || size > height)return;
+    if(numlen > width || size > height) {
+        return;
+    }
     xoff = (width - numlen) / 2;
     yoff = (height - size) / 2;
     POINT_COLOR = ptcolor;
@@ -432,8 +447,11 @@ void app_draw_smooth_line(u16 x, u16 y, u16 width, u16 height, u32 sergb, u32 mr
 //返回值:0,不在区域内;1,在区域内.
 u8 app_tp_is_in_area(_m_tp_dev *tp, u16 x, u16 y, u16 width, u16 height)
 {
-    if(tp->x <= (x + width) && tp->x >= x && tp->y <= (y + height) && tp->y >= y)return 1;
-    else return 0;
+    if(tp->x <= (x + width) && tp->x >= x && tp->y <= (y + height) && tp->y >= y) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 //显示条目
 //x,y,itemwidth,itemheight:条目坐标及尺寸
@@ -443,7 +461,9 @@ void app_show_items(u16 x, u16 y, u16 itemwidth, u16 itemheight, u8 *name, u8 *i
 {
     gui_fill_rectangle(x, y, itemwidth, itemheight, bkcolor);	//填充背景色
     gui_show_ptstr(x + 5, y + (itemheight - 16) / 2, x + itemwidth - 10 - APP_ITEM_ICO_SIZE - 5, y + itemheight, 0, color, 16, name, 1);	//显示条目名字
-    if(icopath)minibmp_decode(icopath, x + itemwidth - 10 - APP_ITEM_ICO_SIZE, y + (itemheight - APP_ITEM_ICO_SIZE) / 2, APP_ITEM_ICO_SIZE, APP_ITEM_ICO_SIZE, 0, 0);			//解码APP_ITEM_ICO_SIZE*APP_ITEM_ICO_SIZE的bmp图片
+    if(icopath) {
+        minibmp_decode(icopath, x + itemwidth - 10 - APP_ITEM_ICO_SIZE, y + (itemheight - APP_ITEM_ICO_SIZE) / 2, APP_ITEM_ICO_SIZE, APP_ITEM_ICO_SIZE, 0, 0);    //解码APP_ITEM_ICO_SIZE*APP_ITEM_ICO_SIZE的bmp图片
+    }
 }
 //获得当前条目的图标路径
 //mode:0,单选模式;1,多选模式
@@ -453,15 +473,18 @@ void app_show_items(u16 x, u16 y, u16 itemwidth, u16 itemheight, u8 *name, u8 *i
 u8 *app_get_icopath(u8 mode, u8 *selpath, u8 *unselpath, u8 selx, u8 index)
 {
     u8 *icopath = 0;
-    if(mode)//多选模式
-    {
-        if(selx & (1 << index))icopath = selpath;	//是选中的条目
-        else icopath = unselpath;			  	//是非选中的条目
-    }
-    else
-    {
-        if(selx == index)icopath = selpath;		//是选中的条目
-        else icopath = unselpath;			  	//是非选中的条目
+    if(mode) { //多选模式
+        if(selx & (1 << index)) {
+            icopath = selpath;    //是选中的条目
+        } else {
+            icopath = unselpath;    //是非选中的条目
+        }
+    } else {
+        if(selx == index) {
+            icopath = selpath;    //是选中的条目
+        } else {
+            icopath = unselpath;    //是非选中的条目
+        }
     }
     return icopath;
 }
@@ -498,36 +521,38 @@ u8 app_items_sel(u16 x, u16 y, u16 width, u16 height, u8 *items[], u8 itemsize, 
     _btn_obj *okbtn = 0;		//确定按钮
     _btn_obj *cancelbtn = 0; //取消按钮
 
-    if(itemsize > 8 || itemsize < 1)return 0xff;	//条目数错误
-    if(width < 150 || height < 72)return 0xff; 	//尺寸错误
+    if(itemsize > 8 || itemsize < 1) {
+        return 0xff;    //条目数错误
+    }
+    if(width < 150 || height < 72) {
+        return 0xff;    //尺寸错误
+    }
 
     itemheight = (height - 72) / itemsize - 1;	//得到每个条目的高度
     itemwidth = width - 10;					//每个条目的宽度
 
     twin = window_creat(x, y, width, height, 0, 1 | (1 << 5) | ((1 << 6)&mode), 16); //创建窗口
-    if(mode & (1 << 7))
-    {
+    if(mode & (1 << 7)) {
         temp = (width - APP_ITEM_BTN1_WIDTH * 2) / 3;
         okbtn = btn_creat(x + temp, y + height - APP_ITEM_BTN_HEIGHT - 5, APP_ITEM_BTN1_WIDTH, APP_ITEM_BTN_HEIGHT, 0, 0x02);							//创建OK按钮
         cancelbtn = btn_creat(x + APP_ITEM_BTN1_WIDTH + temp * 2, y + height - APP_ITEM_BTN_HEIGHT - 5, APP_ITEM_BTN1_WIDTH, APP_ITEM_BTN_HEIGHT, 0, 0x02); //创建CANCEL按钮
-        if(twin == NULL || okbtn == NULL || cancelbtn == NULL)rval = 1;
-        else
-        {
+        if(twin == NULL || okbtn == NULL || cancelbtn == NULL) {
+            rval = 1;
+        } else {
             okbtn->caption = (u8 *)GUI_OK_CAPTION_TBL[gui_phy.language]; //确认
             okbtn->bkctbl[0] = 0X8452; //边框颜色
             okbtn->bkctbl[1] = 0XAD97; //第一行的颜色
             okbtn->bkctbl[2] = 0XAD97; //上半部分颜色
             okbtn->bkctbl[3] = 0X8452; //下半部分颜色
         }
-    }
-    else
-    {
+    } else {
         temp = (width - APP_ITEM_BTN2_WIDTH) / 2;
         cancelbtn = btn_creat(x + temp, y + height - APP_ITEM_BTN_HEIGHT - 5, APP_ITEM_BTN2_WIDTH, APP_ITEM_BTN_HEIGHT, 0, 0x02);	//创建CANCEL按钮
-        if(twin == NULL || cancelbtn == NULL)rval = 1;
+        if(twin == NULL || cancelbtn == NULL) {
+            rval = 1;
+        }
     }
-    if(rval == 0) //之前的操作正常
-    {
+    if(rval == 0) { //之前的操作正常
         twin->caption = caption;
         twin->windowbkc = APP_WIN_BACK_COLOR;
         cancelbtn->caption = (u8 *)GUI_CANCEL_CAPTION_TBL[gui_phy.language]; //取消
@@ -536,64 +561,53 @@ u8 app_items_sel(u16 x, u16 y, u16 width, u16 height, u8 *items[], u8 itemsize, 
         cancelbtn->bkctbl[2] = 0XAD97; //上半部分颜色
         cancelbtn->bkctbl[3] = 0X8452; //下半部分颜色
 
-        if(mode & (1 << 4)) //需要加载图标
-        {
-            if(mode & (1 << 5)) //多选模式
-            {
+        if(mode & (1 << 4)) { //需要加载图标
+            if(mode & (1 << 5)) { //多选模式
                 unselpath = (u8 *)APP_CANCEL_PIC;		//未选中的图标的路径
                 selpath = (u8 *)APP_OK_PIC;			//选中图标的路径
-            }
-            else		    //单选模式
-            {
+            } else {	  //单选模式
                 unselpath = (u8 *)APP_UNSELECT_PIC;	//未选中的图标的路径
                 selpath = (u8 *)APP_SELECT_PIC;		//选中图标的路径
             }
         }
         window_draw(twin);				//画出窗体
         btn_draw(cancelbtn);			//画按钮
-        if(mode & (1 << 7))btn_draw(okbtn);	//画按钮
-        for(i = 0; i < itemsize; i++)
-        {
+        if(mode & (1 << 7)) {
+            btn_draw(okbtn);    //画按钮
+        }
+        for(i = 0; i < itemsize; i++) {
             icopath = app_get_icopath(mode & (1 << 5), selpath, unselpath, *selx, i); //得到图标路径
             app_show_items(x + 5, y + 32 + i * (itemheight + 1), itemwidth, itemheight, items[i], icopath, BLACK, twin->windowbkc); //显示所有的条目
-            if((i + 1) != itemsize)app_draw_smooth_line(x + 5, y + 32 + (i + 1) * (itemheight + 1) - 1, itemwidth, 1, 0Xb1ffc4, 0X1600b1); //画彩线
+            if((i + 1) != itemsize) {
+                app_draw_smooth_line(x + 5, y + 32 + (i + 1) * (itemheight + 1) - 1, itemwidth, 1, 0Xb1ffc4, 0X1600b1);    //画彩线
+            }
         }
-        while(rval == 0)
-        {
+        while(rval == 0) {
             tp_dev.scan(0);
             in_obj.get_key(&tp_dev, IN_TYPE_TOUCH);	//得到按键键值
             //			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
             //			if(system_task_return){rval=1;break;};	//TPAD返回
-            if(mode & (1 << 7))
-            {
+            if(mode & (1 << 7)) {
                 res = btn_check(okbtn, &in_obj);		//确认按钮检测
-                if(res)
-                {
-                    if((okbtn->sta & 0X80) == 0) //有有效操作
-                    {
+                if(res) {
+                    if((okbtn->sta & 0X80) == 0) { //有有效操作
                         rval = 0XFF;
                         break;//确认按钮
                     }
                 }
             }
             res = btn_check(cancelbtn, &in_obj);		//取消按钮检测
-            if(res)
-            {
-                if((cancelbtn->sta & 0X80) == 0) //有有效操作
-                {
+            if(res) {
+                if((cancelbtn->sta & 0X80) == 0) { //有有效操作
                     rval = 1;
                     break;//取消按钮
                 }
             }
             temp = 0XFF; //标记量,如果为0XFF,在松开的时候,说明是不在有效区域内的.如果非0XFF,则表示TP松开的时候,是在有效区域内.
-            for(i = 0; i < itemsize; i++)
-            {
-                if(tp_dev.sta & TP_PRES_DOWN) //触摸屏被按下
-                {
-                    if(app_tp_is_in_area(&tp_dev, x + 5, y + 32 + i * (itemheight + 1), itemwidth, itemheight)) //判断某个时刻,触摸屏的值是不是在某个区域内
-                    {
-                        if((selsta & 0X80) == 0) //还没有按下过
-                        {
+            for(i = 0; i < itemsize; i++) {
+                if(tp_dev.sta & TP_PRES_DOWN) { //触摸屏被按下
+                    if(app_tp_is_in_area(&tp_dev, x + 5, y + 32 + i * (itemheight + 1), itemwidth, itemheight)) { //判断某个时刻,触摸屏的值是不是在某个区域内
+                        if((selsta & 0X80) == 0) { //还没有按下过
                             icopath = app_get_icopath(mode & (1 << 5), selpath, unselpath, *selx, i); //得到图标路径
                             app_show_items(x + 5, y + 32 + i * (itemheight + 1), itemwidth, itemheight, items[i], icopath, BLACK, APP_ITEM_SEL_BKCOLOR); //反选条目
                             selsta = i;		//记录第一次按下的条目
@@ -601,32 +615,28 @@ u8 app_items_sel(u16 x, u16 y, u16 width, u16 height, u8 *items[], u8 itemsize, 
                         }
                         break;
                     }
-                }
-                else  //触摸屏被松开了
-                {
-                    if(app_tp_is_in_area(&tp_dev, x + 5, y + 32 + i * (itemheight + 1), itemwidth, itemheight)) //判断某个时刻,触摸屏的值是不是在某个区域内
-                    {
+                } else { //触摸屏被松开了
+                    if(app_tp_is_in_area(&tp_dev, x + 5, y + 32 + i * (itemheight + 1), itemwidth, itemheight)) { //判断某个时刻,触摸屏的值是不是在某个区域内
                         temp = i;
                         break;
                     }
                 }
             }
-            if((selsta & 0X80) && (tp_dev.sta & TP_PRES_DOWN) == 0) //有按下过,且按键松开了
-            {
-                if((selsta & 0X0F) == temp) //松开之前的坐标也是在按下时的区域内.
-                {
-                    if(mode & (1 << 5)) //多选模式,执行取反操作
-                    {
-                        if((*selx) & (1 << temp))*selx &= ~(1 << temp);
-                        else *selx |= 1 << temp;
-                    }
-                    else //单选模式
-                    {
+            if((selsta & 0X80) && (tp_dev.sta & TP_PRES_DOWN) == 0) { //有按下过,且按键松开了
+                if((selsta & 0X0F) == temp) { //松开之前的坐标也是在按下时的区域内.
+                    if(mode & (1 << 5)) { //多选模式,执行取反操作
+                        if((*selx) & (1 << temp)) {
+                            *selx &= ~(1 << temp);
+                        } else {
+                            *selx |= 1 << temp;
+                        }
+                    } else { //单选模式
                         app_show_items(x + 5, y + 32 + (*selx) * (itemheight + 1), itemwidth, itemheight, items[*selx], unselpath, BLACK, twin->windowbkc); //取消之前选择的条目
                         *selx = temp;
                     }
+                } else {
+                    temp = selsta & 0X0F;    //得到当时按下的条目号
                 }
-                else temp = selsta & 0X0F; //得到当时按下的条目号
                 icopath = app_get_icopath(mode & (1 << 5), selpath, unselpath, *selx, temp); //得到图标路径
                 app_show_items(x + 5, y + 32 + temp * (itemheight + 1), itemwidth, itemheight, items[temp], icopath, BLACK, twin->windowbkc); //反选条目
                 selsta = 0; //取消
@@ -637,7 +647,9 @@ u8 app_items_sel(u16 x, u16 y, u16 width, u16 height, u8 *items[], u8 itemsize, 
     btn_delete(okbtn);
     btn_delete(cancelbtn);
     //	system_task_return=0;
-    if(rval == 0XFF)return 0;
+    if(rval == 0XFF) {
+        return 0;
+    }
     return rval;
 }
 
@@ -659,33 +671,32 @@ u8 app_listbox_select(u8 *sel, u8 *top, u8 *caption, u8 *items[], u8 itemsize)
     _btn_obj *okbtn = 0;			//确认按钮控件
     _listbox_obj *tlistbox;	//listbox
 
-    if(*sel >= itemsize || *top >= itemsize)return 2; //参数错误/参数非法
+    if(*sel >= itemsize || *top >= itemsize) {
+        return 2;    //参数错误/参数非法
+    }
 
     app_filebrower(caption, 0X07);				//显示标题
     tlistbox = listbox_creat(0, 20, 240, 280, 1, 16);	//创建一个filelistbox
-    if(tlistbox == NULL)rval = 1;					//申请内存失败.
-    else	//添加条目
-    {
-        for(i = 0; i < itemsize; i++)
-        {
+    if(tlistbox == NULL) {
+        rval = 1;    //申请内存失败.
+    } else {	//添加条目
+        for(i = 0; i < itemsize; i++) {
             res = listbox_addlist(tlistbox, items[i]);
-            if(res)
-            {
+            if(res) {
                 rval = 1;
                 break;
             }
         }
     }
-    if(rval == 0) //成功添加了条目
-    {
+    if(rval == 0) { //成功添加了条目
         tlistbox->scbv->topitem = *top;
         tlistbox->selindex = *sel;
         listbox_draw_listbox(tlistbox);
         rbtn = btn_creat(199, 300, 40, 19, 0, 0x03);	//创建返回文字按钮
         okbtn = btn_creat(0, 300, 40, 19, 0, 0x03);	//创建确认文字按钮
-        if(rbtn == NULL || okbtn == NULL)rval = 1;		//没有足够内存够分配
-        else
-        {
+        if(rbtn == NULL || okbtn == NULL) {
+            rval = 1;    //没有足够内存够分配
+        } else {
             rbtn->caption = (u8 *)GUI_BACK_CAPTION_TBL[gui_phy.language];	//名字
             rbtn->font = 16;			//字体
             rbtn->bcfdcolor = WHITE;	//按下时的颜色
@@ -699,30 +710,27 @@ u8 app_listbox_select(u8 *sel, u8 *top, u8 *caption, u8 *items[], u8 itemsize)
             btn_draw(okbtn);//画按钮
         }
     }
-    while(rval == 0)
-    {
+    while(rval == 0) {
         tp_dev.scan(0);
         in_obj.get_key(&tp_dev, IN_TYPE_TOUCH);	//得到按键键值
         //		delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
         // 		if(system_task_return)break;			//TPAD返回
         res = btn_check(rbtn, &in_obj);		 //返回按钮检测
-        if(res)
-        {
-            if(((rbtn->sta & 0X80) == 0))break; //退出
+        if(res) {
+            if(((rbtn->sta & 0X80) == 0)) {
+                break;    //退出
+            }
         }
         res = btn_check(okbtn, &in_obj); //确认按钮检测
-        if(res)
-        {
-            if(((okbtn->sta & 0X80) == 0)) //按钮状态改变了
-            {
+        if(res) {
+            if(((okbtn->sta & 0X80) == 0)) { //按钮状态改变了
                 *top = tlistbox->scbv->topitem; //记录退出时选择的条目
                 *sel = tlistbox->selindex;
                 rval |= 1 << 7; //标记双击按下了
             }
         }
         listbox_check(tlistbox, &in_obj);	//扫描
-        if(tlistbox->dbclick == 0X80) //双击了
-        {
+        if(tlistbox->dbclick == 0X80) { //双击了
             *top = tlistbox->scbv->topitem; //记录退出时选择的条目
             *sel = tlistbox->selindex;
             rval |= 1 << 7; //标记双击按下了
@@ -748,164 +756,197 @@ u8 app_system_file_check(void)
     u8 res = 0;
     FIL *f_check;
     f_check = (FIL *)gui_memin_malloc(sizeof(FIL));	//开辟FIL字节的内存区域
-    if(f_check == NULL)rval = 0XFF; //申请失败
+    if(f_check == NULL) {
+        rval = 0XFF;    //申请失败
+    }
 #if 0
-    while(rval == 0)
-    {
+    while(rval == 0) {
         //SPB文件检测,20个.
         rval++;
         res = f_open(f_check, (const TCHAR *)spb_bkpic_path_tbl[0], FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)spb_bkpic_path_tbl[1], FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);        //关闭文件
-        for(i = 0; i < 9; i++)
-        {
+        for(i = 0; i < 9; i++) {
             res = f_open(f_check, (const TCHAR *)spb_icos_path_tbl[0][i], FA_READ); //只读方式打开文件
-            if(res)break;		//打开失败
+            if(res) {
+                break;    //打开失败
+            }
             f_close(f_check);    //关闭文件
         }
         rval += i;
-        if(i < 9)
-        {
+        if(i < 9) {
             rval++;
             break;
         }
-        for(i = 0; i < 9; i++)
-        {
+        for(i = 0; i < 9; i++) {
             res = f_open(f_check, (const TCHAR *)spb_icos_path_tbl[1][i], FA_READ); //只读方式打开文件
-            if(res)break;		//打开失败
+            if(res) {
+                break;    //打开失败
+            }
             f_close(f_check); 	//关闭文件
         }
         rval += i;
-        if(i < 9)
-        {
+        if(i < 9) {
             rval++;
             break;
         }
         //COMMON文件检测,7个
         rval++;
         res = f_open(f_check, (const TCHAR *)APP_OK_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)APP_CANCEL_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)APP_UNSELECT_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)APP_SELECT_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)APP_ASCII_60, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)APP_ASCII_28, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)APP_VOL_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         //MP3文件检测,15个
         rval++;
         res = f_open(f_check, (const TCHAR *)FLAC_PATCH_PATH, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)SPEC_PATCH_PATH, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)MP3_DEMO_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)MP3_PLAYR_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         rval++;
         res = f_open(f_check, (const TCHAR *)MP3_PAUSEP_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
-        for(i = 0; i < 5; i++)
-        {
+        for(i = 0; i < 5; i++) {
             res = f_open(f_check, (const TCHAR *)MP3_BTN_PIC_TBL[0][i], FA_READ); //只读方式打开文件
-            if(res)break;		//打开失败
+            if(res) {
+                break;    //打开失败
+            }
             f_close(f_check);    //关闭文件
         }
         rval += i;
-        if(i < 5)
-        {
+        if(i < 5) {
             rval++;
             break;
         }
-        for(i = 0; i < 5; i++)
-        {
+        for(i = 0; i < 5; i++) {
             res = f_open(f_check, (const TCHAR *)MP3_BTN_PIC_TBL[1][i], FA_READ); //只读方式打开文件
-            if(res)break;		//打开失败
+            if(res) {
+                break;    //打开失败
+            }
             f_close(f_check);    //关闭文件
         }
         rval += i;
-        if(i < 5)
-        {
+        if(i < 5) {
             rval++;
             break;
         }
         //检测应用程序16个图标
-        for(i = 0; i < 16; i++)
-        {
+        for(i = 0; i < 16; i++) {
             res = f_open(f_check, (const TCHAR *)appplay_icospath_tbl[i], FA_READ); //只读方式打开文件
-            if(res)break;		//打开失败
+            if(res) {
+                break;    //打开失败
+            }
             f_close(f_check);    //关闭文件
         }
         rval += i;
-        if(i < 16)
-        {
+        if(i < 16) {
             rval++;
             break;
         }
         //检测计算器58个图标
-        for(i = 0; i < 29; i++)
-        {
+        for(i = 0; i < 29; i++) {
             res = f_open(f_check, (const TCHAR *)CALC_UP_BTN_TBL[i], FA_READ); //只读方式打开文件
-            if(res)break;		//打开失败
+            if(res) {
+                break;    //打开失败
+            }
             f_close(f_check);    //关闭文件
         }
         rval += i;
-        if(i < 29)
-        {
+        if(i < 29) {
             rval++;
             break;
         }
-        for(i = 0; i < 29; i++)
-        {
+        for(i = 0; i < 29; i++) {
             res = f_open(f_check, (const TCHAR *)CALC_DOWN_BTN_TBL[i], FA_READ); //只读方式打开文件
-            if(res)break;		//打开失败
+            if(res) {
+                break;    //打开失败
+            }
             f_close(f_check);    //关闭文件
         }
         rval += i;
-        if(i < 29)
-        {
+        if(i < 29) {
             rval++;
             break;
         }
         //检测TOM猫1个图标
         rval++;
         res = f_open(f_check, (const TCHAR *)TOMCAT_DEMO_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         //检测画图1个图标
         rval++;
         res = f_open(f_check, (const TCHAR *)PAINT_COLOR_TBL_PIC, FA_READ); //只读方式打开文件
-        if(res)break;			//打开失败
+        if(res) {
+            break;    //打开失败
+        }
         f_close(f_check);		//关闭文件
         printf("\r\ntotal system files:%d\r\n", rval);
         rval = 0;
@@ -947,15 +988,15 @@ static u16 cpdmsg_y;
 //       1,结束复制
 u8 app_boot_cpdmsg(u8 *pname, u8 pct, u8 mode)
 {
-    if(mode & 0X01)
-    {
+    if(mode & 0X01) {
         LCD_Fill(cpdmsg_x + 9 * 6, cpdmsg_y, cpdmsg_x + 21 * 6, cpdmsg_y + 12, BLACK);	//填充底色
         LCD_ShowString(cpdmsg_x + 9 * 6, cpdmsg_y, 6 * 12, 12, 12, pname);			 	//显示文件名
         printf("\r\nCopy File:%s\r\n", pname);
     }
-    if(mode & 0X04)printf("Copy Folder:%s\r\n", pname);
-    if(mode & 0X02) //更新百分比
-    {
+    if(mode & 0X04) {
+        printf("Copy Folder:%s\r\n", pname);
+    }
+    if(mode & 0X02) { //更新百分比
         LCD_ShowString(cpdmsg_x + 25 * 6, cpdmsg_y, 240, 320, 12, "%");
         LCD_ShowNum(cpdmsg_x + 22 * 6, cpdmsg_y, pct, 3, 12); //显示数值
         printf("File Copyed:%d\r\n", pct);
@@ -982,22 +1023,28 @@ u8 app_system_update(u8(*fcpymsg)(u8 *pname, u8 pct, u8 mode))
     printf("totsize:%d\r\n", totsize);
     f_mkdir((const TCHAR *)APP_SYSTEM_DSTPATH);//强制创建目标文件夹
     res = exf_fdcopy(fcpymsg, (u8 *)APP_SYSTEM_APPPATH, (u8 *)APP_SYSTEM_DSTPATH, &totsize, &cpdsize, 1);
-    if(res)
-    {
-        if(res != 0xff)return 1;	//第一阶段复制出错
-        else return 0XFF;		//强制退出
+    if(res) {
+        if(res != 0xff) {
+            return 1;    //第一阶段复制出错
+        } else {
+            return 0XFF;    //强制退出
+        }
     }
     res = exf_fdcopy(fcpymsg, (u8 *)APP_SYSTEM_FONTPATH, (u8 *)APP_SYSTEM_DSTPATH, &totsize, &cpdsize, 1);
-    if(res)
-    {
-        if(res != 0xff)return 1;	//第二阶段复制出错
-        else return 0XFF;		//强制退出
+    if(res) {
+        if(res != 0xff) {
+            return 1;    //第二阶段复制出错
+        } else {
+            return 0XFF;    //强制退出
+        }
     }
     res = exf_fdcopy(fcpymsg, (u8 *)APP_SYSTEM_SPBPATH, (u8 *)APP_SYSTEM_DSTPATH, &totsize, &cpdsize, 1);
-    if(res)
-    {
-        if(res != 0xff)return 1;	//第三阶段复制出错
-        else return 0XFF;		//强制退出
+    if(res) {
+        if(res != 0xff) {
+            return 1;    //第三阶段复制出错
+        } else {
+            return 0XFF;    //强制退出
+        }
     }
     return 0;
 }
@@ -1024,18 +1071,13 @@ void app_get_version(u8 *buf, u32 ver, u8 len)
 {
     u8 i = 0;
     buf[i++] = 'V';
-    if(len == 1)
-    {
+    if(len == 1) {
         buf[i++] = ver % 10 + '0';
-    }
-    else if(len == 2)
-    {
+    } else if(len == 2) {
         buf[i++] = (ver / 10) % 10 + '0';
         buf[i++] = '.';
         buf[i++] = ver % 10 + '0';
-    }
-    else
-    {
+    } else {
         buf[i++] = (ver / 100) % 10 + '0';
         buf[i++] = '.';
         buf[i++] = (ver / 10) % 10 + '0';
@@ -1052,8 +1094,7 @@ u8 app_system_parameter_init(void)
     //	vs10xx_read_para(&vsset);			//读取VS10XX设置数据
     //	calendar_read_para(&alarm);			//读取闹钟信息
 #if 0
-    if(systemset.saveflag != 0X0A)		//之前没有保存过
-    {
+    if(systemset.saveflag != 0X0A) {	//之前没有保存过
         systemset.syslanguage = 0;		//默认为简体中文
         systemset.lcdbklight = 110;		//背光默认最亮
         systemset.picmode = 0;			//图片顺序播放
@@ -1066,8 +1107,7 @@ u8 app_system_parameter_init(void)
         sysset_save_para(&systemset);	//保存系统设置信息
     }
 #endif
-    if(vsset.saveflag != 0X0A)  			//之前没有保存过
-    {
+    if(vsset.saveflag != 0X0A) {			//之前没有保存过
         vsset.mvol = 220;					//音量:220
         vsset.bflimit = 6;				//低音上线 60Hz
         vsset.bass = 15;					//低音提升 15dB
@@ -1077,8 +1117,7 @@ u8 app_system_parameter_init(void)
         vsset.saveflag = 0X0A;  			//设置保存标记
         //		vs10xx_save_para(&vsset);		//保存VS10XX设置信息
     }
-    if(alarm.saveflag != 0X0A)  			//之前没有保存过
-    {
+    if(alarm.saveflag != 0X0A) {			//之前没有保存过
         alarm.weekmask = 0;				//闹钟响铃掩码为0
         alarm.ringsta = 0;				//闹铃状态及铃声标志为0
         alarm.hour = 0;					//闹铃时间设置为00:00

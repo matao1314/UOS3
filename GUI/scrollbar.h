@@ -46,8 +46,7 @@
 #define SCLB_DFT_RIMCOLOR		0X4A49		//边框颜色
 
 //滚动条结构体定义
-__packed typedef struct
-{
+__packed typedef struct {
     u16 top; 				  		//按钮顶端坐标
     u16 left;                       //按钮左端坐标
     u16 width; 				  		//宽度(至少大于40)

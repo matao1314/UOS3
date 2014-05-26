@@ -19,7 +19,9 @@ _pic_phy pic_phy;		//图片显示物理接口
 //lcd.h没有提供划横线函数,需要自己实现
 void piclib_draw_hline(u16 x0, u16 y0, u16 len, u16 color)
 {
-    if((len == 0) || (x0 > lcddev.width) || (y0 > lcddev.height))return;
+    if((len == 0) || (x0 > lcddev.width) || (y0 > lcddev.height)) {
+        return;
+    }
     LCD_Fill(x0, y0, x0 + len - 1, y0, color);
 }
 //////////////////////////////////////////////////////////////////////////
@@ -68,8 +70,12 @@ void ai_draw_init(void)
     float temp, temp1;
     temp = (float)picinfo.S_Width / picinfo.ImgWidth;
     temp1 = (float)picinfo.S_Height / picinfo.ImgHeight;
-    if(temp < temp1)temp1 = temp; //取较小的那个
-    if(temp1 > 1)temp1 = 1;
+    if(temp < temp1) {
+        temp1 = temp;    //取较小的那个
+    }
+    if(temp1 > 1) {
+        temp1 = 1;
+    }
     //使图片处于所给区域的中间
     picinfo.S_XOFF += (picinfo.S_Width - temp1 * picinfo.ImgWidth) / 2;
     picinfo.S_YOFF += (picinfo.S_Height - temp1 * picinfo.ImgHeight) / 2;
@@ -84,16 +90,15 @@ void ai_draw_init(void)
 //返回值:0,不需要显示.1,需要显示
 u8 is_element_ok(u16 x, u16 y, u8 chg)
 {
-    if(x != picinfo.staticx || y != picinfo.staticy)
-    {
-        if(chg == 1)
-        {
+    if(x != picinfo.staticx || y != picinfo.staticy) {
+        if(chg == 1) {
             picinfo.staticx = x;
             picinfo.staticy = y;
         }
         return 1;
+    } else {
+        return 0;
     }
-    else return 0;
 }
 //智能画图
 //FileName:要显示的图片文件  BMP/JPG/JPEG/GIF
@@ -105,15 +110,20 @@ u8 ai_load_picfile(const u8 *filename, u16 x, u16 y, u16 width, u16 height)
 {
     u8	res;//返回值
     u8 temp;
-    if((x + width) > lcddev.width)return PIC_WINDOW_ERR;		//x坐标超范围了.
-    if((y + height) > lcddev.height)return PIC_WINDOW_ERR;		//y坐标超范围了.
+    if((x + width) > lcddev.width) {
+        return PIC_WINDOW_ERR;    //x坐标超范围了.
+    }
+    if((y + height) > lcddev.height) {
+        return PIC_WINDOW_ERR;    //y坐标超范围了.
+    }
     //得到显示方框大小
-    if(width == 0 || height == 0)return PIC_WINDOW_ERR;	//窗口设定错误
+    if(width == 0 || height == 0) {
+        return PIC_WINDOW_ERR;    //窗口设定错误
+    }
     picinfo.S_Height = height;
     picinfo.S_Width = width;
     //显示区域无效
-    if(picinfo.S_Height == 0 || picinfo.S_Width == 0)
-    {
+    if(picinfo.S_Height == 0 || picinfo.S_Width == 0) {
         picinfo.S_Height = lcddev.height;
         picinfo.S_Width = lcddev.width;
         return FALSE;
@@ -123,8 +133,7 @@ u8 ai_load_picfile(const u8 *filename, u16 x, u16 y, u16 width, u16 height)
     picinfo.S_XOFF = x;
     //文件名传递
     temp = f_typetell((u8 *)filename);	//得到文件的类型
-    switch(temp)
-    {
+    switch(temp) {
     case T_BMP:
         res = stdbmp_decode(filename); //解码bmp
         break;

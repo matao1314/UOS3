@@ -5,13 +5,11 @@
 m_spb_dev   spbdev;
 
 //背景图路径
-const u8 *bkpic_path_tbl[] =
-{
+const u8 *bkpic_path_tbl[] = {
     "0:/SYSTEM/SPB/BACKPIC/LEFT.jpg",
 };
 //icos的路径表
-const u8 *icos_path[9] =
-{
+const u8 *icos_path[9] = {
     "0:/SYSTEM/SPB/ICOS/ebook.bmp",
     "0:/SYSTEM/SPB/ICOS/picture.bmp",
     "0:/SYSTEM/SPB/ICOS/music.bmp",
@@ -24,15 +22,13 @@ const u8 *icos_path[9] =
 };
 
 //各个ICOS的对应功能名字
-const u8 *name_tab[GUI_LANGUAGE_NUM][9] =
-{
+const u8 *name_tab[GUI_LANGUAGE_NUM][9] = {
     {"电子图书", "音乐播放", "应用中心", "时钟", "系统设置", "FC游戏机", "收音机", "记事本"},
     {"EBOOK", "PHOTOS", "MUSIC", "APP", "TIME", "SETTINGS", "FC GAMES", "RADIO", "NOTEPAD"}
 };
 
 
-const u8 *GUI_TBL[3] =
-{
+const u8 *GUI_TBL[3] = {
     "Sure", "返回", "BACK",
 };
 
@@ -40,10 +36,8 @@ const u8 *GUI_TBL[3] =
 static void Load_icos(void)
 {
     u8 i, j;
-    for(i = 0; i < 2; i++)
-    {
-        for(j = 0; j < 3; j++)
-        {
+    for(i = 0; i < 2; i++) {
+        for(j = 0; j < 3; j++) {
             minibmp_decode(spbdev.icos[i * 3 + j].path, spbdev.icos[i * 3 + j].x + 5, spbdev.icos[i * 3 + j].y, spbdev.icos[i * 3 + j].width, spbdev.icos[i * 3 + j].height, 0, 0);
             gui_show_strmid(spbdev.icos[i * 3 + j].x, spbdev.icos[i * 3 + j].y + 67, spbdev.icos[i * 3 + j].width, 16, SPB_FONT_COLOR, 16, spbdev.icos[i * 3 + j].name); //显示名字
         }
@@ -71,10 +65,8 @@ void Draw_mainPage(void)
     spbdev.curypos = 0;
     spbdev.spbsta = 0;
     spbdev.selico = 0xff;
-    for(i = 0; i < 2; i++) //行
-    {
-        for(j = 0; j < 3; j++) //列
-        {
+    for(i = 0; i < 2; i++) { //行
+        for(j = 0; j < 3; j++) { //列
             spbdev.icos[i * 3 + j].x = 5 + j * 80;
             spbdev.icos[i * 3 + j].y = 120 + i * 100;
             spbdev.icos[i * 3 + j].width = 70;
@@ -100,8 +92,7 @@ u8 icon_press_chk(void)
     u8 i = 0xff;
     u8 movecnt = 0;	//得到滑动点数
     tp_dev.scan(0);//扫描
-    if(tp_dev.sta & TP_PRES_DOWN) //有按键被按下
-    {
+    if(tp_dev.sta & TP_PRES_DOWN) { //有按键被按下
 
         //			printf("tp_dev.x==%d tp_dev.y==%d!\r\n",tp_dev.x,tp_dev.y);
 
@@ -109,45 +100,38 @@ u8 icon_press_chk(void)
         spbdev.curypos = tp_dev.y;				//记录当前坐标
     }
 
-    for(i = 0; i < 9; i++)
-    {
+    for(i = 0; i < 9; i++) {
         if((spbdev.curxpos > spbdev.icos[i].x) && (spbdev.curxpos < spbdev.icos[i].x + spbdev.icos[i].width) && (spbdev.curxpos > spbdev.icos[i].x) &&
-                (spbdev.curypos < spbdev.icos[i].y + spbdev.icos[i].height))
-        {
+                (spbdev.curypos < spbdev.icos[i].y + spbdev.icos[i].height)) {
             break;//得到选中的编号
         }
     }
 
-    if(i < 9)
-    {
-        if(i != spbdev.selico) //选中了不同的图标,切换图标
-        {
+    if(i < 9) {
+        if(i != spbdev.selico) { //选中了不同的图标,切换图标
             spb_set_sel(i);
             i = 0xff;
-        }
-        else
-        {
+        } else {
             spbdev.selico = 0XFF; //发生了双击,重新复位selico.
         }
+    } else {
+        i = 0xff;    //无效的点按.
     }
-    else i = 0xff; //无效的点按.
     spbdev.spbsta = 0; //清空标志
 
 #if 0
-    if(tp_dev.sta & TP_PRES_DOWN) //有按键被按下
-    {
-        if(spbdev.spbsta & 0X80) //已经被标记了
-        {
+    if(tp_dev.sta & TP_PRES_DOWN) { //有按键被按下
+        if(spbdev.spbsta & 0X80) { //已经被标记了
             movecnt = spbdev.spbsta & 0X3F; //得到滑动点数
-            if(gui_disabs(spbdev.curxpos, tp_dev.x) >= SPB_MOVE_WIN) //移动大于等于SPB_MOVE_WIN个点
-            {
-                if(movecnt < SPB_MOVE_MIN / SPB_MOVE_WIN)spbdev.spbsta++; //点数增加1
+            if(gui_disabs(spbdev.curxpos, tp_dev.x) >= SPB_MOVE_WIN) { //移动大于等于SPB_MOVE_WIN个点
+                if(movecnt < SPB_MOVE_MIN / SPB_MOVE_WIN) {
+                    spbdev.spbsta++;    //点数增加1
+                }
             }
         }
         spbdev.curxpos = tp_dev.x;				//记录当前坐标
         spbdev.curypos = tp_dev.y;				//记录当前坐标
-        if((spbdev.spbsta & 0X80) == 0)				//按键第一次被按下
-        {
+        if((spbdev.spbsta & 0X80) == 0) {			//按键第一次被按下
             spbdev.spbsta = 0;				 	//状态清零
             spbdev.spbsta |= 1 << 7;				//标记按下
             spbdev.oldxpos = tp_dev.x;			//记录按下时的坐标
@@ -169,13 +153,9 @@ u8 icon_press_chk(void)
         //		{
         //			spbdev.spbsta|=1<<6;//标记滑动
         //		}  8918
-    }
-    else  //按键松开了
-    {
-        if(spbdev.spbsta & 0x80) //之前有按下
-        {
-            if(spbdev.spbsta & 0X40) //有滑动
-            {
+    } else { //按键松开了
+        if(spbdev.spbsta & 0x80) { //之前有按下
+            if(spbdev.spbsta & 0X40) { //有滑动
                 //				if(SLCD.frame==1)//原来在第二帧,只能右移
                 //				{
                 //					if((240-SLCD.pos)>SPB_MOVE_ACT)
@@ -201,30 +181,23 @@ u8 icon_press_chk(void)
 
                 //	}
                 spbdev.selico = 0xff; //取消spbdev.selico原先的设置
-            }
-            else	//属于点按.
-            {
-                for(i = 0; i < 9; i++)
-                {
+            } else {	//属于点按.
+                for(i = 0; i < 9; i++) {
                     if((spbdev.curxpos > spbdev.icos[i].x) && (spbdev.curxpos < spbdev.icos[i].x + spbdev.icos[i].width) && (spbdev.curxpos > spbdev.icos[i].x) &&
-                            (spbdev.curypos < spbdev.icos[i].y + spbdev.icos[i].height))
-                    {
+                            (spbdev.curypos < spbdev.icos[i].y + spbdev.icos[i].height)) {
                         break;//得到选中的编号
                     }
                 }
-                if(i < 9)
-                {
-                    if(i != spbdev.selico) //选中了不同的图标,切换图标
-                    {
+                if(i < 9) {
+                    if(i != spbdev.selico) { //选中了不同的图标,切换图标
                         spb_set_sel(i);
                         i = 0xff;
-                    }
-                    else
-                    {
+                    } else {
                         spbdev.selico = 0XFF; //发生了双击,重新复位selico.
                     }
+                } else {
+                    i = 0xff;    //无效的点按.
                 }
-                else i = 0xff; //无效的点按.
             }
         }
         spbdev.spbsta = 0; //清空标志

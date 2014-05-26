@@ -7,8 +7,7 @@
 	KEY0:2040   KEY1:10
 	KEY2:1320   KEY3:2850
 **********************/
-u16 key_adval[] =
-{
+u16 key_adval[] = {
     //4096
     2950, 2800, //2850
     2080, 2000, //2040
@@ -68,21 +67,15 @@ u8 KEY_Scan(u8 mode)
 {
     u16 key_val = Get_Adc(ADC_Channel_8);
     //printf("AD=%d",key_val);
-    if(key_val > key_adval[1] && key_val < key_adval[0])
-    {
+    if(key_val > key_adval[1] && key_val < key_adval[0]) {
         return KEY_UP;
-    }
-    else if(key_val >= key_adval[3] && key_val < key_adval[2])
-    {
+    } else if(key_val >= key_adval[3] && key_val < key_adval[2]) {
         return KEY_LEFT;
-    }
-    else if(key_val >= key_adval[5] && key_val < key_adval[4])
-    {
+    } else if(key_val >= key_adval[5] && key_val < key_adval[4]) {
         return KEY_DOWN;
-    }
-    else if(key_val >= key_adval[7] && key_val < key_adval[6])
-    {
+    } else if(key_val >= key_adval[7] && key_val < key_adval[6]) {
         return KEY_RIGHT;
+    } else {
+        return KEY_NOPRESS;    //没有按键按下
     }
-    else return KEY_NOPRESS; //没有按键按下
 }

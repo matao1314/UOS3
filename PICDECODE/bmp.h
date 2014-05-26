@@ -24,8 +24,7 @@
 //////////////////////////////////////////////END/////////////////////////////////////
 
 //BMP信息头
-typedef __packed struct
-{
+typedef __packed struct {
     u32 biSize ;		   	//说明BITMAPINFOHEADER结构所需要的字数。
     long  biWidth ;		   	//说明图象的宽度，以象素为单位
     long  biHeight ;	   	//说明图象的高度，以象素为单位
@@ -43,8 +42,7 @@ typedef __packed struct
     u32 biClrImportant ; 	//说明对图象显示有重要影响的颜色索引的数目，如果是0，表示都重要。
 } BITMAPINFOHEADER ;
 //BMP头文件
-typedef __packed struct
-{
+typedef __packed struct {
     u16  bfType ;     //文件标志.只对'BM',用来识别BMP位图类型
     u32  bfSize ;	  //文件大小,占四个字节
     u16  bfReserved1 ;//保留
@@ -52,16 +50,14 @@ typedef __packed struct
     u32  bfOffBits ;  //从文件开始到位图数据(bitmap data)开始之间的的偏移量
 } BITMAPFILEHEADER ;
 //彩色表
-typedef __packed struct
-{
+typedef __packed struct {
     u8 rgbBlue ;    //指定蓝色强度
     u8 rgbGreen ;	//指定绿色强度
     u8 rgbRed ;	  	//指定红色强度
     u8 rgbReserved ;//保留，设置为0
 } RGBQUAD ;
 //位图信息头
-typedef __packed struct
-{
+typedef __packed struct {
     BITMAPFILEHEADER bmfHeader;
     BITMAPINFOHEADER bmiHeader;
     u32 RGB_MASK[3];			//调色板用于存放RGB掩码.

@@ -22,13 +22,18 @@ _listbox_obj *listbox_creat(u16 left, u16 top, u16 width, u16 height, u8 type, u
 {
     _listbox_obj *listbox_crt;
     _scrollbar_obj *scb_crt;
-    if(height % LBOX_ITEM_HEIGHT)return NULL; //尺寸不合格
-    if(height < LBOX_ITEM_HEIGHT || width < LBOX_ITEM_HEIGHT)return NULL;	//尺寸不合格
+    if(height % LBOX_ITEM_HEIGHT) {
+        return NULL;    //尺寸不合格
+    }
+    if(height < LBOX_ITEM_HEIGHT || width < LBOX_ITEM_HEIGHT) {
+        return NULL;    //尺寸不合格
+    }
     listbox_crt = (_listbox_obj *)gui_memin_malloc(sizeof(_listbox_obj)); //分配内存
-    if(listbox_crt == NULL)return NULL;			//内存分配不够.
+    if(listbox_crt == NULL) {
+        return NULL;    //内存分配不够.
+    }
     scb_crt = scrollbar_creat(left + width - LBOX_SCB_WIDTH, top, LBOX_SCB_WIDTH, height, 0x80); //创建scrollbar.
-    if(scb_crt == NULL) //内存分配不够.
-    {
+    if(scb_crt == NULL) { //内存分配不够.
         gui_memin_free(listbox_crt);
         return NULL;
     }
@@ -64,16 +69,19 @@ _listbox_list *list_search(_listbox_list *listx, u16 index)
 {
     u16 icnt = 0;
     _listbox_list *listtemp = listx;
-    while(listtemp->prevlist != NULL)listtemp = listtemp->prevlist; //追溯到最开始的list
-    while(1)//寻找编号为index的list
-    {
-        if(index == icnt)break;
-        if(listtemp->nextlist != NULL)
-        {
+    while(listtemp->prevlist != NULL) {
+        listtemp = listtemp->prevlist;    //追溯到最开始的list
+    }
+    while(1) { //寻找编号为index的list
+        if(index == icnt) {
+            break;
+        }
+        if(listtemp->nextlist != NULL) {
             listtemp = listtemp->nextlist;
             icnt++;//计数增加
+        } else {
+            return NULL;    //未找到编号为index的list
         }
-        else return NULL; //未找到编号为index的list
     }
     return listtemp;//返回找到的list指针
 }
@@ -83,16 +91,13 @@ void listbox_delete(_listbox_obj *listbox_del)
 {
     _listbox_list *listtemp;
     _listbox_list *listdel;
-    if(listbox_del->list != NULL)
-    {
+    if(listbox_del->list != NULL) {
         listtemp = list_search(listbox_del->list, 0); //得到第一个list的结构体
-        do
-        {
+        do {
             listdel = listtemp;
             listtemp = listtemp->nextlist;
             gui_memin_free(listdel);	//删除一个条目
-        }
-        while(listtemp != NULL);	//一次删除所有的条目
+        } while(listtemp != NULL);	//一次删除所有的条目
     }
     gui_memin_free(listbox_del->scbv);//删除滚动条
     gui_memin_free(listbox_del);
@@ -109,90 +114,85 @@ u8 listbox_check(_listbox_obj *listbox, void *in_key)
     u16 tempindex;
     u16 i;
     u16 lastindex;
-    switch(key->intype)
-    {
+    switch(key->intype) {
     case IN_TYPE_TOUCH:	//触摸屏按下了
-        if(listbox != NULL) //listbox非空
-        {
+        if(listbox != NULL) { //listbox非空
             endx = listbox->left + listbox->width;
-            if(listbox->scbv->totalitems > listbox->scbv->itemsperpage) //有滚动条
-            {
+            if(listbox->scbv->totalitems > listbox->scbv->itemsperpage) { //有滚动条
                 endx -= LBOX_SCB_WIDTH + 1;
                 //在滚动条范围之内.
-                if(listbox->top <= key->y && key->y <= (listbox->top + listbox->height) && endx <= key->x && key->x <= (endx + LBOX_SCB_WIDTH))
-                {
-                    if(listbox->sta & (1 << 6))break; //是从list区划过来的,直接不执行
+                if(listbox->top <= key->y && key->y <= (listbox->top + listbox->height) && endx <= key->x && key->x <= (endx + LBOX_SCB_WIDTH)) {
+                    if(listbox->sta & (1 << 6)) {
+                        break;    //是从list区划过来的,直接不执行
+                    }
                     tempindex = listbox->scbv->topitem;
                     scrollbar_check(listbox->scbv, in_key); //滚动条检测
-                    if(tempindex != listbox->scbv->topitem)listbox_draw_list(listbox);
+                    if(tempindex != listbox->scbv->topitem) {
+                        listbox_draw_list(listbox);
+                    }
                     listbox->sta |= 1 << 7;
                     break;
                 }
-                if((listbox->sta & 0xc0) == (1 << 7)) //上次操作仅仅是在滚动条区域内
-                {
+                if((listbox->sta & 0xc0) == (1 << 7)) { //上次操作仅仅是在滚动条区域内
                     listbox->sta = 0;
                     scrollbar_check(listbox->scbv, in_key); //滚动条检测
                 }
 
             }
             tempindex = listbox->sta & 0x3f; //得到当前sta种的位置
-            if(listbox->top <= key->y && key->y <= (listbox->top + listbox->height) && listbox->left <= key->x && key->x < (endx)) //在items区域内
-            {
+            if(listbox->top <= key->y && key->y <= (listbox->top + listbox->height) && listbox->left <= key->x && key->x < (endx)) { //在items区域内
                 //itemperpage最大不能超过64!(按20一个index设计,这样64个list可以支持到64*20=1280垂直像素的屏)
-                for(i = 0; i < listbox->scbv->itemsperpage; i++) //找到当前触屏按下的坐标在listbox种的index
-                {
-                    if(key->y <= (listbox->top + (i + 1)*LBOX_ITEM_HEIGHT) && key->y >= (listbox->top + i * LBOX_ITEM_HEIGHT))break;
+                for(i = 0; i < listbox->scbv->itemsperpage; i++) { //找到当前触屏按下的坐标在listbox种的index
+                    if(key->y <= (listbox->top + (i + 1)*LBOX_ITEM_HEIGHT) && key->y >= (listbox->top + i * LBOX_ITEM_HEIGHT)) {
+                        break;
+                    }
                 }
-                if((listbox->sta & (1 << 6)) == 0) //编号还无效
-                {
+                if((listbox->sta & (1 << 6)) == 0) { //编号还无效
                     listbox->sta |= 1 << 6;	//标记有效
                     listbox->sta |= i;	//记录编号
+                } else if((listbox->sta & (1 << 7)) == 0) { //还不是滑动
+                    if(listbox->scbv->totalitems <= listbox->scbv->itemsperpage) {
+                        break;    //没滚动条,滑动无效
+                    }
+                    if(gui_disabs(i, (listbox->sta & 0x3f)) > 1)	{
+                        listbox->sta |= 1 << 7;    //滑动距离大于1个条目的间隙 标记滑动
+                    }
                 }
-                else if((listbox->sta & (1 << 7)) == 0) //还不是滑动
-                {
-                    if(listbox->scbv->totalitems <= listbox->scbv->itemsperpage)break; //没滚动条,滑动无效
-                    if(gui_disabs(i, (listbox->sta & 0x3f)) > 1)	listbox->sta |= 1 << 7; //滑动距离大于1个条目的间隙 标记滑动
-                }
-                if((listbox->sta & 0xc0) == 0xc0) //是滑动
-                {
+                if((listbox->sta & 0xc0) == 0xc0) { //是滑动
                     lastindex = listbox->scbv->topitem;
-                    if(tempindex > i) //减少了
-                    {
+                    if(tempindex > i) { //减少了
                         listbox->sta &= 0xc0; //清空上次的
                         listbox->sta |= i; //记录最近的index号
                         listbox->scbv->topitem += tempindex - i;
-                        if(listbox->scbv->topitem >= (listbox->scbv->totalitems - listbox->scbv->itemsperpage))listbox->scbv->topitem = listbox->scbv->totalitems - listbox->scbv->itemsperpage;
-                    }
-                    else if(i > tempindex) //增加了
-                    {
+                        if(listbox->scbv->topitem >= (listbox->scbv->totalitems - listbox->scbv->itemsperpage)) {
+                            listbox->scbv->topitem = listbox->scbv->totalitems - listbox->scbv->itemsperpage;
+                        }
+                    } else if(i > tempindex) { //增加了
                         listbox->sta &= 0xc0; //清空上次的
                         listbox->sta |= i; //记录最近的index号
                         i -= tempindex;
-                        if(listbox->scbv->topitem >= i)listbox->scbv->topitem -= i;
-                        else listbox->scbv->topitem = 0;
+                        if(listbox->scbv->topitem >= i) {
+                            listbox->scbv->topitem -= i;
+                        } else {
+                            listbox->scbv->topitem = 0;
+                        }
+                    } else {
+                        break;
                     }
-                    else break;
-                    if(listbox->scbv->topitem != lastindex)listbox_draw_listbox(listbox); //重画listbox
+                    if(listbox->scbv->topitem != lastindex) {
+                        listbox_draw_listbox(listbox);    //重画listbox
+                    }
                 }
-            }
-            else  //按键松开了,或者滑出了
-            {
-                if(listbox->sta & (1 << 7)) //滑动
-                {
+            } else { //按键松开了,或者滑出了
+                if(listbox->sta & (1 << 7)) { //滑动
                     listbox->sta = 0;
-                }
-                else if(listbox->sta & (1 << 6)) //单点按下
-                {
+                } else if(listbox->sta & (1 << 6)) { //单点按下
                     listbox->dbclick = 0;			//双击标记清零
-                    if((listbox->scbv->topitem + tempindex) == listbox->selindex)
-                    {
+                    if((listbox->scbv->topitem + tempindex) == listbox->selindex) {
                         listbox->dbclick |= 1 << 7;	//标记双击了
                         listbox_2click_hook(listbox);//执行双击钩子函数
-                    }
-                    else if((listbox->scbv->topitem + tempindex) < listbox->scbv->totalitems) //重新选择新的选项
-                    {
-                        if((listbox->selindex < (listbox->scbv->topitem + listbox->scbv->itemsperpage)) && (listbox->selindex >= listbox->scbv->topitem)) //老的selindex在屏幕范围内
-                        {
+                    } else if((listbox->scbv->topitem + tempindex) < listbox->scbv->totalitems) { //重新选择新的选项
+                        if((listbox->selindex < (listbox->scbv->topitem + listbox->scbv->itemsperpage)) && (listbox->selindex >= listbox->scbv->topitem)) { //老的selindex在屏幕范围内
                             i = listbox->selindex - listbox->scbv->topitem; //老编号
                             listx = list_search(listbox->list, listbox->selindex); //得到listindex的名字
                             gui_fill_rectangle(listbox->left, listbox->top + i * LBOX_ITEM_HEIGHT, endx - listbox->left + 1, LBOX_ITEM_HEIGHT, listbox->lbkcolor); //恢复底色
@@ -228,24 +228,28 @@ u8 listbox_addlist(_listbox_obj *listbox, u8 *name)
     _listbox_list *listtemp;
 
     listx = (_listbox_list *)gui_memin_malloc(sizeof(_listbox_list)); //分配内存
-    if(listx == NULL)return 1; //内存分配不够.
+    if(listx == NULL) {
+        return 1;    //内存分配不够.
+    }
     listx->name = name; //得到名字
     listx->nextlist = NULL;
-    if(listbox->list == NULL) //还未创建链表
-    {
+    if(listbox->list == NULL) { //还未创建链表
         listx->prevlist = NULL;
         listbox->list = listx;
-    }
-    else  //已经创建了
-    {
+    } else { //已经创建了
         listtemp = listbox->list;
-        while(listtemp->nextlist != NULL)listtemp = listtemp->nextlist;
+        while(listtemp->nextlist != NULL) {
+            listtemp = listtemp->nextlist;
+        }
         listx->prevlist = listtemp;
         listtemp->nextlist = listx;
     }
     listbox->scbv->totalitems++;//总条目数增加1条
-    if(listbox->scbv->totalitems > listbox->scbv->itemsperpage)listbox->type |= 0x80; //需要显示滚条
-    else listbox->type &= ~0x80; //不需要显示滚条
+    if(listbox->scbv->totalitems > listbox->scbv->itemsperpage) {
+        listbox->type |= 0x80;    //需要显示滚条
+    } else {
+        listbox->type &= ~0x80;    //不需要显示滚条
+    }
     return 0;
 }
 //画list
@@ -257,19 +261,22 @@ void listbox_draw_list(_listbox_obj *listbox)
     u16 tempcolor;
     _listbox_list *listx;
     endx = listbox->left + listbox->width; //条目显示结束x坐标
-    if(listbox->scbv->totalitems > listbox->scbv->itemsperpage)endx -= LBOX_SCB_WIDTH + 1; //需要滚动条了.
+    if(listbox->scbv->totalitems > listbox->scbv->itemsperpage) {
+        endx -= LBOX_SCB_WIDTH + 1;    //需要滚动条了.
+    }
     gui_fill_rectangle(listbox->left, listbox->top, endx - listbox->left + 1, listbox->height, listbox->lbkcolor); //清空为底色.
     listx = list_search(listbox->list, listbox->scbv->topitem); //得到顶部list信息(curitem在listbox中用于记录顶部index)
-    for(i = 0; i < listbox->scbv->itemsperpage; i++) //显示条目
-    {
-        if((listbox->scbv->topitem + i) == listbox->selindex) //此项为选中项目
-        {
+    for(i = 0; i < listbox->scbv->itemsperpage; i++) { //显示条目
+        if((listbox->scbv->topitem + i) == listbox->selindex) { //此项为选中项目
             gui_fill_rectangle(listbox->left, listbox->top + i * LBOX_ITEM_HEIGHT, endx - listbox->left + 1, LBOX_ITEM_HEIGHT, listbox->lnselbkcolor); //填充底色
             tempcolor = listbox->lnselcolor;
+        } else {
+            tempcolor = listbox->lncolor;
         }
-        else tempcolor = listbox->lncolor;
         gui_show_ptstr(listbox->left, listbox->top + i * LBOX_ITEM_HEIGHT + (LBOX_ITEM_HEIGHT - listbox->font) / 2, endx, GUI_LCD_H, 0, tempcolor, listbox->font, listx->name, 1);
-        if(listx->nextlist == 0)break;
+        if(listx->nextlist == 0) {
+            break;
+        }
         listx = listx->nextlist;
     }
 }
@@ -277,8 +284,12 @@ void listbox_draw_list(_listbox_obj *listbox)
 //listbox:listbox指针
 void listbox_draw_listbox(_listbox_obj *listbox)
 {
-    if(listbox == NULL)return; //无效,直接退出
-    if(listbox->scbv->totalitems > listbox->scbv->itemsperpage)scrollbar_draw_scrollbar(listbox->scbv); //必要时,画滚动条
+    if(listbox == NULL) {
+        return;    //无效,直接退出
+    }
+    if(listbox->scbv->totalitems > listbox->scbv->itemsperpage) {
+        scrollbar_draw_scrollbar(listbox->scbv);    //必要时,画滚动条
+    }
     listbox_draw_list(listbox);//画list
 }
 //滚动条条目双击钩子函数
@@ -303,8 +314,7 @@ void tslistbox_del(void)
     LCD_Clear(0XFFFF);
 }
 
-const u8 *lntbl[6] =
-{
+const u8 *lntbl[6] = {
     "功能设置",
     "你长得上个球,能不能让我踢踢?",
     "Settings",
@@ -330,17 +340,19 @@ void testlistadd(void)
     t = mem_perused(SRAMIN);
     tlistbox = listbox_creat(0, 0, 100, 120, 0, 12);
     t = listbox_addlist(tlistbox, "test");
-    while(t == 0)
-    {
+    while(t == 0) {
         t = listbox_addlist(tlistbox, "ab5cd");
     }
     listbox_draw_listbox(tlistbox);
     listbox_delete(tlistbox);
     t = mem_perused(SRAMIN);
     t = 0;
-    if(t == 0)
+    if(t == 0) {
         t = mem_perused(SRAMIN);
-    if(t)t = 0;
+    }
+    if(t) {
+        t = 0;
+    }
 }
 
 

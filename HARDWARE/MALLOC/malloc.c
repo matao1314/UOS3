@@ -11,8 +11,7 @@ const u32 memsize[1] = {MEM1_MAX_SIZE};							//内存总大小
 
 
 //内存管理控制器
-struct _m_mallco_dev mallco_dev =
-{
+struct _m_mallco_dev mallco_dev = {
     mem_init,				//内存初始化
     mem_perused,			//内存使用率
     mem1base,		//内存池
@@ -28,7 +27,9 @@ void mymemcpy(void *des, void *src, u32 n)
 {
     u8 *xdes = des;
     u8 *xsrc = src;
-    while(n--)*xdes++ = *xsrc++;
+    while(n--) {
+        *xdes++ = *xsrc++;
+    }
 }
 //设置内存
 //*s:内存首地址
@@ -37,7 +38,9 @@ void mymemcpy(void *des, void *src, u32 n)
 void mymemset(void *s, u8 c, u32 count)
 {
     u8 *xs = s;
-    while(count--)*xs++ = c;
+    while(count--) {
+        *xs++ = c;
+    }
 }
 //内存管理初始化
 //memx:所属内存块
@@ -54,9 +57,10 @@ u8 mem_perused(u8 memx)
 {
     u32 used = 0;
     u32 i;
-    for(i = 0; i < memtblsize[memx]; i++)
-    {
-        if(mallco_dev.memmap[memx][i])used++;
+    for(i = 0; i < memtblsize[memx]; i++) {
+        if(mallco_dev.memmap[memx][i]) {
+            used++;
+        }
     }
     return (used * 100) / (memtblsize[memx]);
 }
@@ -70,18 +74,24 @@ u32 mem_malloc(u8 memx, u32 size)
     u16 nmemb;	//需要的内存块数
     u16 cmemb = 0; //连续空内存块数
     u32 i;
-    if(!mallco_dev.memrdy[memx])mallco_dev.init(memx);//未初始化,先执行初始化
-    if(size == 0)return 0XFFFFFFFF; //不需要分配
+    if(!mallco_dev.memrdy[memx]) {
+        mallco_dev.init(memx);    //未初始化,先执行初始化
+    }
+    if(size == 0) {
+        return 0XFFFFFFFF;    //不需要分配
+    }
     nmemb = size / memblksize[memx];  	//获取需要分配的连续内存块数
-    if(size % memblksize[memx])nmemb++;
-    for(offset = memtblsize[memx] - 1; offset >= 0; offset--) //搜索整个内存控制区
-    {
-        if(!mallco_dev.memmap[memx][offset])cmemb++;//连续空内存块数增加
-        else cmemb = 0;								//连续内存块清零
-        if(cmemb == nmemb)							//找到了连续nmemb个空内存块
-        {
-            for(i = 0; i < nmemb; i++)  					//标注内存块非空
-            {
+    if(size % memblksize[memx]) {
+        nmemb++;
+    }
+    for(offset = memtblsize[memx] - 1; offset >= 0; offset--) { //搜索整个内存控制区
+        if(!mallco_dev.memmap[memx][offset]) {
+            cmemb++;    //连续空内存块数增加
+        } else {
+            cmemb = 0;    //连续内存块清零
+        }
+        if(cmemb == nmemb) {						//找到了连续nmemb个空内存块
+            for(i = 0; i < nmemb; i++) {					//标注内存块非空
                 mallco_dev.memmap[memx][offset + i] = nmemb;
             }
             return (offset * memblksize[memx]); //返回偏移地址
@@ -96,22 +106,20 @@ u32 mem_malloc(u8 memx, u32 size)
 u8 mem_free(u8 memx, u32 offset)
 {
     int i;
-    if(!mallco_dev.memrdy[memx])//未初始化,先执行初始化
-    {
+    if(!mallco_dev.memrdy[memx]) { //未初始化,先执行初始化
         mallco_dev.init(memx);
         return 1;//未初始化
     }
-    if(offset < memsize[memx]) //偏移在内存池内.
-    {
+    if(offset < memsize[memx]) { //偏移在内存池内.
         int index = offset / memblksize[memx];			//偏移所在内存块号码
         int nmemb = mallco_dev.memmap[memx][index];	//内存块数量
-        for(i = 0; i < nmemb; i++)  						//内存块清零
-        {
+        for(i = 0; i < nmemb; i++) {						//内存块清零
             mallco_dev.memmap[memx][index + i] = 0;
         }
         return 0;
+    } else {
+        return 2;    //偏移超区了.
     }
-    else return 2; //偏移超区了.
 }
 //释放内存(外部调用)
 //memx:所属内存块
@@ -119,7 +127,9 @@ u8 mem_free(u8 memx, u32 offset)
 void myfree(u8 memx, void *ptr)
 {
     u32 offset;
-    if(ptr == NULL)return; //地址为0.
+    if(ptr == NULL) {
+        return;    //地址为0.
+    }
     offset = (u32)ptr - (u32)mallco_dev.membase[memx];
     mem_free(memx, offset); //释放内存
 }
@@ -131,8 +141,11 @@ void *mymalloc(u8 memx, u32 size)
 {
     u32 offset;
     offset = mem_malloc(memx, size);
-    if(offset == 0XFFFFFFFF)return NULL;
-    else return (void *)((u32)mallco_dev.membase[memx] + offset);
+    if(offset == 0XFFFFFFFF) {
+        return NULL;
+    } else {
+        return (void *)((u32)mallco_dev.membase[memx] + offset);
+    }
 }
 //重新分配内存(外部调用)
 //memx:所属内存块
@@ -143,9 +156,9 @@ void *myrealloc(u8 memx, void *ptr, u32 size)
 {
     u32 offset;
     offset = mem_malloc(memx, size);
-    if(offset == 0XFFFFFFFF)return NULL;
-    else
-    {
+    if(offset == 0XFFFFFFFF) {
+        return NULL;
+    } else {
         mymemcpy((void *)((u32)mallco_dev.membase[memx] + offset), ptr, size);	//拷贝旧内存内容到新内存
         myfree(memx, ptr);  											  		//释放旧内存
         return (void *)((u32)mallco_dev.membase[memx] + offset);  				//返回新内存首地址

@@ -33,8 +33,7 @@ void SysTick_Init(void)
      * SystemFrequency / 1000000 1us中断一次
      */
 #if 1
-    if (SysTick_Config(SystemCoreClock / 1000))	// ST3.5.0库版本
-    {
+    if (SysTick_Config(SystemCoreClock / 1000)) {	// ST3.5.0库版本
         /* Capture error */
         while (1);
     }
@@ -106,8 +105,7 @@ void BSP_Init(void)
     VS_Init();//初始化VS1003
     I2C_EE_Init();//Eeprom
     //检测SD卡是否成功
-    while(SD_USER_Init() != SD_OK)
-    {
+    while(SD_USER_Init() != SD_OK) {
         POINT_COLOR = RED;
         LCD_ShowString(20, 10, 180, 16, 16, "SD Card File!            ");
         LED0 = 0;
@@ -119,17 +117,17 @@ void BSP_Init(void)
     exfuns_init();					//为fatfs相关变量申请内存
     f_mount(0, fs[0]); 		 		//挂载SD卡
     f_mount(1, fs[1]); 				//挂载FLASH.
-    while(font_init()) 				//检查字库
-    {
+    while(font_init()) {			//检查字库
         LCD_ShowString(60, 50, 200, 16, 16, "Font Error!");
         delay_ms(200);
         LCD_Fill(60, 50, 240, 66, WHITE); //清除显示
         update_font(20, 110, 16, 0); //从SD卡更新
     }
     tp_dev.init();
-    if(KEY_Scan(0) == 1) TP_Adjust();
-    if(!VS_HD_Reset())
-    {
+    if(KEY_Scan(0) == 1) {
+        TP_Adjust();
+    }
+    if(!VS_HD_Reset()) {
         myprntf("VS1003 HARDWARE_ResetOk!\r\n");
     }
     VS_Soft_Reset();
@@ -141,8 +139,8 @@ void BSP_Init(void)
     printf("System Init Over!\r\n");
     printf(__DATE__"\r\n");
     printf(__TIME__"\r\n");
-		SysTick->CTRL |= 1 << 1;  //开启systick中断;
-		//OS_CPU_SysTickInit(SystemCoreClock / (CPU_INT32U)OSCfg_TickRate_Hz);
+    SysTick->CTRL |= 1 << 1;  //开启systick中断;
+    //OS_CPU_SysTickInit(SystemCoreClock / (CPU_INT32U)OSCfg_TickRate_Hz);
 }
 
 SD_CardInfo   SDCardInfo;        //SD卡信息
@@ -153,26 +151,22 @@ SD_Error SD_USER_Init(void)
     SD_Error   Status = SD_OK;
     /* SD Init */
     Status = SD_Init();
-    if (Status == SD_OK)
-    {
+    if (Status == SD_OK) {
         /* Read CSD/CID MSD registers */
         Status = SD_GetCardInfo( &SDCardInfo );//获得SD卡索引信息
         printf("SDCardCapacity = %dMB\r\n", SDCardInfo.CardCapacity >> 20);
         printf("CardBlockSize  = %d\r\n", SDCardInfo.CardBlockSize );
     }
-    if (Status == SD_OK)
-    {
+    if (Status == SD_OK) {
         /* Select Card */
         Status = SD_SelectDeselect( (u32) (SDCardInfo.RCA << 16) );
     }
-    if (Status == SD_OK)
-    {
+    if (Status == SD_OK) {
         /* set bus wide */
         Status = SD_EnableWideBusOperation( SDIO_BusWide_1b );
     }
     /* Set Device Transfer Mode to DMA */
-    if (Status == SD_OK)
-    {
+    if (Status == SD_OK) {
         /* 任选一种都可以工作 */
         Status = SD_SetDeviceMode( SD_DMA_MODE );
         //Status = SD_SetDeviceMode( SD_POLLING_MODE );
@@ -183,6 +177,6 @@ SD_Error SD_USER_Init(void)
 
 void SDIO_IRQHandler(void)
 {
-  SD_ProcessIRQSrc();
+    SD_ProcessIRQSrc();
 }
 

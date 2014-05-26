@@ -7,25 +7,21 @@ _alarm_obj alarm;	//闹钟结构体
 #define OTHER_TOPY	130
 
 
-const u8 *calendar_week_table[GUI_LANGUAGE_NUM][7] =
-{
+const u8 *calendar_week_table[GUI_LANGUAGE_NUM][7] = {
     {"星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"},
     {"星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"},
     {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"},
 };
 //闹钟标题
-const u8 *calendar_alarm_caption_table[GUI_LANGUAGE_NUM] =
-{
+const u8 *calendar_alarm_caption_table[GUI_LANGUAGE_NUM] = {
     "闹钟", "鬧鐘", "ALARM",
 };
 //再响按钮
-const u8 *calendar_alarm_realarm_table[GUI_LANGUAGE_NUM] =
-{
+const u8 *calendar_alarm_realarm_table[GUI_LANGUAGE_NUM] = {
     "再响", "再響", "REALARM",
 };
 
-const u8 *calendar_loading_str[GUI_LANGUAGE_NUM][3] =
-{
+const u8 *calendar_loading_str[GUI_LANGUAGE_NUM][3] = {
     {
         "正在加载,请稍候...",
         "未检测到DS18B20!",
@@ -51,8 +47,7 @@ void calendar_alarm_init(_alarm_obj *alarmx)
     u32 curtime = 0;
     u32 temptime = 0;
     u32 destime = 0XFFFFFFFF; //目标闹铃时间(s)设定到最大
-    if(alarmx->weekmask)//必须要有闹钟存在,周日到周六任意一天
-    {
+    if(alarmx->weekmask) { //必须要有闹钟存在,周日到周六任意一天
         curtime = RTC->CNTH; //得到计数器中的值(秒钟数)
         curtime <<= 16;
         curtime += RTC->CNTL;
@@ -60,7 +55,9 @@ void calendar_alarm_init(_alarm_obj *alarmx)
         temptime = curtime / 86400;	//得到当前运行天数(此处没有用到天数,仅作说明用)
         temptime = temptime * 86400;
         temptime += (u32)alarmx->hour * 3600 + (u32)alarmx->min * 60; //得到秒钟数
-        if(temptime <= curtime)temptime += 86400; //执行时间已过，推迟到明天
+        if(temptime <= curtime) {
+            temptime += 86400;    //执行时间已过，推迟到明天
+        }
         destime = temptime; //更改闹钟寄存器
     }
     RCC->APB1ENR |= 1 << 28; //使能电源时钟
@@ -89,8 +86,7 @@ void calendar_alarm_init(_alarm_obj *alarmx)
 void calendar_alarm_ring(u8 type)
 {
     u8 i;
-    for(i = 0; i < (type + 1); i++)
-    {
+    for(i = 0; i < (type + 1); i++) {
         BEEP = 1;
         delay_ms(50);
         BEEP = 0;
@@ -153,9 +149,9 @@ u8 calendar_alarm_msg(u16 x, u16 y)
     okbtn = btn_creat(x + 20, y + 120, 70, 30, 0, 0x02);		//创建按钮
     rbtn = btn_creat(x + 20 + 70 + 20, y + 120, 70, 30, 0, 0x02);	//创建按钮
     falarm = (FIL *)gui_memin_malloc(sizeof(FIL));	//开辟FIL字节的内存区域
-    if(twin == NULL || rbtn == NULL || okbtn == NULL || falarm == NULL)rval = 1;
-    else
-    {
+    if(twin == NULL || rbtn == NULL || okbtn == NULL || falarm == NULL) {
+        rval = 1;
+    } else {
         //窗口的名字和背景色
         twin->caption = (u8 *)calendar_alarm_caption_table[gui_phy.language];
         twin->windowbkc = APP_WIN_BACK_COLOR;
@@ -173,12 +169,11 @@ u8 calendar_alarm_msg(u16 x, u16 y)
         okbtn->caption = (u8 *)calendar_alarm_realarm_table[gui_phy.language];	//再响按钮
 
         //		res=f_open(falarm,(const TCHAR*)APP_ASCII_60,FA_READ);//打开文件
-        if(res == 0)
-        {
+        if(res == 0) {
             bfbase = (u8 *)gui_memin_malloc(falarm->fsize);	//为大字体开辟缓存地址
-            if(bfbase == 0)rval = 1;
-            else
-            {
+            if(bfbase == 0) {
+                rval = 1;
+            } else {
                 res = f_read(falarm, bfbase, falarm->fsize, (UINT *)&abr);	//一次读取整个文件
             }
             f_close(falarm);
@@ -187,42 +182,39 @@ u8 calendar_alarm_msg(u16 x, u16 y)
         window_draw(twin);						//画出窗体
         btn_draw(rbtn);							//画按钮
         btn_draw(okbtn);						//画按钮
-        if(res)rval = res;
-        else 									//显示闹铃时间
-        {
+        if(res) {
+            rval = res;
+        } else {								//显示闹铃时间
             app_showbig2num(bfbase, x + 15, y + 32 + 14, alarm.hour, 60, BLUE, APP_WIN_BACK_COLOR); 	//显示时
             app_showbigchar(bfbase, x + 15 + 60, y + 32 + 14, ':', 60, BLUE, APP_WIN_BACK_COLOR); 		//":"
             app_showbig2num(bfbase, x + 15 + 90, y + 32 + 14, alarm.min, 60, BLUE, APP_WIN_BACK_COLOR);	//显示分
         }
         //		OSTaskSuspend(6); //挂起主任务
-        while(rval == 0)
-        {
+        while(rval == 0) {
             tp_dev.scan(0);
             in_obj.get_key(&tp_dev, IN_TYPE_TOUCH);	//得到按键键值
             delay_ms(5);
             res = btn_check(rbtn, &in_obj);			//取消按钮检测
-            if(res && ((rbtn->sta & 0X80) == 0))			//有有效操作
-            {
+            if(res && ((rbtn->sta & 0X80) == 0)) {		//有有效操作
                 rval = 1;
                 break;//退出
             }
             res = btn_check(okbtn, &in_obj);			//再响按钮检测
-            if(res && ((okbtn->sta & 0X80) == 0))			//有有效操作
-            {
+            if(res && ((okbtn->sta & 0X80) == 0)) {		//有有效操作
                 rval = 0XFF; //
                 break;//退出
             }
         }
     }
     alarm.ringsta &= ~(1 << 7);	//取消闹铃
-    if(rval == 0XFF) //稍后再响
-    {
+    if(rval == 0XFF) { //稍后再响
         alarm.min += 5; 			//推迟5分钟
-        if(alarm.min > 59)
-        {
+        if(alarm.min > 59) {
             alarm.min = alarm.min % 60;
             alarm.hour++;
-            if(alarm.hour > 23)alarm.hour = 0;
+            if(alarm.hour > 23) {
+                alarm.hour = 0;
+            }
         }
         calendar_alarm_init((_alarm_obj *)&alarm); //重新初始化闹钟
     }
@@ -252,24 +244,24 @@ u8 calendar_play(void)
     u16 timex = 0;
     //////////////////////////////////////
     f_calendar = (FIL *)gui_memin_malloc(sizeof(FIL)); //开辟FIL字节的内存区域
-    if(f_calendar == NULL)rval = 1;		//申请失败
-    else
-    {
+    if(f_calendar == NULL) {
+        rval = 1;    //申请失败
+    } else {
         res = f_open(f_calendar, (const TCHAR *)APP_ASCII_60, FA_READ); //打开文件
-        if(res == FR_OK)
-        {
+        if(res == FR_OK) {
             bfbase = (u8 *)gui_memin_malloc(f_calendar->fsize);	//为大字体开辟缓存地址
-            if(bfbase == 0)rval = 1;
-            else
-            {
+            if(bfbase == 0) {
+                rval = 1;
+            } else {
                 res = f_read(f_calendar, bfbase, f_calendar->fsize, (UINT *)&br);	//一次读取整个文件
             }
             f_close(f_calendar);
         }
-        if(res)rval = res;
+        if(res) {
+            rval = res;
+        }
     }
-    if(rval == 0) //无错误
-    {
+    if(rval == 0) { //无错误
         second = calendar.sec; //得到此刻的秒钟
         POINT_COLOR = GBLUE;
         BACK_COLOR = BLACK;
@@ -279,16 +271,13 @@ u8 calendar_play(void)
         app_showbigchar(bfbase, 70 - 4, TIME_TOPY, ':', 60, WHITE, BLACK); 		//":"
         app_showbigchar(bfbase, 150 - 4, TIME_TOPY, ':', 60, WHITE, BLACK); 	//":"
     }
-    while(rval == 0)
-    {
-        if(second != calendar.sec) //秒钟改变了
-        {
+    while(rval == 0) {
+        if(second != calendar.sec) { //秒钟改变了
             second = calendar.sec;
             app_showbig2num(bfbase, 10, TIME_TOPY, calendar.hour, 60, WHITE, BLACK);	//显示时
             app_showbig2num(bfbase, 90, TIME_TOPY, calendar.min, 60, WHITE, BLACK);	//显示分
             app_showbig2num(bfbase, 170, TIME_TOPY, calendar.sec, 60, WHITE, BLACK);	//显示秒
-            if(calendar.w_date != tempdate)
-            {
+            if(calendar.w_date != tempdate) {
                 calendar_date_refresh();//天数变化了,更新日历.
                 tempdate = calendar.w_date; //修改tempdate，防止重复进入
             }
@@ -297,7 +286,9 @@ u8 calendar_play(void)
         timex++;
         delay_ms(1000 / OSCfg_TickRate_Hz); //允许调度
     }
-    while(tp_dev.sta & TP_PRES_DOWN)tp_dev.scan(0); //等待TP松开.
+    while(tp_dev.sta & TP_PRES_DOWN) {
+        tp_dev.scan(0);    //等待TP松开.
+    }
     gui_memin_free(bfbase);		//删除申请的内存
     gui_memin_free(f_calendar);	//删除申请的内存
     POINT_COLOR = BLUE;

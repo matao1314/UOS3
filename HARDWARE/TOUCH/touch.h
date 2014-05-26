@@ -6,8 +6,7 @@
 #define TP_CATH_PRES 0x40  //有按键按下了 	  
 
 //触摸屏控制器
-typedef struct
-{
+typedef struct {
     u8 (*init)(void);			//初始化触摸屏控制器
     u8 (*scan)(u8);				//扫描触摸屏.0,屏幕扫描;1,物理坐标;
     void (*adjust)(void);		//触摸屏校准
