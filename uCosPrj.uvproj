@@ -755,11 +755,6 @@
               <FilePath>.\HARDWARE\SD\sdcard.c</FilePath>
             </File>
             <File>
-              <FileName>sd_fs_app.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\HARDWARE\SD\sd_fs_app.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\HARDWARE\SPI\spi.c</FilePath>
@@ -913,6 +908,11 @@
               <FileName>mp3player.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\APPS\mp3player.c</FilePath>
+            </File>
+            <File>
+              <FileName>settingserver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APPS\settingserver.c</FilePath>
             </File>
           </Files>
         </Group>

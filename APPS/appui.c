@@ -90,7 +90,6 @@ void Draw_mainPage(void)
 u8 icon_press_chk(void)
 {
     u8 i = 0xff;
-    u8 movecnt = 0;	//得到滑动点数
     tp_dev.scan(0);//扫描
     if(tp_dev.sta & TP_PRES_DOWN) { //有按键被按下
 

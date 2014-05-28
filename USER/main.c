@@ -164,10 +164,10 @@ void Usart_Task(void *pdata)
     pdata = pdata; //avoid compile warning
     while(1) {
         LED0 = 0;
-        //TEST = 0;
+        TEST = 0;
         delay_ms(1000);
         LED0 = 1;
-        //TEST = 1;
+        TEST = 1;
         delay_ms(1000);
         OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)
         printf("System Sram Use rate:%d%%\r\n", mem_perused(0)); //打印内存占用率

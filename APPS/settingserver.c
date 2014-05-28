@@ -1,10 +1,9 @@
-#include "settings.h"
+#include "settingserver.h"
 #include "rtc.h" 	   
 #include "calendar.h" 	      						  
-#include "sramlcd.h"
-#include "spb.h"
+
 _system_setings systemset;	  
-#define SYS_MENU_SIZE 			19		//条目个数	
+#define SYS_MENU_SIZE 	19	//条目个数	
 	 
 //系统设置主目录表
 const u8* sysset_mmenu_tbl[GUI_LANGUAGE_NUM][SYS_MENU_SIZE]=//系统一级目录的个数
@@ -19,7 +18,6 @@ const u8* sysset_mmenu_tbl[GUI_LANGUAGE_NUM][SYS_MENU_SIZE]=//系统一级目录的个数
 	"7.数码相框设置",
 	"8.MP3播放模式设置",
 	"9.MP3音效设置",
-	"12.FM收音设置",
 	"13.背光设置",
  	"14.屏幕校准",
 	"15.传感器校准",
@@ -28,25 +26,6 @@ const u8* sysset_mmenu_tbl[GUI_LANGUAGE_NUM][SYS_MENU_SIZE]=//系统一级目录的个数
 	"18.系统状态", 
 	"19.关于"
 	},
-	{			   								
-	"1.時間設置",
-	"2.日期設置",
-	"3.鬧鐘時間設置",
-	"4.鬧鐘開關設置",
-	"5.鬧鐘鈴聲設置",
-	"6.語言設置",
-	"7.數碼相框設置",
-	"8.MP3播放模式設置",
-	"9.MP3音效設置",
-	"12.FM收音設置",
-	"13.背光設置",
- 	"14.屏幕校準",
-	"15.傳感器校準",
-	"16.系統文件更新",
-	"17.系統信息",
-	"18.系統狀態", 
-	"19.關於"
-	}, 	 
 	{
 	"1.TIME SET",
 	"2.DATE SET",
@@ -69,20 +48,18 @@ const u8* sysset_mmenu_tbl[GUI_LANGUAGE_NUM][SYS_MENU_SIZE]=//系统一级目录的个数
 //语言设置列表
 const u8* sysset_language_tbl[GUI_LANGUAGE_NUM]=
 {
-	"简体中文","繁體中文","English",
+	"简体中文","English",
 };  	    
 //铃声设置列表
 const u8* sysset_ring_tbl[GUI_LANGUAGE_NUM][4]=
 {
 {"铃声1","铃声2","铃声3","铃声4",},
-{"鈴聲1","鈴聲2","鈴聲3","鈴聲4",},
 {"RING 1","RING 2","RING 3","RING 4",},	 
 };
 //播放模式设置列表
 const u8* sysset_mp3mode_tbl[GUI_LANGUAGE_NUM][3]=
 {
 {"全部循环","随机播放","单曲循环"},
-{"全部循環","隨機播放","單曲循環"},
 {"LOOP PLAY","SHUFFLE PLAY","SINGLE PLAY"},
 };
 //MP3音效
@@ -104,21 +81,6 @@ const u8* sysset_eareffect_tbl[4][GUI_LANGUAGE_NUM]=
 {"  强","  強","STRONG",},
 };
 
-//FM发射开关设置列表
-const u8* sysset_fmsend_onoff_tbl[GUI_LANGUAGE_NUM][2]=
-{
-{"FM发射关闭","FM发射开启",},
-{"FM發射關閉","FM發射開啟",},
-{"FM SEND OFF","FM SEND ON",},
-};  	    
-
-//FM收音设置列表
-const u8* sysset_fm_radio_tbl[GUI_LANGUAGE_NUM][2]=
-{
-{"FM后台收音关闭","FM后台收音开启",},
-{"FM後臺收音關閉","FM後臺收音開啟",},
-{"FM BACKPLAY OFF","FM BACKPLAY ON",},
-};
 //系统更新相关提示信息
 //系统更新确认提示 
 const u8 *sysset_system_update_remaindmsg_tbl[GUI_LANGUAGE_NUM]=
@@ -160,10 +122,6 @@ const u8* sysset_system_info_msg_tbl[9]=
 "MB",
 "KB",
 "uCOS II ",
-"ALIENTEK GUI ",
-"ALIENTEK WarShip ",
-"广州星翼电子",
-"www.openedv.com",
 }; 
 //系统状提示信息
 const u8* sysset_sysstatus_tbl[4][GUI_LANGUAGE_NUM]=
@@ -193,7 +151,7 @@ const u8* sysset_remindmsg_tbl[2][GUI_LANGUAGE_NUM]=
 //传感器校准提示语
 const u8* sysset_sensoradjust_tbl[GUI_LANGUAGE_NUM]=
 {
-"传感器校准中...,请稍候...","傳感器校準中...,請稍候...","Sensor adjusting,Please wait...",	 
+"传感器校准中...,请稍候...","Sensor adjusting,Please wait...",	 
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,12 +232,7 @@ u8 sysset_time_set(u16 x,u16 y,u8 *hour,u8 *min,u8*caption)
 		{
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
- 			if(system_task_return)
-			{
-				rval=1;			//取消设置
-				break;			//TPAD返回	
-			}
+			delay_ms(6);		//延时一个时钟节拍
 			for(i=0;i<6;i++)
 			{
 				res=btn_check(tbtn[i],&in_obj);//确认按钮检测
@@ -323,7 +276,6 @@ u8 sysset_time_set(u16 x,u16 y,u8 *hour,u8 *min,u8*caption)
  	}
 	window_delete(twin);				//删除窗口
 	for(i=0;i<6;i++)btn_delete(tbtn[i]);//删除按钮					   
-	system_task_return=0;				//清除退出标志
 	if(rval==0XFF)return 0;
 	return rval;
 }
@@ -397,12 +349,8 @@ u8 sysset_date_set(u16 x,u16 y,u16 *year,u8 *month,u8 *date,u8*caption)
 		{
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
- 			if(system_task_return)
-			{
-				rval=1;			//取消设置
-				break;			//TPAD返回	
-			}
+			delay_ms(5);		//延时一个时钟节拍
+
 			for(i=0;i<8;i++)
 			{
 				res=btn_check(tbtn[i],&in_obj);//确认按钮检测
@@ -459,7 +407,6 @@ u8 sysset_date_set(u16 x,u16 y,u16 *year,u8 *month,u8 *date,u8*caption)
  	}
 	window_delete(twin);				//删除窗口
 	for(i=0;i<8;i++)btn_delete(tbtn[i]);//删除按钮					   
-	system_task_return=0;				//清除退出标志
 	if(rval==0XFF)return 0;
 	return rval;
 }	  
@@ -524,12 +471,7 @@ u8 sysset_fmtx_freq_set(u16 x,u16 y,u16 *freq,u8*caption)
 		{
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
- 			if(system_task_return)
-			{
-				rval=1;			//取消设置
-				break;			//TPAD返回	
-			}
+			delay_ms(5);		//延时一个时钟节拍
 			for(i=0;i<4;i++)
 			{
 				res=btn_check(tbtn[i],&in_obj);//确认按钮检测
@@ -563,7 +505,6 @@ u8 sysset_fmtx_freq_set(u16 x,u16 y,u16 *freq,u8*caption)
  	}
 	window_delete(twin);				//删除窗口
 	for(i=0;i<4;i++)btn_delete(tbtn[i]);//删除按钮					   
-	system_task_return=0;				//清除退出标志
 	if(rval==0XFF)return 0;
 	return rval;
 }	  
@@ -710,12 +651,8 @@ u8 sysset_mp3_effict_set(u16 x,u16 y,_vs10xx_obj *vsset,u8* caption)
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-		delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
- 		if(system_task_return)
-		{
-			rval=1;			//退出,不保存
-			break;			//TPAD返回	
-		}
+		delay_ms(5);		//延时一个时钟节拍
+
 		res=btn_check(rbtn,&in_obj);			//取消按钮检测
 		if(res&&((rbtn->sta&0X80)==0))//有有效操作
 		{
@@ -758,7 +695,6 @@ u8 sysset_mp3_effict_set(u16 x,u16 y,_vs10xx_obj *vsset,u8* caption)
 	window_delete(twin);							//删除窗口
 	btn_delete(rbtn);								//删除按钮	
 	for(i=0;i<6;i++)progressbar_delete(mp3prgb[i]);	//删除进度条  
-	system_task_return=0;							//清除退出标志
 	if(rval==0XFF)return 0;
 	return rval;
 }
@@ -816,12 +752,7 @@ u8 sysset_bklight_set(u16 x,u16 y,u8* caption,u16 *bkval)
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-		delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
-		if(system_task_return)
-		{
-			rval=1;			//取消设置
-			break;			//TPAD返回	
-		}
+		delay_ms(5);		//延时一个时钟节拍
 		res=btn_check(rbtn,&in_obj);			//取消按钮检测
 		if(res&&((rbtn->sta&0X80)==0))			//有有效操作
 		{
@@ -839,13 +770,12 @@ u8 sysset_bklight_set(u16 x,u16 y,u8* caption,u16 *bkval)
 		{
  			gui_show_num(x+15,y+32+22,3,SYSSET_INWIN_FONT_COLOR,12,bkprgb->curpos,0);//显示数值 
 			*bkval=bkprgb->curpos+10;			//保存最新的结果 
- 			LCD_BLPWM_VAL=*bkval;			    //设置背光亮度 
+ 			//LCD_BLPWM_VAL=*bkval;			    //设置背光亮度 
 		}   		 
 	}
 	window_delete(twin);						//删除窗口
 	btn_delete(rbtn);							//删除按钮	
 	progressbar_delete(bkprgb);					//删除进度条  
-	system_task_return=0;				 		//清除退出标志
 	if(rval==0XFF)return 0;
 	return rval;
 }
@@ -863,7 +793,6 @@ u8 sysset_bklight_set(u16 x,u16 y,u8* caption,u16 *bkval)
 u8 sysset_system_update_cpymsg(u8*pname,u8 pct,u8 mode)
 {		
 	u16 filled;										 
-	if(system_task_return)return 1;//TPAD返回	
 	if(mode&0X01)//显示文件名
 	{
  		gui_phy.back_color=APP_WIN_BACK_COLOR;
@@ -888,7 +817,7 @@ u8 sysset_system_update_cpymsg(u8*pname,u8 pct,u8 mode)
 		gui_show_num(20+10+72,90+32+15+21*2+2,3,BLACK,12,pct,1);				//显示更新进度
 		gui_show_string("%",20+10+72+18,90+32+15+21*2+2,6,12,12,BLACK);			//显示百分号
   	}
-	delay_ms(1000/OS_TICKS_PER_SEC);//延时一个时钟节拍
+	delay_ms(5);//延时一个时钟节拍
 	return 0;	
 }
 //更新系统文件夹
@@ -920,7 +849,6 @@ void sysset_system_update(u8*caption)
 		delay_ms(1500); 
 	}
 	window_delete(twin);
-	system_task_return=0;//取消TPAD
 }   	  
 //显示系统信息
 //caption:标题
@@ -988,8 +916,7 @@ void sysset_system_info(u16 x,u16 y,u8*caption)
 		{
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
-	 		if(system_task_return)break;			//TPAD返回	
+			delay_ms(5);		//延时一个时钟节拍
 			rval=btn_check(rbtn,&in_obj);			//返回按钮检测
 			if(rval&&(rbtn->sta&0X80)==0)break;	 	//有有效操作
 	 
@@ -998,7 +925,6 @@ void sysset_system_info(u16 x,u16 y,u8*caption)
 	myfree(SRAMIN,msgbuf);
 	window_delete(twin);
 	btn_delete(rbtn);
-	system_task_return=0;//取消TPAD
 }	  
 
 //显示系统状态
@@ -1052,8 +978,7 @@ void sysset_system_status(u16 x,u16 y,u8* caption)
 	{
 		tp_dev.scan(0);    
 		in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-		delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
- 		if(system_task_return)break;			//TPAD返回	
+		delay_ms(5);		//延时一个时钟节拍
 		res=btn_check(rbtn,&in_obj);			//返回按钮检测
 		if(res)
 		{
@@ -1064,7 +989,7 @@ void sysset_system_status(u16 x,u16 y,u8* caption)
 		}	
 		if(i==0)//时间到了,更新内存,CPU等的状态
 		{
-			cpuprgb->curpos=OSCPUUsage;
+			//cpuprgb->curpos=OSCPUUsage;
 			meminprgb->curpos=mem_perused(0);	//内部内存使用率
 			memexprgb->curpos=mem_perused(1);	//外部内存使用率
 
@@ -1072,7 +997,7 @@ void sysset_system_status(u16 x,u16 y,u8* caption)
 			progressbar_draw_progressbar(meminprgb);//显示进度条
 			progressbar_draw_progressbar(memexprgb);//显示进度条
 			//显示温度值
-			temperate=Get_Temp();//得到内部温度
+			//temperate=Get_Temp();//得到内部温度
 			app_show_float(x+200-10-12,y+32+5,temperate,1,5,12,SYSSET_INWIN_FONT_COLOR,twin->windowbkc);//显示温度
   			i=100;
 		}
@@ -1083,7 +1008,6 @@ void sysset_system_status(u16 x,u16 y,u8* caption)
 	progressbar_delete(cpuprgb);	//删除进度条
 	progressbar_delete(meminprgb);	//删除进度条
 	progressbar_delete(memexprgb);	//删除进度条
-	system_task_return=0;		 	//清除退出标志
 }
 //关于系统
 //caption:标题
@@ -1137,8 +1061,7 @@ void sysset_system_about(u16 x,u16 y,u8*caption)
 		{
 			tp_dev.scan(0);    
 			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(1000/OS_TICKS_PER_SEC);		//延时一个时钟节拍
-	 		if(system_task_return)break;			//TPAD返回	
+			delay_ms(5);		//延时一个时钟节拍
 			rval=btn_check(rbtn,&in_obj);			//返回按钮检测
 			if(rval&&(rbtn->sta&0X80)==0)break;	 	//有有效操作
 	 
@@ -1147,7 +1070,6 @@ void sysset_system_about(u16 x,u16 y,u8*caption)
 	myfree(SRAMIN,tbuf);
 	window_delete(twin);
 	btn_delete(rbtn);
-	system_task_return=0;//取消TPAD
 }
 
 
@@ -1163,16 +1085,16 @@ u8 * set_search_caption(const u8 *mcaption)
 //sysset:系统信息 
 void sysset_read_para(_system_setings * sysset)
 {
-	AT24CXX_Read(SYSTEM_PARA_SAVE_BASE,(u8*)sysset,sizeof(_system_setings));
+	//AT24CXX_Read(SYSTEM_PARA_SAVE_BASE,(u8*)sysset,sizeof(_system_setings));
 }
 //写入系统设置信息
 //sysset:系统信息 
 void sysset_save_para(_system_setings * sysset)
 {
-  	OS_CPU_SR cpu_sr=0;
-	OS_ENTER_CRITICAL();//进入临界区(无法被中断打断) 
-	AT24CXX_Write(SYSTEM_PARA_SAVE_BASE,(u8*)sysset,sizeof(_system_setings));
-	OS_EXIT_CRITICAL();	//退出临界区(可以被中断打断)
+  	//OS_CPU_SR cpu_sr=0;
+	//OS_ENTER_CRITICAL();//进入临界区(无法被中断打断) 
+	//AT24CXX_Write(SYSTEM_PARA_SAVE_BASE,(u8*)sysset,sizeof(_system_setings));
+	//OS_EXIT_CRITICAL();	//退出临界区(可以被中断打断)
 }
 
 //系统设置 
@@ -1198,7 +1120,6 @@ u8 sysset_play(void)
 	while(1)
 	{   						   
    		res=app_listbox_select(&selitem,&topitem,caption,items,SYS_MENU_SIZE);
- 		if(system_task_return)break;					//TPAD返回
 		if(res&0X80)
 		{	  
 			scaption=set_search_caption(items[selitem]); 	 						   
@@ -1293,45 +1214,6 @@ u8 sysset_play(void)
 						savemask|=1<<1;//标记vsset数据改动了
 					}  
 					break;
-				case 9://FM发射开关设置
-					temp1=systemset.fmtxmode;//得到之前的设置
-			 		res=app_items_sel(30,84,180,72+40*2,(u8**)sysset_fmsend_onoff_tbl[gui_phy.language],2,(u8*)&temp1,0X90,scaption);//2个模式
-					if(res==0)//设置成功
-					{												   
-						systemset.fmtxmode=temp1;//设置模式			   		 
-						savemask|=1<<0;//标记系统设置数据改动了
- 						if(systemset.fmtxmode)//设置为发送模式
-						{
-							RDA5820_TX_Mode(); 
-							RDA5820_Freq_Set(systemset.fmtxfreq*10);	//设置到systemset.fmtxfreq的频率值
- 							RDA5820_TxPGA_Set(3); 						//设置增益为3
-						}else RDA5820_RX_Mode();//设置为接收模式 	
-					} 
-					break; 	 
-				case 10://FM发射频率设置
- 					temp1=systemset.fmtxfreq;//得到之前的频率
-			 		res=sysset_fmtx_freq_set(45,60,&temp1,scaption);//2个模式
-					if(res==0)//设置成功
-					{												   
-						systemset.fmtxfreq=temp1;//设置新频率	
-						if(systemset.fmtxmode)
-						{
-							RDA5820_TX_Mode();//设置为发送模式 
-							RDA5820_Freq_Set(systemset.fmtxfreq*10);	//设置到systemset.fmtxfreq的频率值
- 							RDA5820_TxPGA_Set(3); 						//设置增益为3
-						}else RDA5820_RX_Mode(); //设置为接收模式 		   		 
-						savemask|=1<<0;//标记系统设置数据改动了
- 					} 		  
-					break;						
-				case 11://FM收音设置
-					temp1=systemset.fmrxmode;//得到之前的设置
-			 		res=app_items_sel(30,84,180,72+40*2,(u8**)sysset_fm_radio_tbl[gui_phy.language],2,(u8*)&temp1,0X90,scaption);//2个模式
-					if(res==0)//设置成功
-					{												   
-						systemset.fmrxmode=temp1;//设置模式			   		 
-						savemask|=1<<0;//标记系统设置数据改动了
-					} 
-					break; 
 				case 12://背光设置
  					temp1=systemset.lcdbklight;//得到之前的背光
  			 		res=sysset_bklight_set(30,90,scaption,&temp1);//背光设置
@@ -1340,24 +1222,17 @@ u8 sysset_play(void)
 						systemset.lcdbklight=temp1;//设置新背光亮度值	       		   		 
 						savemask|=1<<0;//标记系统设置数据改动了
 					}else 
-					LCD_BLPWM_VAL=systemset.lcdbklight;					
+					//LCD_BLPWM_VAL=systemset.lcdbklight;					
 					break;
 				case 13://屏幕校准
 					TP_Adjust();
-					system_task_return=0;	//清除退出标志
 					break;
-				case 14://传感器校准
- 			     	window_msg_box(20,110,200,100,(u8*)sysset_sensoradjust_tbl[gui_phy.language],scaption,12,0,0);
-					ADXL345_AUTO_Adjust((char *)&systemset.t3dxoff,(char *)&systemset.t3dyoff,(char *)&systemset.t3dzoff);
-					savemask|=1<<0;//标记系统设置数据改动了
- 					break;
 				case 15://系统更新
 					res=window_msg_box(20,120,200,80,"",(u8*)sysset_system_update_remaindmsg_tbl[gui_phy.language],12,0,0X03);
 					if(res==1)//需要更新
 					{
 				    	sysset_system_update((u8*)sysset_system_update_msg_tbl[gui_phy.language]);
 					}
-					system_task_return=0;//取消TPAD 
 					break;
 				case 16://系统信息
 					sysset_system_info(20,24,scaption);
@@ -1379,7 +1254,7 @@ u8 sysset_play(void)
 	if(savemask&1<<1)//vsset数据改动了
 	{
 		printf("vsset save!\r\n");
-		vs10xx_save_para(&vsset); 		//保存VS10XX设置信息 
+		//vs10xx_save_para(&vsset); 		//保存VS10XX设置信息 
 	}
 	if(savemask&1<<2)//闹钟数据改动了
 	{
@@ -1390,7 +1265,7 @@ u8 sysset_play(void)
 	{
 		LCD_Clear(BLACK);
      	window_msg_box(20,110,200,100,(u8*)sysset_remindmsg_tbl[1][gui_phy.language],(u8*)sysset_remindmsg_tbl[0][gui_phy.language],12,0,0);
-		spb_init();//更新主界面.
+		//spb_init();//更新主界面.
 		delay_ms(100);//等待界面更新完成结束.
 	}
 	return res;			   							  

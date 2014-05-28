@@ -1,7 +1,6 @@
 #include "stm32f10x.h"
 #include "bsp.h"
-
-#include "common.h"//Common head file
+#include "common.h"
 SD_Error SD_USER_Init(void);
 /*******************************************************************************
 函 数 名：void IWDG_Init(void)
@@ -15,12 +14,6 @@ void IWDG_Init(void)
     //	IWDG_WriteAccessCmd( IWDG_WriteAccess_Disable );
     //	IWDG_Enable();
     //	IWDG_ReloadCounter();
-}
-INT32U  OS_CPU_SysTickClkFreq (void)
-{
-    RCC_ClocksTypeDef  rcc_clocks;
-    RCC_GetClocksFreq(&rcc_clocks);
-    return ((INT32U)rcc_clocks.HCLK_Frequency);
 }
 /*
  * 函数名：SysTick_Init
@@ -42,27 +35,6 @@ void SysTick_Init(void)
 #endif
 }
 
-CPU_INT32U BSP_CPU_ClkFreq(void)
-{
-    RCC_ClocksTypeDef RCC_Clocks;
-    RCC_GetClocksFreq(&RCC_Clocks);
-    return((CPU_INT32U)RCC_Clocks.HCLK_Frequency);
-}
-/*******************************************************************************
-* Function Name :void InterruptOrder(void)
-* Description   :中断向量，优先级
-*******************************************************************************/
-void NVIC_Cfg(void)
-{
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-    NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-}
-
 /*******************************************************************************
 * Function Name :void SystemConfig(void)
 * Description   :系统时间戳 初始化
@@ -73,7 +45,6 @@ void  CPU_TS_TmrInit (void)
 
 }
 #endif
-
 /*******************************************************************************
 * Function Name :void SystemConfig(void)
 * Description   :读时间戳 计数值
@@ -94,7 +65,6 @@ void BSP_Init(void)
 {
     SystemInit();//Clock72MHZ
     delay_init(72);
-    NVIC_Cfg();
     uart_init(72, 115200);
     LED_Init();
     KEY_Init();
@@ -105,9 +75,9 @@ void BSP_Init(void)
     VS_Init();//初始化VS1003
     I2C_EE_Init();//Eeprom
     //检测SD卡是否成功
-    while(SD_USER_Init() != SD_OK) {
+    while(SD_Init() != SD_OK) {
         POINT_COLOR = RED;
-        LCD_ShowString(20, 10, 180, 16, 16, "SD Card File!            ");
+        LCD_ShowString(20, 10, 180, 16, 16, "SD Card File!        ");
         LED0 = 0;
         delay_ms(500);
         LCD_ShowString(20, 10, 180, 16, 16, "Please Check SD Card!");
@@ -124,7 +94,7 @@ void BSP_Init(void)
         update_font(20, 110, 16, 0); //从SD卡更新
     }
     tp_dev.init();
-    if(KEY_Scan(0) == 1) {
+    if(KEY_Scan(0) == 1) {//校准触摸屏
         TP_Adjust();
     }
     if(!VS_HD_Reset()) {
@@ -140,43 +110,4 @@ void BSP_Init(void)
     printf(__DATE__"\r\n");
     printf(__TIME__"\r\n");
     SysTick->CTRL |= 1 << 1;  //开启systick中断;
-    //OS_CPU_SysTickInit(SystemCoreClock / (CPU_INT32U)OSCfg_TickRate_Hz);
 }
-
-SD_CardInfo   SDCardInfo;        //SD卡信息
-SD_Error      SD_USER_Init(void);//SD卡初始化
-//SD Card Init
-SD_Error SD_USER_Init(void)
-{
-    SD_Error   Status = SD_OK;
-    /* SD Init */
-    Status = SD_Init();
-    if (Status == SD_OK) {
-        /* Read CSD/CID MSD registers */
-        Status = SD_GetCardInfo( &SDCardInfo );//获得SD卡索引信息
-        printf("SDCardCapacity = %dMB\r\n", SDCardInfo.CardCapacity >> 20);
-        printf("CardBlockSize  = %d\r\n", SDCardInfo.CardBlockSize );
-    }
-    if (Status == SD_OK) {
-        /* Select Card */
-        Status = SD_SelectDeselect( (u32) (SDCardInfo.RCA << 16) );
-    }
-    if (Status == SD_OK) {
-        /* set bus wide */
-        Status = SD_EnableWideBusOperation( SDIO_BusWide_1b );
-    }
-    /* Set Device Transfer Mode to DMA */
-    if (Status == SD_OK) {
-        /* 任选一种都可以工作 */
-        Status = SD_SetDeviceMode( SD_DMA_MODE );
-        //Status = SD_SetDeviceMode( SD_POLLING_MODE );
-        //Status = SD_SetDeviceMode( SD_INTERRUPT_MODE );
-    }
-    return Status;
-}
-
-void SDIO_IRQHandler(void)
-{
-    SD_ProcessIRQSrc();
-}
-

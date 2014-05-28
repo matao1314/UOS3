@@ -31,7 +31,6 @@ const u8 *MP3_PAUSER_PIC = "0:/SYSTEM/APP/MP3/PauseR.bmp";	//暂停 松开
 const u8 *MP3_PAUSEP_PIC = "0:/SYSTEM/APP/MP3/PauseP.bmp";	//暂停 按下
 
 //播放音乐任务
-//OS_EVENT * mp3mbox;//事件控制块
 OS_Q MusicQ;
 void music_task(void *pdata)
 {
@@ -47,8 +46,6 @@ void music_task(void *pdata)
     CPU_TS ts;
     OS_ERR err;
     OS_MSG_SIZE msg_size;
-    //VS_HD_Reset();
-    //VS_Soft_Reset();
     OSQCreate(&MusicQ, "MusicQuene", 1, &err);
     while(1) {
         (CPU_INT32U)OSQPend((OS_Q *)&MusicQ,
@@ -86,8 +83,7 @@ void music_task(void *pdata)
                 break;    //申请失败
             }
             pname = gui_path_name(pname, mp3dev->path, mp3dev->name);	//文件名加入路径
-            printf("pname = %s\r\n", pname);
-            //VS_Restart_Play();  	//重启播放 VS1003与VS1053的寄存器有差别
+            VS_Restart_Play();  	//重启播放 VS1003与VS1053的寄存器有差别
             VS_Set_All();        	//设置音量等信息
             VS_Reset_DecodeTime();	//复位解码时间
             res = f_typetell(pname);
@@ -99,6 +95,7 @@ void music_task(void *pdata)
                 res = f_open(mp3dev->fmp3, (const TCHAR *)SPEC_PATCH_PATH, FA_READ); //打开文件
                 mp3dev->sta &= ~(1 << 4); //标记为普通文件
             }
+						res =0;
             if(res) {
                 break;    //打开flac patch错误
             }
@@ -107,9 +104,9 @@ void music_task(void *pdata)
                 break;    //申请内存失败
             }
             res = f_read(mp3dev->fmp3, patchbuf, mp3dev->fmp3->fsize, (UINT *)&br);	//一次读取整个文件
-            if(res == 0) {
+            /*if(res == 0) {
                 VS_Load_Patch((u16 *)patchbuf, mp3dev->fmp3->fsize / 2);
-            }
+            }*/
             myfree(SRAMIN, patchbuf);
             patchbuf = NULL;
             f_close(mp3dev->fmp3);
@@ -123,7 +120,6 @@ void music_task(void *pdata)
                 mp3dev->sta |= 1 << 6;	//标记执行了一次歌曲的切换
                 while(1) {
                     res = f_read(mp3dev->fmp3, databuf, READ_BLOCK_SIZE, (UINT *)&br);	//读出readlen个字节
-                    printf("br = %d  res= %d\r\n", br, res);
                     i = 0;
                     do { //主播放循环
                         if(VS_Send_MusicData(databuf + i) == 0) { //给VS10XX发送音频数据
@@ -140,7 +136,6 @@ void music_task(void *pdata)
                                 break;    //请求终止
                             }
                         }
-                        printf("i = %i \r\n", i);
                     } while(i < READ_BLOCK_SIZE); //循环发送4096个字节
                     if(br != READ_BLOCK_SIZE || res != 0) {
                         break;//读完了.
@@ -297,7 +292,6 @@ u8 mp3_filelist(_m_mp3dev *mp3devx)
             }
 
             mp3devx->mfilenum = flistbox->filecnt;		//记录文件个数
-            //printf("flistbox->selindex =%d - flistbox->foldercnt = %d\r\n", flistbox->selindex , flistbox->foldercnt);
             OSQPost ((OS_Q *)&MusicQ,
                      (void *)1,
                      (OS_MSG_SIZE)(flistbox->selindex - flistbox->foldercnt + 1),
@@ -597,11 +591,6 @@ u8 mp3_play(void)
                         }
                         progressbar_draw_progressbar(mp3prgb);	//画进度条
                         progressbar_draw_progressbar(volprgb);	//画进弱
-                        //							if(system_task_return)//刚刚退出文件浏览
-                        //							{
-                        //								delay_ms(100);
-                        //								system_task_return=0;
-                        //							}
                         break;
                     case 1://上一曲或者下一曲
                     case 3:
@@ -683,10 +672,10 @@ u8 mp3_play(void)
             if(res && ((mp3prgb->sta && PRGB_BTN_DOWN) == 0)) { //被按下了,并且松开了,执行快进快退
                 f_lseek(mp3dev->fmp3, mp3prgb->curpos); //快速定位
             }
-            //if((tcnt%20)==0)mp3_info_upd(mp3dev,mp3prgb,volprgb);//更新显示信息,每100ms执行一次
+            if((tcnt%20)==0)mp3_info_upd(mp3dev,mp3prgb,volprgb);//更新显示信息,每100ms执行一次
 
             if(((mp3dev->sta & (1 << 4)) == 0) && (tcnt % 5) == 0) {	//不是flac,执行频谱显示
-                //res = VS_Get_Spec(specbuf);
+                res = VS_Get_Spec(specbuf);
                 if(res) {
                     mp3_specalz_show(mp3dev, specbuf);    //显示频谱
                 }

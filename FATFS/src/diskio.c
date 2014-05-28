@@ -5,128 +5,54 @@
 /* disk I/O modules and attach it to FatFs module with common interface. */
 /*-----------------------------------------------------------------------*/
 
+
 #include "diskio.h"
 #include "sdcard.h"
 
 #include "flash.h"
 #include "malloc.h"		 		   
 #include "os.h"
-
-/*-----------------------------------------------------------------------*/
-/* Correspondence between physical drive number and physical drive.      */
-
-//#define ATA		0
-//#define MMC		1
-//#define USB		2
-
-extern SD_Error SD_USER_Init(void);
-extern SD_CardInfo SDCardInfo;
 #define SECTOR_SIZE 512U
+
+SD_CardInfo SDCardInfo;
+
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 
-DSTATUS disk_initialize (BYTE drv)				/* Physical drive nmuber (0..) */
-{
-SD_Error Status;
-switch ( drv )	
-{
-case 0 :	Status = SD_USER_Init(); /* SD_USER_Init() 这个函数由用户编写 */
-			    if ( Status == SD_OK )	 /* SD 卡初始化成功,这一步非常重要 */
-				  return 0;
-			else
-			return STA_NOINIT;
-
-		case 1 :
-			return STA_NOINIT;
-
-		case 2 :
-			return STA_NOINIT;
-	}
-
-return STA_NOINIT;
-/* 下面注释掉的部分为FATFS自带的 */
-//	DSTATUS stat;
-//	int result;
-//
-//	switch (drv) {
-//	case ATA :
-//		//result = ATA_disk_initialize();
-//		// translate the reslut code here
-//
-//		return stat;
-//
-//	case MMC :
-//		result = MMC_disk_initialize();
-//		// translate the reslut code here
-//
-//		return stat;
-//
-//	case USB :
-//		result = USB_disk_initialize();
-//		// translate the reslut code here
-//
-//		return stat;
-//	}
-//	return STA_NOINIT;	
+DSTATUS disk_initialize (
+	BYTE drv				/* Physical drive nmuber (0..) */
+)
+{ 
+	u8 state;
+	state=  SD_Init();							//初始化
+	if(!state){
+	 return STA_NODISK;
+	}   
+	return 0;									  
 }
 
 
 
 /*-----------------------------------------------------------------------*/
 /* Return Disk Status                                                    */
-DSTATUS disk_status (BYTE drv)		/* Physical drive nmuber (0..) */
-{
-switch (drv) /* 用户自己添加应用代码 */
-{
-case 0 :
-		
-	  /* translate the reslut code here	*/
 
-	    return 0;
+DSTATUS disk_status (
+	BYTE drv		/* Physical drive nmuber (0..) */
+)
+{ /**
+    if(drv)
+    {
+        return STA_NOINIT;  //仅支持磁盘0操作
+    }
 
-	  case 1 :
-	
-	  /* translate the reslut code here	*/
-
-	    return 0;
-
-	  case 2 :
-	
-	  /* translate the reslut code here	*/
-
-	    return 0;
-
-	  default:
-
-        break;
-	}
-	return STA_NOINIT;
-
-/* 下面注释掉的部分为FATFS自带的 */
-//	DSTATUS stat;
-//	int result;
-//
-//	switch (drv) {
-//	case ATA :
-//		//result = ATA_disk_status();
-//		// translate the reslut code here
-//
-//		return stat;
-//
-//	case MMC :
-//		result = MMC_disk_status();
-//		// translate the reslut code here
-//
-//		return stat;
-//
-//	case USB :
-//		result = USB_disk_status();
-//		// translate the reslut code here
-//
-//		return stat;
-//	}
-//	return STA_NOINIT;
-	
+    //检查SD卡是否插入
+    if(!SD_DET())
+    {
+        return STA_NODISK;
+    }
+    return 0;
+	**/
+	return 0;
 }
 
 
@@ -140,44 +66,19 @@ DRESULT disk_read (
 	DWORD sector,	/* Sector address (LBA) */
 	BYTE count		/* Number of sectors to read (1..255) */
 )
-{	
-	if ( count == 1 )		/* 1个sector的读操作 */
-  {	
-  	SD_ReadBlock( sector << 9, (u32 *)(&buff[0]), SECTOR_SIZE );
-		//SD_ReadBlock( sector << 9, (u32 *)(&buff[0]), SDCardInfo.CardBlockSize );
-		
-	}
-	else        			 /* 多个sector的读操作 */
-	{
-		SD_ReadMultiBlocks( sector << 9, (u32 *)(&buff[0]), SECTOR_SIZE, count );
-		
-	}
-	return RES_OK;		 
-
-/* 下面注释掉的部分为FATFS自带的 */
-//	DRESULT res;
-//	int result;
-//
-//	switch (drv) {
-//	case ATA :
-//		//result = ATA_disk_read(buff, sector, count);
-//		// translate the reslut code here
-//
-//		return res;
-//
-//	case MMC :
-//		result = MMC_disk_read(buff, sector, count);
-//		// translate the reslut code here
-//
-//		return res;
-//
-//	case USB :
-//		result = USB_disk_read(buff, sector, count);
-//		// translate the reslut code here
-//
-//		return res;
-//	}
-//	return RES_PARERR;	
+{
+		u8 res=0;
+    if (!count)return RES_PARERR;//count不能等于0，否则返回参数错误		 	 
+		res=SD_ReadDisk(buff,sector,count);
+    //处理返回值，将SPI_SD_driver.c的返回值转成ff.c的返回值
+    if(res == 0x00)
+    {
+        return RES_OK;
+    }
+    else
+    {
+        return RES_ERROR;
+    }
 }
 
 
@@ -192,41 +93,25 @@ DRESULT disk_write (
 	DWORD sector,		/* Sector address (LBA) */
 	BYTE count			/* Number of sectors to write (1..255) */
 )
-{	
-	if ( count == 1 )		/* 1个sector的写操作 */
-  {		
-		SD_WriteBlock(sector << 9 ,(u32 *)(&buff[0]),SECTOR_SIZE);
+{
+	u8 res;
+	u8 retry=0X1F;		//写入失败的时候,重试次数
+	if (!count)return RES_PARERR;//count不能等于0，否则返回参数错误		 	 
+	while(retry)
+	{
+		res=SD_WriteDisk((u8*)buff,sector,count);
+		if(res==0)break;
+		retry--;
 	}
-	else							 /* 多个sector的写操作 */
-  {		
-    SD_WriteMultiBlocks(sector << 9 ,(u32 *)(&buff[0]),SECTOR_SIZE,count);
-	}        
-  return RES_OK;	
-
-/* 下面注释掉的部分为FATFS自带的 */
-//	DRESULT res;
-//	int result;
-//
-//	switch (drv) {
-//	//case ATA :
-//		result = ATA_disk_write(buff, sector, count);
-//		// translate the reslut code here
-//
-//		return res;
-//
-//	case MMC :
-//		result = MMC_disk_write(buff, sector, count);
-//		// translate the reslut code here
-//
-//		return res;
-//
-//	case USB :
-//		result = USB_disk_write(buff, sector, count);
-//		// translate the reslut code here
-//
-//		return res;
-//	}
-//	return RES_PARERR; 	
+	// 返回值转换
+	if(res == 0)
+	{
+			return RES_OK;
+	}
+	else
+	{
+			return RES_ERROR;
+	}
 }
 #endif /* _READONLY */
 
@@ -241,37 +126,49 @@ DRESULT disk_ioctl (
 	void *buff		/* Buffer to send/receive control data */
 )
 {
-	return RES_OK;	// 0
-/* 下面注释掉的部分为FATFS自带的 */
-//	DRESULT res;
-//	int result;
-//
-//	switch (drv) {
-//	case ATA :
-//		// pre-process here
-//
-//		//result = ATA_disk_ioctl(ctrl, buff);
-//		// post-process here
-//
-//		return res;
-//
-//	case MMC :
-//		// pre-process here
-//
-//		result = MMC_disk_ioctl(ctrl, buff);
-//		// post-process here
-//
-//		return res;
-//
-//	case USB :
-//		// pre-process here
-//
-//		result = USB_disk_ioctl(ctrl, buff);
-//		// post-process here
-//
-//		return res;
-//	}
-//	return RES_PARERR;	
+    DRESULT res;
+
+
+    if (drv)
+    {    
+        return RES_PARERR;  //仅支持单磁盘操作，否则返回参数错误
+    }
+    
+    //FATFS目前版本仅需处理CTRL_SYNC，GET_SECTOR_COUNT，GET_BLOCK_SIZ三个命令
+    switch(ctrl)
+    {
+    case CTRL_SYNC:
+	/*
+         SD_CS_ENABLE();
+	 
+        if(SD_WaitReady()==0)
+        {
+            res = RES_OK;
+        }
+        else
+        {
+            res = RES_ERROR;
+        }
+        SD_CS_DISABLE();
+		*/
+		res=RES_OK;
+        break;
+        
+    case GET_BLOCK_SIZE:
+        *(DWORD*)buff = SDCardInfo.CardBlockSize;
+        res = RES_OK;
+        break;
+
+    case GET_SECTOR_COUNT:
+        *(DWORD*)buff = (SDCardInfo.CardCapacity*1024)/SDCardInfo.CardBlockSize;   					//读扇区数
+        res = RES_OK;
+        break;
+    default:
+        res = RES_PARERR;
+        break;
+    }
+
+    return res;
 }
 
 /* 得到文件Calendar格式的建立日期,是DWORD get_fattime (void) 逆变换 */							

@@ -21,7 +21,6 @@
 #include "i2cee.h"
 #include "fontupd.h"
 #include "touch.h"
-#include "sd_fs_app.h"
 #include "exfuns.h"
 #include "vs10xx.h"
 #include "rtc.h"
@@ -44,5 +43,4 @@
 void IWDG_Init(void);
 void SysTick_Init(void);
 void BSP_Init(void);
-void NVIC_Cfg(void);
 #endif
