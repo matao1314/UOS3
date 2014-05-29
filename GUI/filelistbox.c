@@ -420,19 +420,19 @@ void filelistbox_show_path(_filelistbox_obj *filelistbox)
 
 //磁盘容量字符串
 const u8 *FLBOX_DISK_SIZE_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
-    "磁盘容量:", "磁盤容量:", "Capacity:",
+    "磁盘容量:",  "Capacity:",
 };
 //磁盘可用空间字符串
 const u8 *FLBOX_DISK_FREE_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
-    "可用空间:", "可用空間:", "Free:",
+    "可用空间:",  "Free:",
 };
 //文件夹字符串
 const u8 *FLBOX_FOLDER_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
-    "文件夹:", "文件夾:", "Folder:",
+    "文件夹:",  "Folder:",
 };
 //磁盘可用空间字符串
 const u8 *FLBOX_FILES_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
-    "  文件:", "  文件:", "  Files:",
+    "  文件:",  "  Files:",
 };
 
 //显示信息
@@ -534,8 +534,8 @@ void filelistbox_draw_listbox(_filelistbox_obj *filelistbox)
 
 //磁盘名字表
 const u8 *FLIST_DISK_NAME_TBL[2][GUI_LANGUAGE_NUM] = {
-    {"SD卡", "SD卡", "SD Card",},
-    {"FLASH磁盘", "FLASH磁盤", "FLASH Disk",},
+    {"SD卡",  "SD Card",},
+    {"FLASH磁盘",  "FLASH Disk",},
 };
 //扫描当前路径下的所有文件
 //filelistbox:filelistbox指针

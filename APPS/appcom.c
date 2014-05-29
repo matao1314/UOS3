@@ -9,45 +9,37 @@
 
 //模式选择列表的窗体名字
 const u8 *APP_MODESEL_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
-    "模式选择", "模式選擇", "Mode Select",
+    "模式选择", "Mode Select",
 };
 //提示信息的窗体名字
 const u8 *APP_REMIND_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
-    "提示信息", "提示信息", "Remind",
+    "提示信息",  "Remind",
 };
 //提醒保存的窗体名字
 const u8 *APP_SAVE_CAPTION_TBL[GUI_LANGUAGE_NUM] = {
-    "是否保存编辑后的文件?", "是否保存編輯后的文件?", "Do you want to save?",
+    "是否保存编辑后的文件?", "Do you want to save?",
 };
 //创建文件失败,提示是否存在SD卡? ,200的宽度
 const u8 *APP_CREAT_ERR_MSG_TBL[GUI_LANGUAGE_NUM] = {
-    "创建文件失败,请检查SD卡!", "創建文件失敗,請檢查SD卡!", "Creat File Failed,Check SD Card!",
+    "创建文件失败,请检查SD卡!","Creat File Failed,Check SD Card!",
 };
 //磁盘名字表
 const u8 *APP_DISK_NAME_TBL[2][GUI_LANGUAGE_NUM] = {
-    {"SD卡", "SD卡", "SD Card",},
-    {"FLASH磁盘", "FLASH磁盤", "FLASH Disk",},
+    {"SD卡","SD Card",},
+    {"FLASH磁盘","FLASH Disk",},
 };
 //app主要功能界面标题
 const u8 *APP_MFUNS_CAPTION_TBL[APP_FUNS_NUM][GUI_LANGUAGE_NUM] = {
-    {"电子图书", "電子圖書", "EBOOK",},
-    {"数码相框", "數碼相框", "PHOTOS",},
-    {"音乐播放器", "音樂播放器", "MUSIC PLAYER",},
-    {"应用中心", "應用中心", "APPLICATIONS",},
-    {"", "", "",},
-    {"系统设置", "系統設置", "SYSTEM SET",},
-    {"FC游戏机", "FC遊戲機", "FC PLAYER",},
-    {"收音机", "收音機", "RADIO",},
-    {"记事本", "記事本", "NOTEPAD",},
-    {"运行器", "運行器", "EXE",},
-    {"", "", "",},
-    {"手写画笔", "手寫畫筆", "PAINT",},
-    {"照相机", "照相機", "CAMERA",},
-    {"录音机", "錄音機", "RECODER",},
-    {"USB连接", "USB連接", "USB",},
-    {"红外遥控", "紅外遙控", "REMOTE",},
-    {"无线传书", "無線傳書", "WIRELESS",},
-    {"计算器", "計算器", "CALCULATOR",},
+    {"电子图书","EBOOK",},
+    {"数码相框","PHOTOS",},
+    {"音乐播放器","MUSIC PLAYER",},
+    {"应用中心","APPLICATIONS",},
+    {"系统设置","SYSTEM SET",},
+    {"记事本","NOTEPAD",},
+    {"运行器","EXE",},
+    {"手写画笔","PAINT",},
+    {"USB连接","USB",},
+    {"计算器","CALCULATOR",},
 
 };
 #if ICOS_LOCATION==ICOS_SD_CARD//存放在SD卡  

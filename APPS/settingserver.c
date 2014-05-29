@@ -1,7 +1,7 @@
 #include "settingserver.h"
 #include "rtc.h" 	   
 #include "calendar.h" 	      						  
-
+#include "os.h"
 _system_setings systemset;	  
 #define SYS_MENU_SIZE 	19	//条目个数	
 	 
@@ -20,7 +20,6 @@ const u8* sysset_mmenu_tbl[GUI_LANGUAGE_NUM][SYS_MENU_SIZE]=//系统一级目录的个数
 	"9.MP3音效设置",
 	"13.背光设置",
  	"14.屏幕校准",
-	"15.传感器校准",
 	"16.系统文件更新",
 	"17.系统信息",
 	"18.系统状态", 
@@ -65,54 +64,54 @@ const u8* sysset_mp3mode_tbl[GUI_LANGUAGE_NUM][3]=
 //MP3音效
 const u8* sysset_mp3effect_tbl[6][GUI_LANGUAGE_NUM]=
 {
-{"主音量:","主音量:","Volume:",},
-{"低频上限:","低頻上限:","Bass Freq:",},
-{"低频提升:","低頻提升:","Bass:",},
-{"高频下限:","高頻下限:","Treble Freq:",},
-{"高频提升:","高頻提升:","Treble:",},
-{"空间效果:","空間效果:","Ear Effect:"},
+{"主音量:","Volume:",},
+{"低频上限:","Bass Freq:",},
+{"低频提升:","Bass:",},
+{"高频下限:","Treble Freq:",},
+{"高频提升:","Treble:",},
+{"空间效果:","Ear Effect:"},
 };
 //MP3耳机空间效果
 const u8* sysset_eareffect_tbl[4][GUI_LANGUAGE_NUM]=
 {
-{"  关","  關"," OFF",},
-{"  弱","  弱"," WEEK",},
-{"  中","  中","MIDDLE",},
-{"  强","  強","STRONG",},
+{"  关"," OFF",},
+{"  弱"," WEEK",},
+{"  中","MIDDLE",},
+{"  强","STRONG",},
 };
 
 //系统更新相关提示信息
 //系统更新确认提示 
 const u8 *sysset_system_update_remaindmsg_tbl[GUI_LANGUAGE_NUM]=
-{"您确认更新系统文件?","您確認更新系統文件?","Are you sure to update?"};
+{"您确认更新系统文件?","Are you sure to update?"};
 //系统更新复制提示信息
 const u8 *sysset_system_update_cpymsg_tbl[2][GUI_LANGUAGE_NUM]=
 {
-{"正在复制:","正在複製:"," Copying:",},
-{"当前文件夹:","當前文件夾:","Cur Folder:",},
+{"正在复制:"," Copying:",},
+{"当前文件夹:","Cur Folder:",},
 }; 
 //系统更新提示
 const u8 *sysset_system_update_msg_tbl[GUI_LANGUAGE_NUM]=
-{"系统正在更新...","系統正在更新...","SYSTEM Updating..."};
+{"系统正在更新...","SYSTEM Updating..."};
 //系统更新结果提示
 const u8 *sysset_system_update_err_tbl[3][GUI_LANGUAGE_NUM]=
 {
-{"系统文件更新成功!","系統文件更新成功!","SYSTEM file lost!",},
-{"系统文件丢失!","系統文件丟失!","SYSTEM file lost!",},
-{"用户终止更新!","用戶終止更新!","User stop update!",},
+{"系统文件更新成功!","SYSTEM file lost!",},
+{"系统文件丢失!","SYSTEM file lost!",},
+{"用户终止更新!","User stop update!",},
 };
 //系统信息标注表
 const u8* sysset_system_info_caption_tbl[9][GUI_LANGUAGE_NUM]=
 {
-{"处理器:","處理器:","CPU:"},
-{"内存:","內存:","RAM:"},
-{"SD卡:","SD卡:","SD Card:"},
-{"FLASH盘:","FLASH盤:","FLASH Disk:"},
-{"操作系统:","操作系統:","OS:"},
-{"图形界面:","圖形界面:","GUI:"},
-{"硬件平台:","硬件平臺:","Hardware:"},
-{"版权信息:","版權信息:","Copyright:"},
-{"技术支持:","技術支持:","Tech Support:"},
+{"处理器:","CPU:"},
+{"内存:","RAM:"},
+{"SD卡:","SD Card:"},
+{"FLASH盘:","FLASH Disk:"},
+{"操作系统:","OS:"},
+{"图形界面:","GUI:"},
+{"硬件平台:","Hardware:"},
+{"版权信息:","Copyright:"},
+{"技术支持:","Tech Support:"},
 };
 //系统提示信息表
 const u8* sysset_system_info_msg_tbl[9]=
@@ -126,17 +125,16 @@ const u8* sysset_system_info_msg_tbl[9]=
 //系统状提示信息
 const u8* sysset_sysstatus_tbl[4][GUI_LANGUAGE_NUM]=
 {
-{"CPU使用率:","CPU使用率:","CPU USAGE:",},
-{"内部内存使用率:","内部内存使用率:","IN MEMORY USAGE:",},
-{"外部内存使用率:","外部内存使用率:","EX MEMORY USAGE:"},
-{"温度:","溫度:","TEMP:"},
+{"CPU使用率:","CPU USAGE:",},
+{"内部内存使用率:","IN MEMORY USAGE:",},
+{"温度:","TEMP:"},
 };
 
 //系统关于提示信息
 const u8* sysset_system_about_caption_tbl[2][GUI_LANGUAGE_NUM]=
 {
-{"ALEINTEK 战舰","ALIENTEK 戰艦","ALENTEK WarShip",},
-{"产品序列号","產品序列號","Serial Number",},
+{"ALEINTEK 战舰","ALENTEK WarShip",},
+{"产品序列号","Serial Number",},
 };
 
 
@@ -145,8 +143,8 @@ const u8* sysset_system_about_caption_tbl[2][GUI_LANGUAGE_NUM]=
 //语言设置后的提示
 const u8* sysset_remindmsg_tbl[2][GUI_LANGUAGE_NUM]=
 {
-{"更新主界面","更新主界面","Updating",},
-{"系统正在更新主界面,请稍候...","系統正在更新主界面,請稍候...","System updating,Please wait...",}, 
+{"更新主界面","Updating",},
+{"系统正在更新主界面,请稍候...","System updating,Please wait...",}, 
 };
 //传感器校准提示语
 const u8* sysset_sensoradjust_tbl[GUI_LANGUAGE_NUM]=
@@ -411,103 +409,6 @@ u8 sysset_date_set(u16 x,u16 y,u16 *year,u8 *month,u8 *date,u8*caption)
 	return rval;
 }	  
 		   
-//发射频率设置
-//x,y:窗口坐标(窗口尺寸已经固定了的,150*199)	   
-//freq:频率,单位0.1Mhz
-//caption:窗口名字				  
-//返回值:0,ok;其他,取消或者错误.
-u8 sysset_fmtx_freq_set(u16 x,u16 y,u16 *freq,u8*caption) 
-{
-	u8 rval=0,res;
-	u8 i;
-	_window_obj* twin=0;	//窗体
- 	_btn_obj * tbtn[4];		//总共4个按钮:0,频率增加按钮;1,频率减少按钮;2,确认按钮;3,取消按钮			  
- 	twin=window_creat(x,y,150,199,0,1|1<<5,16);//创建窗口
- 	tbtn[0]=btn_creat(x+25,y+42,SYSSET_BTN3_WIDTH,SYSSET_BTN1_HEIGHT,0,0x02);			//创建按钮
-	tbtn[1]=btn_creat(x+25,y+42+67,SYSSET_BTN3_WIDTH,SYSSET_BTN1_HEIGHT,0,0x02);		//创建按钮
-	tbtn[2]=btn_creat(x+10,y+42+117,SYSSET_BTN2_WIDTH,SYSSET_BTN2_HEIGHT,0,0x02);		//创建按钮
-	tbtn[3]=btn_creat(x+10+70,y+42+117,SYSSET_BTN2_WIDTH,SYSSET_BTN2_HEIGHT,0,0x02);	//创建按钮
-	for(i=0;i<4;i++)
-	{
-		if(tbtn[i]==NULL)
-		{
-			rval=1;
-			break;
-		}
-		if(i<2)//加减按键
-		{
-			tbtn[i]->bcfucolor=BLACK;//松开时为黑色
-			tbtn[i]->bcfdcolor=WHITE;//按下时为白色			
-			tbtn[i]->bkctbl[0]=0X453A;//边框颜色
-			tbtn[i]->bkctbl[1]=0X5DDC;//第一行的颜色				
-			tbtn[i]->bkctbl[2]=0X5DDC;//上半部分颜色
-			tbtn[i]->bkctbl[3]=0X453A;//下半部分颜色
-		}else//确认和取消按键
-		{
-			tbtn[i]->bkctbl[0]=0X8452;//边框颜色
-			tbtn[i]->bkctbl[1]=0XAD97;//第一行的颜色				
-			tbtn[i]->bkctbl[2]=0XAD97;//上半部分颜色
-			tbtn[i]->bkctbl[3]=0X8452;//下半部分颜色
-		}
-		if(i==0)tbtn[i]->caption="＋";
-		if(i==1)tbtn[i]->caption="－";
-		if(i==2)tbtn[i]->caption=(u8*)GUI_OK_CAPTION_TBL[gui_phy.language];
-		if(i==3)tbtn[i]->caption=(u8*)GUI_CANCEL_CAPTION_TBL[gui_phy.language];				
-	}
-    if(twin==NULL)rval=1;
-	else
-	{
-		twin->caption=caption;
-		twin->windowbkc=APP_WIN_BACK_COLOR;	     
-	}
-	if(rval==0)//无错误
-	{
-		window_draw(twin);					//画出窗体
-		for(i=0;i<4;i++)btn_draw(tbtn[i]);	//画按钮
-   		gui_fill_rectangle(x+25+1,y+42+SYSSET_BTN1_HEIGHT+1,SYSSET_BTN3_WIDTH-2,SYSSET_EDIT_HEIGHT,SYSSET_EDIT_BACK_COLOR);//填充FM频率背景
-		app_show_float(x+25+56,y+42+SYSSET_BTN1_HEIGHT+4,*freq,1,5,16,BLACK,SYSSET_EDIT_BACK_COLOR);	//显示频率
-		gui_show_string("Mhz",x+25+57,y+42+SYSSET_BTN1_HEIGHT+4,24,16,16,BLACK);	//显示Mhz
- 		while(rval==0)
-		{
-			tp_dev.scan(0);    
-			in_obj.get_key(&tp_dev,IN_TYPE_TOUCH);	//得到按键键值   
-			delay_ms(5);		//延时一个时钟节拍
-			for(i=0;i<4;i++)
-			{
-				res=btn_check(tbtn[i],&in_obj);//确认按钮检测
-				if(res)
-				{
-					if((tbtn[i]->sta&0X80)==0)//有有效操作
-					{
-						switch(i)
-						{
-							case 0://时钟增加按钮按下了
-								(*freq)++;
-								if((*freq)>1080)*freq=870;
-								break;
-							case 1://时钟减少按钮按下了	  
-								if((*freq)>870)(*freq)--;
-								else *freq=1080;
-								break;
-							case 2://确认按钮按下  
-								rval=0XFF;
-								break;	  
-							case 3://取消按钮按下	  
-								rval=1;
-								break;
- 						}
-					}
- 					app_show_float(x+25+56,y+42+SYSSET_BTN1_HEIGHT+4,*freq,1,5,16,BLACK,SYSSET_EDIT_BACK_COLOR);//显示频率
- 				}
-			}
-			
-		}
- 	}
-	window_delete(twin);				//删除窗口
-	for(i=0;i<4;i++)btn_delete(tbtn[i]);//删除按钮					   
-	if(rval==0XFF)return 0;
-	return rval;
-}	  
 
 //MP3音效显示
 //x,y:sysset_mp3_effict_set的设置坐标
@@ -1091,10 +992,10 @@ void sysset_read_para(_system_setings * sysset)
 //sysset:系统信息 
 void sysset_save_para(_system_setings * sysset)
 {
-  	//OS_CPU_SR cpu_sr=0;
-	//OS_ENTER_CRITICAL();//进入临界区(无法被中断打断) 
+  CPU_SR cpu_sr = 0;
+	OS_CRITICAL_ENTER();//进入临界区(无法被中断打断) 
 	//AT24CXX_Write(SYSTEM_PARA_SAVE_BASE,(u8*)sysset,sizeof(_system_setings));
-	//OS_EXIT_CRITICAL();	//退出临界区(可以被中断打断)
+	OS_CRITICAL_EXIT();	//退出临界区(可以被中断打断)
 }
 
 //系统设置 

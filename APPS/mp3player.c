@@ -183,7 +183,7 @@ void mp3_stop(_m_mp3dev *mp3devx)
 
 //音乐列表
 const u8 *MUSIC_LIST[GUI_LANGUAGE_NUM] = {
-    "音乐列表", "音樂列表", "MUSIC LIST",
+    "音乐列表","MUSIC LIST",
 };
 
 //MP3文件浏览,带文件存储功能

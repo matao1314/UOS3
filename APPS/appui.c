@@ -23,8 +23,8 @@ const u8 *icos_path[9] = {
 
 //各个ICOS的对应功能名字
 const u8 *name_tab[GUI_LANGUAGE_NUM][9] = {
-    {"电子图书", "音乐播放", "应用中心", "时钟", "系统设置", "FC游戏机", "收音机", "记事本"},
-    {"EBOOK", "PHOTOS", "MUSIC", "APP", "TIME", "SETTINGS", "FC GAMES", "RADIO", "NOTEPAD"}
+    {"电子图书", "音乐播放", "应用中心", "时钟", "系统设置", "收音机", "记事本"},
+    {"EBOOK", "PHOTOS", "MUSIC", "APP", "TIME", "SETTINGS",  "RADIO", "NOTEPAD"}
 };
 
 

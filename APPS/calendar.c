@@ -9,24 +9,18 @@ _alarm_obj alarm;	//闹钟结构体
 
 const u8 *calendar_week_table[GUI_LANGUAGE_NUM][7] = {
     {"星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"},
-    {"星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"},
     {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"},
 };
 //闹钟标题
 const u8 *calendar_alarm_caption_table[GUI_LANGUAGE_NUM] = {
-    "闹钟", "鬧鐘", "ALARM",
+    "闹钟",  "ALARM",
 };
 //再响按钮
 const u8 *calendar_alarm_realarm_table[GUI_LANGUAGE_NUM] = {
-    "再响", "再響", "REALARM",
+    "再响",  "REALARM",
 };
 
 const u8 *calendar_loading_str[GUI_LANGUAGE_NUM][3] = {
-    {
-        "正在加载,请稍候...",
-        "未检测到DS18B20!",
-        "启用内部温度传感器...",
-    },
     {
         "正在加载,请稍候...",
         "未检测到DS18B20!",
