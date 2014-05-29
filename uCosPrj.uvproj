@@ -361,7 +361,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER, STM32F10X_HD</Define>
               <Undefine></Undefine>
-              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD;.\HARDWARE\SD;.\FATFS\src;.\FATFS\exfuns;.\HARDWARE\SPI;.\HARDWARE\MALLOC;.\HARDWARE\TEXT;.\HARDWARE\FLASH;.\HARDWARE\VS10XX;.\HARDWARE\24CXX;.\HARDWARE\TOUCH;.\HARDWARE\KEY;.\PICDECODE;.\GUI;.\APPS;.\HARDWARE\RTC</IncludePath>
+              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD;.\HARDWARE\SD;.\FATFS\src;.\FATFS\exfuns;.\HARDWARE\SPI;.\HARDWARE\MALLOC;.\HARDWARE\TEXT;.\HARDWARE\FLASH;.\HARDWARE\VS10XX;.\HARDWARE\24CXX;.\HARDWARE\TOUCH;.\HARDWARE\KEY;.\PICDECODE;.\GUI;.\APPS;.\HARDWARE\RTC;.\HARDWARE\TIMER;.\SYSTEM\sys</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -803,6 +803,11 @@
               <FileName>rtc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\HARDWARE\RTC\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HARDWARE\TIMER\timer.c</FilePath>
             </File>
           </Files>
         </Group>

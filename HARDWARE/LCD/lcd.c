@@ -74,7 +74,7 @@ u16 LCD_BGR2RGB(u16 c)
 }
 //当mdk -O1时间优化时需要设置
 //延时i
-void opt_delay_ms(u8 i)
+void opt_delay_us(u8 i)
 {
     while(i--);
 }
@@ -83,15 +83,13 @@ void opt_delay_ms(u8 i)
 //返回值:此点的颜色
 u16 LCD_ReadPoint(u16 x, u16 y)
 {
-    u16 r = 0;
+    u16 color = 0;
     LCD_SetCursor(x, y);
-    LCD_LCD_WriteReg(0x22);
-    if(LCD_DAT) {
-        r = 0;    //dummy Read
-    }
-    delay_us(2);
-    r = LCD_DAT;  		  		//实际坐标颜色
-    return LCD_BGR2RGB(r);	//其他IC
+    LCD_LCD_WriteReg(0x22);//读GRAM
+    if(LCD_DAT)color = 0;//dummy Read   
+    opt_delay_us(2);
+    color = LCD_DAT;//实际坐标颜色
+    return color ;
 }
 //LCD开启显示
 void LCD_DisplayOn(void)
@@ -133,12 +131,13 @@ void LCD_DrawPoint(u16 x, u16 y)
 //color:颜色
 void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color)
 {
-    LCD_SetCursor(x, y);		//设置光标位置
-    LCD_WriteRAM_Prepare();	//开始写入GRAM
+    //设置光标位置
+    LCD_WriteReg(0x004E, x);
+    LCD_WriteReg(0X004F, y);
+    LCD_LCD_WriteReg(0x0022);//开始写入GRAM
     LCD_DAT = color;
-
 }
-//设置LCD显示方向（6804不支持横屏显示）
+//设置LCD显示方向
 //dir:0,竖屏；1,横屏
 void LCD_Display_Dir(u8 dir)
 {
@@ -160,7 +159,6 @@ void LCD_GPIO_Config(void)
     /* 配置LCD背光控制管脚*/
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
-
 
     /* 配置FSMC相对应的数据线,FSMC-D0~D15: PD 14 15 0 1,PE 7 8 9 10 11 12 13 14 15,PD 8 9 10*/
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -238,7 +236,7 @@ void LCD_Init(void)
     LCD_WriteReg(0x0000, 0x0001);
     delay_ms(50); // delay_ms 50 ms
     lcddev.id = LCD_ReadReg(0x0000);
-    //	printf("LCD ID:%x\r\n",lcddev.id); //打印LCD ID  0x8989
+    //	printf("LCD ID:%x\r\n",lcddev.id); //打印LCD ID  SSD1289_ID8989
     //************* Start Initial Sequence **********//
     LCD_WriteReg(0x00, 0x0001); // Start internal OSC.
     LCD_WriteReg(0x01, 0x3B3F); // Driver output control, RL=0;REV=1;GD=1;BGR=0;SM=0;TB=1
@@ -279,7 +277,6 @@ void LCD_Init(void)
     LCD_WriteReg(0x07, 0x0033); // Display ON	*/
 
     LCD_WriteRAM_Prepare();     //开始写入GRAM
-
     LCD_Display_Dir(1);		 	//默认为竖屏
     LCD_LED = 1; //点亮背光
     LCD_Clear(WHITE);
@@ -594,33 +591,3 @@ void LCD_ShowString(u16 x, u16 y, u16 width, u16 height, u8 size, u8 *p)
         p++;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

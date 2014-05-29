@@ -92,9 +92,7 @@ u8 icon_press_chk(void)
     u8 i = 0xff;
     tp_dev.scan(0);//扫描
     if(tp_dev.sta & TP_PRES_DOWN) { //有按键被按下
-
-        //			printf("tp_dev.x==%d tp_dev.y==%d!\r\n",tp_dev.x,tp_dev.y);
-
+        //printf("tp_dev.x==%d tp_dev.y==%d!\r\n",tp_dev.x,tp_dev.y);
         spbdev.curxpos = tp_dev.x;				//记录当前坐标
         spbdev.curypos = tp_dev.y;				//记录当前坐标
     }
