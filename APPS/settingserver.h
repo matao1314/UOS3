@@ -32,7 +32,7 @@ u8 * set_search_caption(const u8 *mcaption);
 void sysset_read_para(_system_setings * sysset);
 void sysset_save_para(_system_setings * sysset);
 
-u8 sysset_play(void);
+u8 system_set(void);
 										   
 #endif
 

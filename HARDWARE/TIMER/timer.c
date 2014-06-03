@@ -2,21 +2,20 @@
 #include "led.h"
 #include "usart.h"
 //LED PB3  复用TIME2_CH2
-//BL  PD13 TIME5_CH2
-
+//BL  PA1 TIME5_CH2
 //TIM3 PWM部分初始化
 //PWM输出初始化
 //arr：自动重装值
 //psc：时钟预分频数
-void TIM2_PWM_Init(u16 arr, u16 psc)
+void LED_PWM_Init(void)
 {
     GPIO_InitTypeDef         GPIO_InitStructure;
     TIM_OCInitTypeDef        TIM_OCInitStructure;
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO, ENABLE);//使能GPIO外设和AFIO复用功能时钟使能
-    GPIO_PinRemapConfig(GPIO_PartialRemap_TIM2, ENABLE);//Timer3部分重映射  TIM2_CH2->PB3                                                                       	 //用于TIM3的CH2输出的PWM通过该LED显示
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE); //使能GPIO外设和AFIO复用功能时钟使能
+    GPIO_PinRemapConfig(GPIO_PartialRemap1_TIM2, ENABLE);//Timer2部分重映射  TIM2_CH2->PB3                                                                       	 //用于TIM3的CH2输出的PWM通过该LED显示
 
     //设置该引脚为复用输出功能,输出TIM2 CH2的PWM脉冲波形
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; //TIM_CH2
@@ -24,8 +23,8 @@ void TIM2_PWM_Init(u16 arr, u16 psc)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-    TIM_TimeBaseStructure.TIM_Period = arr; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值	 80K
-    TIM_TimeBaseStructure.TIM_Prescaler = psc; //设置用来作为TIMx时钟频率除数的预分频值  不分频
+    TIM_TimeBaseStructure.TIM_Period = 900; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
+    TIM_TimeBaseStructure.TIM_Prescaler = 0; //设置用来作为TIMx时钟频率除数的预分频值  不分频
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;//设置时钟分割:TDTS = Tck_tim
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
     TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);//根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
@@ -35,33 +34,51 @@ void TIM2_PWM_Init(u16 arr, u16 psc)
     TIM_OCInitStructure.TIM_Pulse = 0; //设置待装入捕获比较寄存器的脉冲值
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //输出极性:TIM输出比较极性高
     TIM_OC2Init(TIM2, &TIM_OCInitStructure);  //根据TIM_OCInitStruct中指定的参数初始化外设TIMx
-    TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);  //使能TIMx在CCR2上的预装载寄存器
+    TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);  //使能TIMx在CCR2上的预装载寄存器
 
-    TIM_ARRPreloadConfig(TIM3, ENABLE); //使能TIMx在ARR上的预装载寄存器
+    TIM_ARRPreloadConfig(TIM2, ENABLE); //使能TIMx在ARR上的预装载寄存器
     TIM_Cmd(TIM2, ENABLE);  //使能TIMx外设
 }
 
-//基本定时器6中断初始化
-//这里时钟选择为APB1的2倍，而APB1为36M
+//TIM3中断
+void TIM3_IRQHandler(void)
+{
+    static u8 dir = 0;
+    static u16 pwmval = 0;
+    if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
+        if(dir) {//增加OR减少
+            pwmval++;
+        } else {
+            pwmval--;
+        }
+        if(pwmval > 900) {//改变计数方向
+            dir = 0;
+        }
+        if(pwmval == 0) {
+            dir = 1;
+        }
+        LED0_PWM_VAL = pwmval;
+        TIM_ClearITPendingBit(TIM3, TIM_IT_Update  );
+    }
+}
+
+//APB2=72MHz,APB1=36MHz
 //arr：自动重装值。
 //psc：时钟预分频数
 //这里使用的是定时器3!
-void TIM3_Int_Init(u16 arr, u16 psc)
+void TIM3_Int_Init(void)
 {
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); //时钟使能
-
-    TIM_TimeBaseStructure.TIM_Period = arr; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值	 计数到5000为500ms
-    TIM_TimeBaseStructure.TIM_Prescaler = psc; //设置用来作为TIMx时钟频率除数的预分频值  10Khz的计数频率
+    TIM_TimeBaseStructure.TIM_Period = 900; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值	 计数到5000为500ms
+    TIM_TimeBaseStructure.TIM_Prescaler = 50; //设置用来作为TIMx时钟频率除数的预分频值
     TIM_TimeBaseStructure.TIM_ClockDivision = 0; //设置时钟分割:TDTS = Tck_tim
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure); //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
-
-    TIM_ITConfig( TIM3, TIM_IT_Update | TIM_IT_Trigger, ENABLE); //使能定时器6更新触发中断
-
-    TIM_Cmd(TIM3, ENABLE);  //使能TIMx外设
+    TIM_ITConfig( TIM3, TIM_IT_Update | TIM_IT_Trigger, ENABLE); //使能定时器更新触发中断
+    TIM_Cmd(TIM3, ENABLE);  //使能TIM外设
 
     NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;  //TIM3中断
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;  //先占优先级0级
@@ -76,25 +93,32 @@ void TIM3_Int_Init(u16 arr, u16 psc)
 //0,最暗;250,最暗.
 void LCD_PWM_Init(void)
 {
-    //此部分需手动修改IO口设置
-    RCC->APB2ENR |= 1 << 13; 	//TIM8时钟使能
-    RCC->APB2ENR |= 1 << 3;    	//使能PORTB时钟
+    GPIO_InitTypeDef         GPIO_InitStructure;
+    TIM_OCInitTypeDef        TIM_OCInitStructure;
+    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 
-    GPIOD->CRH &= 0XFF0FFFFF;	//PD13输出
-    GPIOD->CRH |= 0X00B00000;	//复用功能输出
-    GPIOD->ODR |= 1 << 5;		//PD13上拉
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE); //使能GPIO外设和AFIO复用功能时钟使能
+    //设置该引脚为复用输出功能,输出TIM2 CH2的PWM脉冲波形
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1; //TIM_CH2
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  //复用推挽输出
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    TIM5->ARR = 110;		//设定计数器自动重装值为110.频率为654Khz
-    TIM5->PSC = 0;			//预分频器不分频
+    TIM_TimeBaseStructure.TIM_Period = 900; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
+    TIM_TimeBaseStructure.TIM_Prescaler = 0; //设置用来作为TIMx时钟频率除数的预分频值  不分频
+    TIM_TimeBaseStructure.TIM_ClockDivision = 0;//设置时钟分割:TDTS = Tck_tim
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
+    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);//根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
 
-    TIM5->CCMR1 |= 7 << 12; 	//CH2 PWM2模式
-    TIM5->CCMR1 |= 1 << 11; 	//CH2预装载使能
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //选择定时器模式:TIM脉冲宽度调制模式2
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
+    TIM_OCInitStructure.TIM_Pulse = 0; //设置待装入捕获比较寄存器的脉冲值
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //输出极性:TIM输出比较极性高
+    TIM_OC2Init(TIM5, &TIM_OCInitStructure);  //根据TIM_OCInitStruct中指定的参数初始化外设TIMx
+    TIM_OC2PreloadConfig(TIM5, TIM_OCPreload_Enable);  //使能TIMx在CCR2上的预装载寄存器
 
-    TIM5->CCER |= 1 << 6;   	//OC2互补输出使能
-    TIM5->CCER |= 1 << 7;   	//OC2N低电平有效
-    TIM5->BDTR |= 1 << 15;   	//MOE主输出使能
-
-    TIM5->CR1 = 0x0080;   	//ARPE使能
-    TIM5->CR1 |= 0x01;    	//使能定时器8
+    TIM_ARRPreloadConfig(TIM5, ENABLE); //使能TIMx在ARR上的预装载寄存器
+    TIM_Cmd(TIM5, ENABLE);  //使能TIMx外设
 }
 

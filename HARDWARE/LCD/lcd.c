@@ -3,6 +3,7 @@
 #include "font.h"
 #include "usart.h"
 #include "delay.h"
+#include "timer.h"
 //////////////////////////////////////////////////////////////////////////////////
 
 //LCD的画笔颜色和背景色
@@ -157,8 +158,8 @@ void LCD_GPIO_Config(void)
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     /* 配置LCD背光控制管脚*/
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
+    //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+    //GPIO_Init(GPIOD, &GPIO_InitStructure);
 
     /* 配置FSMC相对应的数据线,FSMC-D0~D15: PD 14 15 0 1,PE 7 8 9 10 11 12 13 14 15,PD 8 9 10*/
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -278,7 +279,9 @@ void LCD_Init(void)
 
     LCD_WriteRAM_Prepare();     //开始写入GRAM
     LCD_Display_Dir(1);		 	//默认为竖屏
-    LCD_LED = 1; //点亮背光
+    //LCD_LED = 1; //点亮背光
+		LCD_PWM_Init();
+		LCD_BLPWM_VAL = 700;
     LCD_Clear(WHITE);
 }
 //清屏函数

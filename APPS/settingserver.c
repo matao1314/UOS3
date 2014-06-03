@@ -2,6 +2,7 @@
 #include "rtc.h" 	   
 #include "calendar.h" 	      						  
 #include "os.h"
+
 _system_setings systemset;	  
 #define SYS_MENU_SIZE 	19	//条目个数	
 	 
@@ -137,19 +138,11 @@ const u8* sysset_system_about_caption_tbl[2][GUI_LANGUAGE_NUM]=
 {"产品序列号","Serial Number",},
 };
 
-
-
-
 //语言设置后的提示
 const u8* sysset_remindmsg_tbl[2][GUI_LANGUAGE_NUM]=
 {
 {"更新主界面","Updating",},
 {"系统正在更新主界面,请稍候...","System updating,Please wait...",}, 
-};
-//传感器校准提示语
-const u8* sysset_sensoradjust_tbl[GUI_LANGUAGE_NUM]=
-{
-"传感器校准中...,请稍候...","Sensor adjusting,Please wait...",	 
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -999,7 +992,7 @@ void sysset_save_para(_system_setings * sysset)
 }
 
 //系统设置 
-u8 sysset_play(void)
+u8 system_set(void)
 {	
 	u8 tlanguage;			//进入时语言的类型					  	   
 	u8 res;		 

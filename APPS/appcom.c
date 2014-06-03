@@ -1,11 +1,8 @@
 #include "appcom.h"
-//#include "spb.h"
-//#include "appplay.h"
-//#include "calculator.h"
-//#include "tomcatplay.h"
-//#include "settings.h"
-#include "calendar.h"
-//#include "paint.h"
+#include "sys.h"
+#include "touch.h"
+#include "gui.h"
+#include "bsp.h"
 
 //模式选择列表的窗体名字
 const u8 *APP_MODESEL_CAPTION_TBL[GUI_LANGUAGE_NUM] = {

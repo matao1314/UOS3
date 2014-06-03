@@ -21,7 +21,7 @@ static OS_TCB Music_Task_TCB;
 #define USART_STK_SIZE      		64
 #define MAIN_STK_SIZE  	  	    256
 #define WATCH_STK_SIZE      		128
-#define MUSIC_STK_SIZE          700
+#define MUSIC_STK_SIZE          512
 __align(8) static CPU_STK START_TASK_STK[START_STK_SIZE];
 __align(8) static CPU_STK USART_TASK_STK[USART_STK_SIZE];
 __align(8) static CPU_STK MAIN_TASK_STK[MAIN_STK_SIZE];
@@ -128,10 +128,8 @@ int main(void)
 void Main_Task(void *p_arg)
 {
     u8 selx;
-    u8 keyval;
     Draw_mainPage();
     while(1) {
-        keyval = KEY_Scan(0);
         selx = icon_press_chk();
         switch(selx) {
         case 0:
@@ -141,6 +139,9 @@ void Main_Task(void *p_arg)
             mp3_play();
             break;
             //case 2:calendar_play();break;
+        case 2:
+            system_set();
+            break;
         default:
             delay_ms(1000 / OSCfg_TickRate_Hz);
             break;
@@ -163,10 +164,8 @@ void Usart_Task(void *pdata)
     CPU_SR cpu_sr = 0;
     pdata = pdata; //avoid compile warning
     while(1) {
-        LED0 = 0;
         TEST = 0;
         delay_ms(1000);
-        LED0 = 1;
         TEST = 1;
         delay_ms(1000);
         OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)

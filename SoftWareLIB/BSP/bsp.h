@@ -24,6 +24,7 @@
 #include "exfuns.h"
 #include "vs10xx.h"
 #include "rtc.h"
+#include "timer.h"
 //LIB
 #include "guix.h"
 #include "piclib.h"
@@ -32,10 +33,6 @@
 //APP
 #include "appui.h"
 #include "appcom.h"
-#include "calendar.h"
-#include "mp3player.h"
-
-
 
 /********************************/
 /*       œµÕ≥≈‰÷√∫Ø ˝           */

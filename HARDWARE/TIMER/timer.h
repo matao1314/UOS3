@@ -6,8 +6,8 @@
 //////////////////////LCD背光PWM占空比设置////////////
 #define LCD_BLPWM_VAL   TIM5->CCR2 	//LCD PWM背光设置
 
-void TIM2_PWM_Init(u16 arr, u16 psc);
-void TIM3_Int_Init(u16 arr, u16 psc);
+void LED_PWM_Init(void);
+void TIM3_Int_Init(void);
 void LCD_PWM_Init(void);
 
 #endif

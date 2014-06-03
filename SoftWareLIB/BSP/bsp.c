@@ -67,6 +67,8 @@ void BSP_Init(void)
     delay_init(72);
     uart_init(72, 115200);
     LED_Init();
+		LED_PWM_Init();
+  	TIM3_Int_Init();
     KEY_Init();
     LCD_Init();
     RTC_Init();
