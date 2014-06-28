@@ -117,11 +117,11 @@ const u8* sysset_system_info_caption_tbl[9][GUI_LANGUAGE_NUM]=
 //系统提示信息表
 const u8* sysset_system_info_msg_tbl[9]=
 {
-"STM32F103ZET6 @ 72Mhz",
-"64KB+1024KB",
+"STM32F103VET6 @ 72Mhz",
+"64KB+512KB",
 "MB",
 "KB",
-"uCOS II ",
+"uCOS III ",
 }; 
 //系统状提示信息
 const u8* sysset_sysstatus_tbl[4][GUI_LANGUAGE_NUM]=

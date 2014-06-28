@@ -306,7 +306,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x80000</Size>
+                <Size>0x30000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -361,7 +361,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER, STM32F10X_HD</Define>
               <Undefine></Undefine>
-              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD;.\HARDWARE\SD;.\FATFS\src;.\FATFS\exfuns;.\HARDWARE\SPI;.\HARDWARE\MALLOC;.\HARDWARE\TEXT;.\HARDWARE\FLASH;.\HARDWARE\VS10XX;.\HARDWARE\24CXX;.\HARDWARE\TOUCH;.\HARDWARE\KEY;.\PICDECODE;.\GUI;.\APPS;.\HARDWARE\RTC;.\HARDWARE\TIMER;.\SYSTEM\sys</IncludePath>
+              <IncludePath>.\SYSTEM\delay;.\SYSTEM\usart;.\HARDWARE\LCD;.\HARDWARE\LED;.\SoftWareLIB\BSP;.\SOFTWARELIB\uCOS-III\uC-CPU;.\SOFTWARELIB\uCOS-III\uC-LIB;.\SOFTWARELIB\uCOS-III\uCOS-III;.\SoftWareLIB\STFWLib\inc;.\SOFTWARELIB\STFWLib\Startup;.\SOFTWARELIB\STFWLib\M3;.\SOFTWARELIB\BSP;.\HARDWARE\LED;.\HARDWARE\LCD;.\HARDWARE\SD;.\FATFS\src;.\FATFS\exfuns;.\HARDWARE\SPI;.\HARDWARE\MALLOC;.\HARDWARE\TEXT;.\HARDWARE\FLASH;.\HARDWARE\VS10XX;.\HARDWARE\24CXX;.\HARDWARE\TOUCH;.\HARDWARE\KEY;.\PICDECODE;.\GUI;.\APPS;.\HARDWARE\RTC;.\HARDWARE\TIMER;.\SYSTEM\sys;.\SoftWareLIB\USBDriver\inc;.\USB\MassStorage\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -919,6 +919,11 @@
               <FileType>1</FileType>
               <FilePath>.\APPS\settingserver.c</FilePath>
             </File>
+            <File>
+              <FileName>storage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APPS\storage.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -948,6 +953,104 @@
               <FileName>diskio.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\FATFS\src\diskio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>USBDFU</GroupName>
+        </Group>
+        <Group>
+          <GroupName>USBLIB</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWareLIB\USBDriver\src\usb_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWareLIB\USBDriver\src\usb_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_int.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWareLIB\USBDriver\src\usb_int.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWareLIB\USBDriver\src\usb_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_regs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWareLIB\USBDriver\src\usb_regs.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_sil.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SoftWareLIB\USBDriver\src\usb_sil.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>STORAGE</GroupName>
+          <Files>
+            <File>
+              <FileName>hw_config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\hw_config.c</FilePath>
+            </File>
+            <File>
+              <FileName>mass_mal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\mass_mal.c</FilePath>
+            </File>
+            <File>
+              <FileName>memory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\memory.c</FilePath>
+            </File>
+            <File>
+              <FileName>scsi_data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\scsi_data.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_bot.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\usb_bot.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_desc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\usb_desc.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_endp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\usb_endp.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_istr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\usb_istr.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_prop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\usb_prop.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\usb_pwr.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_scsi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\MassStorage\src\usb_scsi.c</FilePath>
             </File>
           </Files>
         </Group>

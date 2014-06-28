@@ -40,12 +40,16 @@ void LED_PWM_Init(void)
     TIM_Cmd(TIM2, ENABLE);  //使能TIMx外设
 }
 
+static u16 LCD_BL_time;
+static u8  CloseScreenTime=0;
 //TIM3中断
+#if 0
 void TIM3_IRQHandler(void)
 {
     static u8 dir = 0;
     static u16 pwmval = 0;
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
+			  //For Breath LED
         if(dir) {//增加OR减少
             pwmval++;
         } else {
@@ -57,11 +61,23 @@ void TIM3_IRQHandler(void)
         if(pwmval == 0) {
             dir = 1;
         }
-        LED0_PWM_VAL = pwmval;
+        LED0_PWM_VAL = pwmval;//更新LED
+				//For LCD BackLight
+				LCD_BL_time++;
+        if(CloseScreenTime<6){
+				   if(LCD_BL_time>10000){					 
+						 CloseScreenTime++;
+					   LCD_BL_time=0;
+					   LCD_BLPWM_VAL = 700;//LCD背光亮度减半
+				   }			
+			  }else{
+					 LCD_BLPWM_VAL = 900;//关掉LCD背光
+				}
+				
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update  );
     }
 }
-
+#endif
 //APB2=72MHz,APB1=36MHz
 //arr：自动重装值。
 //psc：时钟预分频数
@@ -73,7 +89,7 @@ void TIM3_Int_Init(void)
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); //时钟使能
     TIM_TimeBaseStructure.TIM_Period = 900; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值	 计数到5000为500ms
-    TIM_TimeBaseStructure.TIM_Prescaler = 50; //设置用来作为TIMx时钟频率除数的预分频值
+    TIM_TimeBaseStructure.TIM_Prescaler = 100; //设置用来作为TIMx时钟频率除数的预分频值
     TIM_TimeBaseStructure.TIM_ClockDivision = 0; //设置时钟分割:TDTS = Tck_tim
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure); //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
@@ -122,3 +138,13 @@ void LCD_PWM_Init(void)
     TIM_Cmd(TIM5, ENABLE);  //使能TIMx外设
 }
 
+void EXTI1_IRQHandler(void)
+{
+  if(EXTI_GetITStatus(EXTI_Line1) != RESET)
+  {
+		LCD_BLPWM_VAL = 0;
+		LCD_BL_time=0;
+		CloseScreenTime=0;
+    EXTI_ClearITPendingBit(EXTI_Line1);    
+  }  
+}

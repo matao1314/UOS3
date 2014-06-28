@@ -1,6 +1,7 @@
 #include "stm32f10x.h"
 #include "bsp.h"
 #include "common.h"
+
 SD_Error SD_USER_Init(void);
 /*******************************************************************************
 函 数 名：void IWDG_Init(void)
@@ -67,9 +68,9 @@ void BSP_Init(void)
     delay_init(72);
     uart_init(72, 115200);
     LED_Init();
-		LED_PWM_Init();
-  	TIM3_Int_Init();
-    KEY_Init();
+		//LED_PWM_Init();
+  	//TIM3_Int_Init();
+  	KEY_Init();
     LCD_Init();
     RTC_Init();
     mem_init(SRAMIN);//初始化内部内存池
@@ -89,6 +90,7 @@ void BSP_Init(void)
     exfuns_init();					//为fatfs相关变量申请内存
     f_mount(0, fs[0]); 		 		//挂载SD卡
     f_mount(1, fs[1]); 				//挂载FLASH.
+		//MS_Init();//大容量存储
     while(font_init()) {			//检查字库
         LCD_ShowString(60, 50, 200, 16, 16, "Font Error!");
         delay_ms(200);

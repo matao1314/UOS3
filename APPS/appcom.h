@@ -6,6 +6,9 @@
 #include "mp3player.h"
 #include "settingserver.h"
 
+//#include "firmwareupgrade.h"
+#include "storage.h"
+
 //硬件平台软硬件版本定义
 #define HARDWARE_VERSION	   		18		//硬件版本,放大10倍,如1.0表示为10
 #define SOFTWARE_VERSION	    	224		//软件版本,放大100倍,如1.00,表示为100

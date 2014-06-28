@@ -418,7 +418,7 @@ void TP_Adjust(void)
         }
     }
 }
-#if 0
+
 /********************************************************
 * 函数名：TOUCH_NVIC_Configuration
 * 描述  ：2046 Touch INT 嵌套中断配置
@@ -431,8 +431,6 @@ static void TP_NVIC_Config(void)
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-
-
     EXTI_InitStructure.EXTI_Line = EXTI_Line1;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
@@ -446,7 +444,6 @@ static void TP_NVIC_Config(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 }
-#endif
 //触摸屏初始化
 //返回值:0,没有进行校准
 //       1,进行过校准
@@ -465,7 +462,7 @@ u8 TP_Init(void)
     GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_1 ;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD ;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
-    //  TP_NVIC_Config();//TP Interrupt
+    TP_NVIC_Config();
     TP_Read_XY(&tp_dev.x, &tp_dev.y); //第一次读取初始化
     I2C_EE_Init();//初始化24CXX
     if(TP_Get_Adjdata()) {

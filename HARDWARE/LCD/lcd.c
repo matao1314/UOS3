@@ -281,7 +281,7 @@ void LCD_Init(void)
     LCD_Display_Dir(1);		 	//默认为竖屏
     //LCD_LED = 1; //点亮背光
 		LCD_PWM_Init();
-		LCD_BLPWM_VAL = 700;
+		LCD_BLPWM_VAL = 900;
     LCD_Clear(WHITE);
 }
 //清屏函数

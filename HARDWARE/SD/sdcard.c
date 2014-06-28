@@ -2,6 +2,8 @@
 #include "sdcard.h"
 #include "string.h"
 #include "usart.h"
+#include "mass_mal.h"
+
 static u32 CardType = SDIO_STD_CAPACITY_SD_CARD_V1_1;		//SD卡类型
 static u32 CSD_Tab[4], CID_Tab[4], RCA = 0;					//SD卡CSD,CID以及相对地址(RCA)数据
 static u32 DeviceMode = SD_POLLING_MODE;   				//工作模式
@@ -60,6 +62,11 @@ SD_Error SD_Init(void)
     printf("CardBlockSize  = %d\r\n", SDCardInfo.CardBlockSize );
     if(ErrorStatus == SD_OK)ErrorStatus = SD_SelectDeselect((u32)(SDCardInfo.RCA << 16));//选中SD卡
     if(ErrorStatus == SD_OK)ErrorStatus = SD_EnableWideBusOperation(1);//4位宽度
+		
+			Mass_Memory_Size[0]=(long long)SDCardInfo.CardCapacity*512;//得到SD卡容量（字节），当SD卡容量超过4G的时候,需要用到两个u32来表示
+	    Mass_Block_Size[0] =512;//因为我们在Init里面设置了SD卡的操作字节为512个,所以这里一定是512个字节.
+	    Mass_Block_Count[0]=Mass_Memory_Size[0]/Mass_Block_Size[0];
+
     if(ErrorStatus == SD_OK)
     {
         ErrorStatus = SD_SetDeviceMode(SD_DMA_MODE);		//设置为DMA模式
