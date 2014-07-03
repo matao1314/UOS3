@@ -409,33 +409,21 @@ u16 VS_Get_DecodeTime(void)
     dt = VS_RD_Reg(SPI_DECODE_TIME);
     return dt;
 }
+
+#define PATCH_CODE_SIZE 943
 //vs10xx装载patch.
 //patch：patch首地址
 //len：patch长度
 void VS_Load_Patch(u16 *patch, u16 len)
 {
     u16 i;
-    u16 addr, n, val;
-    for(i = 0; i < len;) {
-        addr = patch[i++];
-        n    = patch[i++];
-        if(n & 0x8000U) { //RLE run, replicate n samples
-            n  &= 0x7FFF;
-            val = patch[i++];
-            while(n--) {
-                VS_WR_Cmd(addr, val);
-            }
-        } else { //copy run, copy n sample
-            while(n--) {
-                val = patch[i++];
-                VS_WR_Cmd(addr, val);
-            }
-        }
-    }
+	  for(i=0;i<len;i++){
+				VS_WR_Cmd(*(patch+i), *(patch+i+PATCH_CODE_SIZE));		
+		}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 //频谱显示部分
-#define SPEC_DATA_BASE 	0X1810 	//0X1380 for VS1011
+#define SPEC_DATA_BASE 	0X1800
 //得到频谱数据
 //*specbuf:频谱数据缓存区
 //返回值:频段数.
@@ -466,7 +454,7 @@ void VS_Set_Bands(u16 *buf, u8 bands)
     u8 i;
     CPU_SR   cpu_sr = 0;
     OS_CRITICAL_ENTER();//进入临界区(无法被中断打断)
-    VS_WR_Cmd(SPI_WRAMADDR, SPEC_DATA_BASE + 0X58); //地址总是1868,对VS1053,SPEC_DATA_BASE是0X1810.所以加上0X58
+    VS_WR_Cmd(SPI_WRAMADDR, SPEC_DATA_BASE + 0X68); //地址总是1868,对VS1053,SPEC_DATA_BASE是0X1810.所以加上0X58
     for (i = 0; i < bands; i++) {
         VS_WR_Cmd(SPI_WRAM, buf[i]); //发送频率数据
     }

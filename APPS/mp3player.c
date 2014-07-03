@@ -104,9 +104,9 @@ void music_task(void *pdata)
                 break;    //申请内存失败
             }
             res = f_read(mp3dev->fmp3, patchbuf, mp3dev->fmp3->fsize, (UINT *)&br);	//一次读取整个文件
-            /*if(res == 0) {
-                VS_Load_Patch((u16 *)patchbuf, mp3dev->fmp3->fsize / 2);
-            }*/
+            if(res == 0) {
+                VS_Load_Patch((u16 *)patchbuf, mp3dev->fmp3->fsize>>2);					
+            }
             myfree(SRAMIN, patchbuf);
             patchbuf = NULL;
             f_close(mp3dev->fmp3);
