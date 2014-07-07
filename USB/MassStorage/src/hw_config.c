@@ -60,7 +60,7 @@ void Set_System(void)
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
   USB_Cable_Config(DISABLE);
   delay_ms(1000);
-  USB_Cable_Config(ENABLE);
+  //USB_Cable_Config(ENABLE);
   /* Configure the EXTI line 18 connected internally to the USB IP */
   EXTI_ClearITPendingBit(EXTI_Line18);
   EXTI_InitStructure.EXTI_Line = EXTI_Line18;
@@ -68,8 +68,7 @@ void Set_System(void)
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
   /* MAL configuration */
-  MAL_Config();
-	
+  MAL_Config();	
 }
 
 /*******************************************************************************

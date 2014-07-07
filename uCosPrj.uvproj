@@ -957,9 +957,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>USBDFU</GroupName>
-        </Group>
-        <Group>
           <GroupName>USBLIB</GroupName>
           <Files>
             <File>
@@ -993,6 +990,9 @@
               <FilePath>.\SoftWareLIB\USBDriver\src\usb_sil.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>USBDFU</GroupName>
         </Group>
         <Group>
           <GroupName>STORAGE</GroupName>

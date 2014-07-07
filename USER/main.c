@@ -134,13 +134,16 @@ void Main_Task(void *p_arg)
         switch(selx) {
         case 0:
             picviewer_play();
+				    Draw_mainPage();
             break;
         case 1:
             mp3_play();
+				    Draw_mainPage();
             break;
             //case 2:calendar_play();break;
         case 2:
             system_set();
+				    Draw_mainPage();
             break;
         default:
             delay_ms(1000 / OSCfg_TickRate_Hz);

@@ -90,7 +90,7 @@ void BSP_Init(void)
     exfuns_init();					//为fatfs相关变量申请内存
     f_mount(0, fs[0]); 		 		//挂载SD卡
     f_mount(1, fs[1]); 				//挂载FLASH.
-		//MS_Init();//大容量存储
+		MS_Init();//大容量存储
     while(font_init()) {			//检查字库
         LCD_ShowString(60, 50, 200, 16, 16, "Font Error!");
         delay_ms(200);
